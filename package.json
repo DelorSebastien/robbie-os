@@ -1,0 +1,11 @@
+{
+  "name": "robbie-os",
+  "version": "0.1.0",
+  "description": "Robbie OS, un système pour PC basé sur Linux, avec Robbie au centre",
+  "private": true,
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^44.9.0"
+  }
+}
