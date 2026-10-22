@@ -5,6 +5,10 @@
   "private": true,
   "license": "ISC",
   "type": "commonjs",
+  "main": "interface/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
   "devDependencies": {
     "electron": "^44.9.0"
   }
