@@ -361,9 +361,8 @@ body::after {
 
 /* Le fond bouge un peu avec la souris (piloté par ambiance.js) */
 .fond { will-change: transform; transform: scale(1.06); }
-.ambiance { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 
-/* Aura de la couleur de Robbie au-dessus du dock, qui respire */
+/* Aura de la couleur de Robbie au-dessus du dock */
 .aura {
     position: fixed;
     left: 50%;
@@ -375,12 +374,8 @@ body::after {
     border-radius: 50%;
     background: radial-gradient(closest-side, rgba(var(--accent), 0.22), rgba(var(--accent), 0.06) 55%, transparent);
     pointer-events: none;
-    animation: aura 6s ease-in-out infinite;
 }
 
-@keyframes aura {
-    50% { opacity: 0.6; transform: scale(0.94); }
-}
 
 /* De l'énergie circule dans l'arc */
 .arc-flux {
@@ -407,44 +402,6 @@ body::after {
     50% { transform: translate(-50%, -50%) scale(1.5); filter: brightness(1.6); }
 }
 
-/* Robbie respire et émet des ondes */
-.tuile.robbie { animation: respire 3.4s ease-in-out infinite; }
-
-@keyframes respire {
-    50% {
-        box-shadow:
-            0 0 34px rgba(var(--accent), 0.85),
-            0 0 100px -4px rgba(var(--accent), 0.5),
-            inset 0 0 26px -2px rgba(var(--accent), 0.5),
-            inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    }
-}
-
-.tuile.robbie::before {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: inherit;
-    border: 2px solid rgba(var(--accent), 0.8);
-    pointer-events: none;
-    animation: onde 3.4s ease-out infinite;
-}
-
-@keyframes onde {
-    from { transform: scale(1); opacity: 0.8; }
-    to { transform: scale(1.7); opacity: 0; }
-}
-
-.robbie-lueur { animation: lueur 3.4s ease-in-out infinite; }
-.robbie-faisceau { animation: faisceau 3.4s ease-in-out infinite; transform-origin: top; }
-
-@keyframes lueur {
-    50% { transform: scale(1.5); }
-}
-
-@keyframes faisceau {
-    50% { opacity: 0.55; transform: scaleY(1.25); }
-}
 
 /* Survol : l'icône s'illumine de sa couleur */
 .tuile:not(.robbie):hover {
@@ -482,7 +439,7 @@ body::after {
 .demarrage .dock-arc { animation: arc-ouverture 1.6s cubic-bezier(0.6, 0, 0.2, 1) 0.6s backwards; }
 .demarrage .dock-points span { animation: apparition-point 0.5s ease-out backwards, scintille 2.6s ease-in-out infinite; }
 .demarrage .tuile { animation: apparition 0.8s var(--ressort) backwards; animation-delay: calc(0.9s + var(--i) * 0.07s); }
-.demarrage .tuile.robbie { animation: apparition-robbie 1.1s var(--ressort) 0.25s backwards, respire 3.4s ease-in-out 1.4s infinite; }
+.demarrage .tuile.robbie { animation: apparition-robbie 1.1s var(--ressort) 0.25s backwards; }
 .demarrage .laterale { animation: glisse 1s var(--ressort) 1.3s backwards; }
 .demarrage .coin { animation: fondu 1s ease-out 1.6s backwards; }
 
