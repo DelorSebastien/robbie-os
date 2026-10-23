@@ -1,0 +1,50 @@
+# Écran de démarrage de Robbie OS (Plymouth) : Robbie ouvre les yeux, puis cligne
+# de temps en temps pendant que le système se charge
+
+Window.SetBackgroundTopColor(0.012, 0.024, 0.055);
+Window.SetBackgroundBottomColor(0.035, 0.06, 0.12);
+
+eye = Image("oeil.png");
+title = Image("titre.png");
+
+centerX = Window.GetX() + Window.GetWidth() / 2;
+centerY = Window.GetY() + Window.GetHeight() / 2;
+gap = eye.GetWidth() * 0.62;
+
+# Hauteurs de l'œil (de fermé à ouvert) : images préparées une fois pour toutes
+for (i = 0; i <= 10; i++)
+    frames[i] = eye.Scale(eye.GetWidth(), Math.Max(2, eye.GetHeight() * i / 10));
+
+left = Sprite();
+right = Sprite();
+label = Sprite(title);
+label.SetPosition(centerX - title.GetWidth() / 2, centerY + eye.GetHeight() * 0.95, 1);
+label.SetOpacity(0);
+
+fun show(level) {
+    image = frames[Math.Int(level)];
+    top = centerY - image.GetHeight() / 2;
+    left.SetImage(image);
+    right.SetImage(image);
+    left.SetPosition(centerX - gap - eye.GetWidth() / 2, top, 2);
+    right.SetPosition(centerX + gap - eye.GetWidth() / 2, top, 2);
+}
+
+tick = 0;
+fun refresh() {
+    tick++;
+    # Ouverture des yeux au début (environ 1 s), puis le titre apparaît
+    if (tick < 50) {
+        show(10 * tick / 50);
+    } else {
+        # Clignement toutes les 3,5 s environ : fermeture puis réouverture rapides
+        phase = (tick - 50) % 175;
+        if (phase < 6) show(10 - phase * 10 / 6);
+        else if (phase < 12) show((phase - 6) * 10 / 6);
+        else show(10);
+    }
+    label.SetOpacity(Math.Min(1, Math.Max(0, (tick - 40) / 40)));
+}
+
+Plymouth.SetRefreshFunction(refresh);
+show(0);

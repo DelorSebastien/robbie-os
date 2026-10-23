@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Robbie OS
+Description=Robbie ouvre les yeux pendant le démarrage
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/robbie
+ScriptFile=/usr/share/plymouth/themes/robbie/robbie.script

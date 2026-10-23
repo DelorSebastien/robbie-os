@@ -13,7 +13,7 @@ mkdir -p /etc/systemd/system/getty@tty1.service.d
 cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf <<EOF
 [Service]
 ExecStart=
-ExecStart=-/sbin/agetty --autologin $USER_NAME --noclear %I \$TERM
+ExecStart=-/sbin/agetty --autologin $USER_NAME --noclear --noissue --skip-login --nohints %I \$TERM
 EOF
 
 # Une fois connecté sur l'écran 1, on lance labwc (les autres écrans restent des consoles)
