@@ -56,7 +56,8 @@ done
 rm -rf /usr/share/themes/Robbie
 cp -r "$ROBBIE_DIR/systeme/theme-labwc/Robbie" /usr/share/themes/
 for version in gtk-3.0 gtk-4.0; do
-    cp -r "/usr/share/themes/Orchis-Dark/$version" "/usr/share/themes/Robbie/$version"
+    # Version compacte d'Orchis : marges et boutons plus petits, interface épurée
+    cp -r "/usr/share/themes/Orchis-Dark-Compact/$version" "/usr/share/themes/Robbie/$version"
     find "/usr/share/themes/Robbie/$version" -name '*.css' -exec sed -i \
         -e 's/#212121/rgba(10, 18, 36, 0.5)/gI' \
         -e 's/#242424/rgba(10, 18, 36, 0.55)/gI' \
@@ -75,6 +76,26 @@ Comment=Thème de Robbie OS : bleu nuit et cyan
 GtkTheme=Robbie
 IconTheme=$ICONS
 CursorTheme=$CURSOR
+EOF
+
+# Thunar (fichiers) épuré par défaut : sans barre de menus (touche Alt pour l'afficher),
+# icônes moyennes, petites icônes dans la colonne et la barre d'outils, sans barre d'état
+mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml
+cat > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/thunar.xml <<'EOF'
+<?xml version="1.1" encoding="UTF-8"?>
+<channel name="thunar" version="1.0">
+  <property name="last-view" type="string" value="ThunarIconView"/>
+  <property name="last-icon-view-zoom-level" type="string" value="THUNAR_ZOOM_LEVEL_75_PERCENT"/>
+  <property name="last-menubar-visible" type="bool" value="false"/>
+  <property name="last-statusbar-visible" type="bool" value="false"/>
+  <property name="last-window-maximized" type="bool" value="false"/>
+  <property name="last-window-width" type="int" value="980"/>
+  <property name="last-window-height" type="int" value="560"/>
+  <property name="last-separator-position" type="int" value="170"/>
+  <property name="shortcuts-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
+  <property name="tree-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
+  <property name="misc-small-toolbar-icons" type="bool" value="true"/>
+</channel>
 EOF
 
 echo "Apparence de Robbie OS installée"

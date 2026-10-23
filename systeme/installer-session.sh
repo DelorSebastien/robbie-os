@@ -49,6 +49,9 @@ cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
     <font place="InactiveWindow"><name>Orbitron</name><size>9</size><weight>Medium</weight></font>
     <font place="MenuItem"><name>Orbitron</name><size>9</size></font>
   </theme>
+  <!-- Place réservée au dock (en bas) et à la barre latérale (à droite) :
+       les fenêtres, même agrandies, ne les recouvrent pas -->
+  <margin top="10" bottom="120" left="10" right="78" />
   <keyboard>
     <default />
     <keybind key="Super_L" onRelease="yes">
