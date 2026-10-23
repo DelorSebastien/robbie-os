@@ -4,16 +4,44 @@
     const { toast } = window.ui;
     const face = window.face;
 
+    // Pictogrammes lumineux du dock (dégradés et traits, pas d'aplats de couleur)
+    const gradient = (id, from, to) =>
+        `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs>`;
+    const svg = body => `<svg class="picto" viewBox="0 0 32 32" aria-hidden="true">${body}</svg>`;
+
+    const GLYPHS = {
+        folder: svg(`${gradient('g-dossier', '#8fd8ff', '#2f86f6')}
+            <path d="M4 9.5A2.5 2.5 0 0 1 6.5 7h6l2.6 2.8h10.4A2.5 2.5 0 0 1 28 12.3V24a2.5 2.5 0 0 1-2.5 2.5h-19A2.5 2.5 0 0 1 4 24z" fill="url(#g-dossier)"/>
+            <path d="M4 13h24" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>`),
+        globe: svg(`${gradient('g-globe', '#9be4ff', '#3f8cff')}
+            <g fill="none" stroke="url(#g-globe)" stroke-width="2.1" stroke-linecap="round">
+            <circle cx="16" cy="16" r="11"/><path d="M5 16h22M16 5c4 3.5 4 18.5 0 22M16 5c-4 3.5-4 18.5 0 22M7.5 9.5h17M7.5 22.5h17"/></g>`),
+        terminal: svg(`<g fill="none" stroke="#f2f6ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 10l6 6-6 6M16 23h9"/></g>`),
+        code: svg(`${gradient('g-code', '#7fd0ff', '#2a6bff')}
+            <g fill="none" stroke="url(#g-code)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 9l-7 7 7 7M21 9l7 7-7 7M18 7l-4 18"/></g>`),
+        image: svg(`${gradient('g-image', '#d79bff', '#7b3cff')}
+            <rect x="4.5" y="6.5" width="23" height="19" rx="4" fill="none" stroke="url(#g-image)" stroke-width="2.2"/>
+            <path d="M6 23l7-7 5 5 3-3 6 6" fill="none" stroke="url(#g-image)" stroke-width="2.2" stroke-linejoin="round"/>
+            <circle cx="21.5" cy="12" r="2.4" fill="url(#g-image)"/>`),
+        gear: svg(`<g fill="none" stroke="#e8eef9" stroke-width="2.1" stroke-linejoin="round">
+            <path d="M16 4.5l2.2 2.6 3.3-.6.9 3.2 3.1 1.4-.9 3.2 1.9 2.7-2.6 2.1.3 3.4-3.3.6-1.5 3-3.1-1.2-2.9 1.8-2-2.7-3.4-.2-.2-3.4-2.7-2 1.8-2.9-1.2-3.1 3-1.5.6-3.3 3.4.3z"/>
+            <circle cx="16" cy="16" r="4.2"/></g>`),
+        trash: svg(`<g fill="none" stroke="#e8eef9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9h20M12.5 9V6h7v3M8.5 9l1.3 17h12.4l1.3-17M13.5 13.5v8M18.5 13.5v8"/></g>`)
+    };
+
     // Contenu du dock : applis, Robbie au milieu, puis réglages et corbeille
     const ITEMS = [
-        { kind: 'app', id: 'thunar', icon: 'folder-blue', name: 'Fichiers', tint: '80, 170, 255' },
-        { kind: 'app', id: 'firefox-esr', name: 'Firefox', tint: '255, 140, 60' },
-        { kind: 'app', id: 'foot', icon: 'utilities-terminal', name: 'Terminal', tint: '190, 205, 230' },
-        { kind: 'app', id: 'org.xfce.mousepad', icon: 'accessories-text-editor', name: 'Éditeur de texte', tint: '90, 200, 255' },
+        { kind: 'app', id: 'thunar', glyph: 'folder', name: 'Fichiers', tint: '80, 170, 255' },
+        { kind: 'app', id: 'firefox-esr', glyph: 'globe', name: 'Navigateur', tint: '80, 160, 255' },
+        { kind: 'app', id: 'foot', glyph: 'terminal', name: 'Terminal', tint: '190, 205, 230' },
+        { kind: 'app', id: 'org.xfce.mousepad', glyph: 'code', name: 'Éditeur de code', tint: '60, 130, 255' },
         { kind: 'robbie', name: 'Robbie' },
-        { kind: 'app', id: 'org.xfce.ristretto', name: 'Images', tint: '170, 110, 255' },
-        { kind: 'settings', icon: 'org.gnome.Settings', name: 'Réglages', tint: '190, 205, 230' },
-        { kind: 'trash', icon: 'user-trash', name: 'Corbeille', tint: '190, 205, 230' }
+        { kind: 'app', id: 'org.xfce.ristretto', glyph: 'image', name: 'Images', tint: '160, 90, 255' },
+        { kind: 'settings', glyph: 'gear', name: 'Réglages', tint: '190, 205, 230' },
+        { kind: 'trash', glyph: 'trash', name: 'Corbeille', tint: '190, 205, 230' }
     ];
 
     const dock = document.getElementById('dock');
@@ -47,18 +75,8 @@
                 visage.append(document.getElementById('face'));
                 el.append(visage);
             } else {
-                const app = item.kind === 'app' ? apps.find(a => a.id === item.id) : null;
-                // Icône choisie pour le dock en priorité, sinon celle de l'appli
-                const src = (item.icon && await window.os.icon(item.icon)) || app?.icon;
-                if (src) {
-                    const img = document.createElement('img');
-                    img.src = src;
-                    img.alt = '';
-                    el.append(img);
-                } else {
-                    el.dataset.icon = 'grid';
-                }
-                if (item.kind === 'app' && !app) el.style.opacity = '0.4';
+                el.innerHTML = GLYPHS[item.glyph];
+                if (item.kind === 'app' && !apps.some(a => a.id === item.id)) el.style.opacity = '0.4';
             }
 
             el.addEventListener('click', () => activate(item));
