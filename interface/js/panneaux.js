@@ -41,6 +41,24 @@
 
     const toggle = id => (current === id ? close() : open(id));
 
+    // Fabrique un panneau standard : titre en Orbitron, bouton fermer, zone de contenu
+    function create(id, title, { place = 'cote', onOpen, onClose } = {}) {
+        const el = document.createElement('section');
+        el.className = `panneau panneau-${place}`;
+        el.setAttribute('aria-label', title);
+        el.innerHTML = `
+            <header class="panneau-tete">
+                <span class="panneau-titre">${title.toUpperCase()}</span>
+                <span class="panneau-actions"></span>
+                <button class="panneau-fermer" data-icon="x" aria-label="Fermer"></button>
+            </header>
+            <div class="panneau-corps"></div>`;
+        document.body.append(el);
+        window.icons.fill(el);
+        register(id, el, { onOpen, onClose });
+        return { el, body: el.querySelector('.panneau-corps'), actions: el.querySelector('.panneau-actions') };
+    }
+
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && current) close();
     });
@@ -53,5 +71,10 @@
         close();
     });
 
-    window.panneaux = { register, open, close, toggle, current: () => current };
+    // Commande par nom (raccourcis clavier, Robbie) : ouvre ou ferme le panneau du même nom
+    window.os.onShortcut(name => {
+        if (panels.has(name) && !['lanceur', 'notifications'].includes(name)) toggle(name);
+    });
+
+    window.panneaux = { register, create, open, close, toggle, current: () => current };
 })();

@@ -21,7 +21,21 @@ contextBridge.exposeInMainWorld('os', {
     onShortcut: callback => ipcRenderer.on('shortcut', (_event, name) => callback(name)),
     windows: () => ipcRenderer.invoke('fenetres'),
     focusWindow: appId => ipcRenderer.invoke('fenetre-focus', appId),
-    onWindows: callback => ipcRenderer.on('fenetres', (_event, list) => callback(list))
+    onWindows: callback => ipcRenderer.on('fenetres', (_event, list) => callback(list)),
+    onNotification: callback => ipcRenderer.on('notification', (_event, notification) => callback(notification)),
+    onNotificationClose: callback => ipcRenderer.on('notification-close', (_event, id) => callback(id)),
+    notificationAction: (id, key) => ipcRenderer.send('notification-action', id, key),
+    notificationDismiss: id => ipcRenderer.send('notification-fermer', id),
+    agenda: () => ipcRenderer.invoke('agenda'),
+    setAgenda: agenda => ipcRenderer.invoke('set-agenda', agenda),
+    contacts: () => ipcRenderer.invoke('contacts'),
+    setContacts: list => ipcRenderer.invoke('set-contacts', list),
+    network: () => ipcRenderer.invoke('reseau'),
+    wifiNetworks: () => ipcRenderer.invoke('wifi'),
+    connectWifi: (ssid, password) => ipcRenderer.invoke('wifi-connecter', ssid, password),
+    brightness: () => ipcRenderer.invoke('luminosite'),
+    setBrightness: percent => ipcRenderer.invoke('set-luminosite', percent),
+    screenshot: () => ipcRenderer.invoke('capture')
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état

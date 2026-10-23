@@ -11,6 +11,10 @@ const notes = require('./services/notes');
 const { power } = require('./services/alimentation');
 const { createRobbie } = require('./services/robbie');
 const fenetres = require('./services/fenetres');
+const { createNotifications } = require('./services/notifications');
+const reseau = require('./services/reseau');
+const luminosite = require('./services/luminosite');
+const actions = require('./services/actions');
 
 // Nom de l'appli pour Wayland (règles de fenêtre de labwc)
 app.setName('robbie-os');
@@ -110,10 +114,34 @@ ipcMain.on('robbie-panneau', (_event, open) => robbie?.setPanelOpen(open));
 ipcMain.handle('fenetres', () => fenetres.list());
 ipcMain.handle('fenetre-focus', (_event, appId) => fenetres.focus(String(appId)));
 
+// Barre latérale et coin : agenda, contacts, réseau, luminosité, capture d'écran
+ipcMain.handle('agenda', () => notes.getAgenda());
+ipcMain.handle('set-agenda', (_event, agenda) => notes.setAgenda(agenda));
+ipcMain.handle('contacts', () => notes.getContacts());
+ipcMain.handle('set-contacts', (_event, list) => notes.setContacts(list));
+ipcMain.handle('reseau', () => reseau.status());
+ipcMain.handle('wifi', () => reseau.wifiNetworks());
+ipcMain.handle('wifi-connecter', (_event, ssid, password) => reseau.connectWifi(ssid, password));
+ipcMain.handle('luminosite', () => luminosite.get());
+ipcMain.handle('set-luminosite', (_event, percent) => luminosite.set(percent));
+ipcMain.handle('capture', () => actions.execute({ type: 'screenshot' }));
+
+// Notifications des applis
+let notifications = null;
+ipcMain.on('notification-action', (_event, id, key) => notifications?.invoke(id, key));
+ipcMain.on('notification-fermer', (_event, id) => notifications?.dismiss(id));
+
 app.whenReady().then(() => {
     createWindow();
-    robbie = createRobbie({ send: (channel, data) => win?.webContents.send(channel, data) });
-    if (!preview) fenetres.watch(list => win?.webContents.send('fenetres', list));
+    const send = (channel, data) => win?.webContents.send(channel, data);
+    robbie = createRobbie({ send });
+    if (!preview) {
+        fenetres.watch(list => send('fenetres', list));
+        notifications = createNotifications({
+            onNotify: notification => send('notification', notification),
+            onClose: id => send('notification-close', id)
+        });
+    }
 });
 app.on('window-all-closed', () => app.quit());
 app.on('before-quit', () => robbie?.stop());

@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'">
     <title>Robbie OS</title>
     <link rel="stylesheet" href="./styles/horizon.css">
+    <link rel="stylesheet" href="./styles/panneaux.css">
 </head>
 <body class="demarrage">
     <!-- Fond d'écran (une vraie image) -->
@@ -13,16 +14,15 @@
     <!-- Barre latérale : notifications, contacts, raccourcis -->
     <aside class="laterale" aria-label="Barre latérale">
         <span class="laterale-trait"></span>
-        <button class="lat-bouton" data-icon="bell" aria-label="Notifications"><span class="pastille"></span></button>
-        <button class="lat-bouton" data-icon="users" aria-label="Contacts"></button>
-        <span class="lat-sep"></span>
+        <button class="lat-bouton" data-panneau data-action="notifications" data-icon="bell" aria-label="Notifications" title="Notifications (Super+N)"><span class="pastille" hidden></span></button>
+        <button class="lat-bouton" data-panneau data-action="contacts" data-icon="users" aria-label="Contacts" title="Contacts"></button>
         <div class="contacts" id="contacts"></div>
         <span class="lat-sep"></span>
-        <button class="lat-bouton" data-icon="file" aria-label="Notes"></button>
-        <button class="lat-bouton" data-icon="calendar" aria-label="Agenda"></button>
-        <button class="lat-bouton" data-icon="capture" aria-label="Capture d'écran"></button>
-        <button class="lat-bouton" data-icon="gear" aria-label="Réglages"></button>
-        <button class="lat-ajout" data-icon="plus" aria-label="Ajouter un raccourci"></button>
+        <button class="lat-bouton" data-panneau data-action="notes" data-icon="file" aria-label="Notes" title="Notes"></button>
+        <button class="lat-bouton" data-panneau data-action="agenda" data-icon="calendar" aria-label="Agenda" title="Agenda"></button>
+        <button class="lat-bouton" data-action="capture" data-icon="capture" aria-label="Capture d'écran" title="Capture d'écran"></button>
+        <button class="lat-bouton" data-panneau data-action="reglages" data-icon="gear" aria-label="Réglages" title="Réglages (Super+I)"></button>
+        <button class="lat-ajout" data-panneau data-action="lanceur" data-icon="plus" aria-label="Toutes les applis" title="Toutes les applis (Super+A)"></button>
     </aside>
 
     <!-- Dock incurvé, Robbie au centre -->
@@ -49,9 +49,11 @@
 
     <!-- Coin : réseau, son, heure -->
     <div class="coin">
-        <span data-icon="wifi" aria-label="Réseau"></span>
-        <span data-icon="volume" id="coin-son" aria-label="Son"></span>
-        <time id="heure">--:--</time>
+        <button class="coin-bouton" id="coin-rapide" data-panneau aria-label="Réglages rapides : réseau et son">
+            <span data-icon="wifi" id="coin-reseau"></span>
+            <span data-icon="volume" id="coin-son"></span>
+        </button>
+        <button class="coin-bouton" id="coin-heure" data-panneau aria-label="Agenda"><time id="heure">--:--</time></button>
     </div>
 
     <!-- Panneau de Robbie : la conversation, au-dessus du dock -->
@@ -96,6 +98,7 @@
     <script src="./js/dock.js"></script>
     <script src="./js/lanceur.js"></script>
     <script src="./js/laterale.js"></script>
+    <script src="./js/notifications.js"></script>
     <script src="./js/coin.js"></script>
     <script src="./js/robbie-panneau.js"></script>
 </body>

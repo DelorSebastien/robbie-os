@@ -1,18 +1,215 @@
-// Barre latérale : contacts favoris avec leur statut (initiale en attendant leur photo)
+// Barre latérale : notifications, contacts, notes, agenda, capture d'écran, réglages, applis
 (() => {
-    const STATUS = { online: '#3ddc84', away: '#f5a524', offline: '#7d8799' };
+    const { escape, toast } = window.ui;
 
-    // Exemples en attendant de vrais contacts
-    const CONTACTS = [
-        { name: 'Léa', status: 'online' },
-        { name: 'Max', status: 'away' },
-        { name: 'Sam', status: 'online' },
-        { name: 'Noé', status: 'offline' }
-    ];
+    // ---- Boutons ----
+    const ACTIONS = {
+        notifications: () => window.panneaux.toggle('notifications'),
+        contacts: () => window.panneaux.toggle('contacts'),
+        notes: () => window.panneaux.toggle('notes'),
+        agenda: () => window.panneaux.toggle('agenda'),
+        reglages: () => window.reglages ? window.reglages.open() : toast('Les réglages arrivent bientôt', 'gear'),
+        lanceur: () => window.launcher.toggle(),
+        capture: async () => {
+            window.panneaux.close();
+            const result = await window.os.screenshot();
+            setTimeout(() => toast(result?.done ? 'Capture enregistrée dans Images' : 'Capture impossible', result?.done ? 'check' : 'x'), 1200);
+        }
+    };
 
-    document.getElementById('contacts').innerHTML = CONTACTS.map(contact => `
-        <button class="contact" aria-label="${contact.name}">
-            ${contact.name.charAt(0)}
-            <span class="statut" style="background: ${STATUS[contact.status]}"></span>
-        </button>`).join('');
+    document.querySelectorAll('.laterale [data-action]').forEach(button => {
+        button.addEventListener('click', () => ACTIONS[button.dataset.action]?.());
+    });
+
+    // Bouton actif : celui dont le panneau est ouvert
+    const mark = id => document.querySelectorAll('.laterale [data-action]').forEach(button => {
+        button.classList.toggle('actif', button.dataset.action === id);
+    });
+    document.addEventListener('panneau-ouvert', event => mark(event.detail));
+    document.addEventListener('panneau-ferme', () => mark(null));
+
+    // ---- Contacts (enregistrés sur l'ordinateur ; photos à venir) ----
+    let contacts = [];
+    const contactsPanel = window.panneaux.create('contacts', 'Contacts', { onOpen: renderContacts });
+
+    function renderSidebarContacts() {
+        document.getElementById('contacts').innerHTML = contacts.slice(0, 4).map((contact, index) => `
+            <button class="contact" data-panneau data-index="${index}" aria-label="${escape(contact.name)}" title="${escape(contact.name)}">
+                ${escape(contact.name.charAt(0).toUpperCase())}
+            </button>`).join('');
+        document.querySelectorAll('#contacts .contact').forEach(button => {
+            button.addEventListener('click', () => window.panneaux.toggle('contacts'));
+        });
+    }
+
+    function renderContacts() {
+        contactsPanel.body.innerHTML = `
+            <form class="champ-ajout" data-form>
+                <input placeholder="Nom du contact" maxlength="40" autocomplete="off" aria-label="Nom du contact">
+                <button aria-label="Ajouter" data-icon="plus"></button>
+            </form>
+            <ul class="liste">${contacts.map((contact, index) => `
+                <li><span class="contact-rond">${escape(contact.name.charAt(0).toUpperCase())}</span>
+                    <span class="liste-texte">${escape(contact.name)}</span>
+                    <button class="liste-supprimer" data-remove="${index}" data-icon="x" aria-label="Supprimer"></button></li>`).join('')}
+            </ul>
+            ${contacts.length ? '' : '<p class="panneau-vide">Ajoute tes proches : ils apparaîtront dans la barre.</p>'}`;
+        window.icons.fill(contactsPanel.body);
+
+        contactsPanel.body.querySelector('[data-form]').addEventListener('submit', async event => {
+            event.preventDefault();
+            const name = event.target.querySelector('input').value.trim();
+            if (!name) return;
+            contacts = await window.os.setContacts([...contacts, { name }]);
+            renderSidebarContacts();
+            renderContacts();
+        });
+        contactsPanel.body.querySelectorAll('[data-remove]').forEach(button => {
+            button.addEventListener('click', async () => {
+                contacts = await window.os.setContacts(contacts.filter((_, i) => i !== Number(button.dataset.remove)));
+                renderSidebarContacts();
+                renderContacts();
+            });
+        });
+    }
+
+    window.os.contacts().then(list => {
+        contacts = list;
+        renderSidebarContacts();
+    });
+
+    // ---- Notes ----
+    let notes = [];
+    const notesPanel = window.panneaux.create('notes', 'Notes', {
+        onOpen: async () => {
+            notes = await window.os.notes();
+            renderNotes();
+            setTimeout(() => notesPanel.body.querySelector('input')?.focus(), 60);
+        }
+    });
+
+    function renderNotes() {
+        notesPanel.body.innerHTML = `
+            <form class="champ-ajout" data-form>
+                <input placeholder="Nouvelle note…" maxlength="200" autocomplete="off" aria-label="Nouvelle note">
+                <button aria-label="Ajouter" data-icon="plus"></button>
+            </form>
+            <ul class="liste">${notes.map((note, index) => `
+                <li class="${note.done ? 'faite' : ''}">
+                    <button class="case" data-toggle="${index}" aria-label="${note.done ? 'Pas faite' : 'Faite'}">${note.done ? window.icons.icon('check') : ''}</button>
+                    <span class="liste-texte">${escape(note.text)}</span>
+                    <button class="liste-supprimer" data-remove="${index}" data-icon="x" aria-label="Supprimer"></button>
+                </li>`).join('')}
+            </ul>
+            ${notes.length ? '' : '<p class="panneau-vide">Aucune note pour l\'instant</p>'}`;
+        window.icons.fill(notesPanel.body);
+
+        const save = async () => {
+            await window.os.setNotes(notes);
+            renderNotes();
+        };
+
+        notesPanel.body.querySelector('[data-form]').addEventListener('submit', event => {
+            event.preventDefault();
+            const text = event.target.querySelector('input').value.trim();
+            if (!text) return;
+            notes.unshift({ text, done: false, created: Date.now() });
+            save().then(() => notesPanel.body.querySelector('input').focus());
+        });
+        notesPanel.body.querySelectorAll('[data-toggle]').forEach(button => button.addEventListener('click', () => {
+            const note = notes[Number(button.dataset.toggle)];
+            note.done = !note.done;
+            save();
+        }));
+        notesPanel.body.querySelectorAll('[data-remove]').forEach(button => button.addEventListener('click', () => {
+            notes.splice(Number(button.dataset.remove), 1);
+            save();
+        }));
+    }
+
+    // ---- Agenda : un mois, et les rendez-vous du jour choisi ----
+    let agenda = {};
+    let month = new Date();
+    month.setDate(1);
+    let chosen = new Date();
+
+    const dayKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const agendaPanel = window.panneaux.create('agenda', 'Agenda', {
+        onOpen: async () => {
+            agenda = await window.os.agenda();
+            renderAgenda();
+        }
+    });
+
+    function renderAgenda() {
+        const today = dayKey(new Date());
+        const first = new Date(month);
+        const start = (first.getDay() + 6) % 7; // lundi en premier
+        const days = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+        const cells = [];
+        for (let i = 0; i < start; i++) cells.push('<span></span>');
+        for (let d = 1; d <= days; d++) {
+            const key = dayKey(new Date(month.getFullYear(), month.getMonth(), d));
+            const classes = [key === today && 'aujourdhui', key === dayKey(chosen) && 'choisi', agenda[key]?.length && 'occupe'].filter(Boolean).join(' ');
+            cells.push(`<button class="${classes}" data-day="${d}">${d}</button>`);
+        }
+
+        const events = agenda[dayKey(chosen)] || [];
+        const monthName = month.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        const chosenName = chosen.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        agendaPanel.body.innerHTML = `
+            <div class="agenda-mois">
+                <button data-move="-1" aria-label="Mois précédent">‹</button>
+                <b>${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</b>
+                <button data-move="1" aria-label="Mois suivant">›</button>
+            </div>
+            <div class="agenda-grille">
+                ${['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => `<i>${d}</i>`).join('')}
+                ${cells.join('')}
+            </div>
+            <h4 class="agenda-jour">${chosenName.charAt(0).toUpperCase() + chosenName.slice(1)}</h4>
+            <ul class="liste">${events.map((event, index) => `
+                <li><span class="agenda-heure">${escape(event.heure || '')}</span><span class="liste-texte">${escape(event.texte)}</span>
+                    <button class="liste-supprimer" data-remove="${index}" data-icon="x" aria-label="Supprimer"></button></li>`).join('')}
+            </ul>
+            <form class="champ-ajout agenda-ajout" data-form>
+                <input type="time" aria-label="Heure">
+                <input placeholder="Nouveau rendez-vous" maxlength="120" autocomplete="off" aria-label="Rendez-vous">
+                <button aria-label="Ajouter" data-icon="plus"></button>
+            </form>`;
+        window.icons.fill(agendaPanel.body);
+
+        agendaPanel.body.querySelectorAll('[data-move]').forEach(button => button.addEventListener('click', () => {
+            month = new Date(month.getFullYear(), month.getMonth() + Number(button.dataset.move), 1);
+            renderAgenda();
+        }));
+        agendaPanel.body.querySelectorAll('[data-day]').forEach(button => button.addEventListener('click', () => {
+            chosen = new Date(month.getFullYear(), month.getMonth(), Number(button.dataset.day));
+            renderAgenda();
+        }));
+
+        const save = async () => {
+            agenda = await window.os.setAgenda(agenda);
+            renderAgenda();
+        };
+
+        agendaPanel.body.querySelector('[data-form]').addEventListener('submit', event => {
+            event.preventDefault();
+            const [hour, text] = event.target.querySelectorAll('input');
+            if (!text.value.trim()) return;
+            const key = dayKey(chosen);
+            agenda[key] = [...(agenda[key] || []), { heure: hour.value, texte: text.value.trim() }]
+                .sort((a, b) => (a.heure || '99').localeCompare(b.heure || '99'));
+            save();
+        });
+        agendaPanel.body.querySelectorAll('[data-remove]').forEach(button => button.addEventListener('click', () => {
+            const key = dayKey(chosen);
+            agenda[key].splice(Number(button.dataset.remove), 1);
+            if (!agenda[key].length) delete agenda[key];
+            save();
+        }));
+    }
+
+    window.agenda = { open: () => window.panneaux.open('agenda') };
 })();

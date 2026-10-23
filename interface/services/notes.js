@@ -34,6 +34,11 @@ const DEFAULT_SETTINGS = {
 module.exports = {
     getNotes: () => load('notes', []),
     setNotes: notes => save('notes', Array.isArray(notes) ? notes.slice(0, 200) : []),
+    // Agenda : { "AAAA-MM-JJ": [{ heure, texte }] }
+    getAgenda: () => load('agenda', {}),
+    setAgenda: agenda => save('agenda', agenda && typeof agenda === 'object' ? agenda : {}),
+    getContacts: () => load('contacts', []),
+    setContacts: contacts => save('contacts', Array.isArray(contacts) ? contacts.slice(0, 30) : []),
     getSettings: () => ({ ...DEFAULT_SETTINGS, ...load('reglages', {}) }),
     setSettings: changes => save('reglages', { ...DEFAULT_SETTINGS, ...load('reglages', {}), ...changes })
 };
