@@ -32,6 +32,8 @@ mkdir -p "$HOME_DIR/.config/labwc"
 cat > "$HOME_DIR/.config/labwc/environment" <<'EOF'
 XKB_DEFAULT_LAYOUT=fr
 WLR_NO_HARDWARE_CURSORS=1
+XCURSOR_THEME=Bibata-Modern-Classic
+XCURSOR_SIZE=24
 EOF
 
 # Raccourcis : touche Super seule = palette de Robbie (signal envoyé à l'interface),
@@ -40,9 +42,12 @@ cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
 <?xml version="1.0"?>
 <labwc_config>
   <theme>
-    <name></name>
-    <cornerRadius>10</cornerRadius>
-    <font place="ActiveWindow"><name>Inter</name><size>10</size><weight>Bold</weight></font>
+    <name>Robbie</name>
+    <cornerRadius>12</cornerRadius>
+    <titlebar><layout>close,iconify,max:</layout></titlebar>
+    <font place="ActiveWindow"><name>Inter</name><size>10</size><weight>Medium</weight></font>
+    <font place="InactiveWindow"><name>Inter</name><size>10</size><weight>Medium</weight></font>
+    <font place="MenuItem"><name>Inter</name><size>10</size></font>
   </theme>
   <keyboard>
     <default />

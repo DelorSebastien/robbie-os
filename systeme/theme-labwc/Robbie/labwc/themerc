@@ -1,0 +1,41 @@
+# Thème de fenêtres Robbie OS pour labwc : barre de titre sombre et fine,
+# accordée au thème GTK Orchis-Dark, boutons ronds façon macOS
+border.width: 1
+window.titlebar.padding.width: 8
+window.titlebar.padding.height: 0
+
+window.active.border.color: #2e2e2e
+window.inactive.border.color: #262626
+
+window.active.title.bg.color: #212121
+window.inactive.title.bg.color: #1b1b1b
+window.active.label.text.color: #eef3fb
+window.inactive.label.text.color: #7d8594
+window.label.text.justify: center
+
+window.button.width: 22
+window.button.height: 26
+window.button.spacing: 2
+window.button.hover.bg.corner-radius: 0
+
+window.active.shadow.size: 50
+window.inactive.shadow.size: 30
+window.active.shadow.color: #00000080
+window.inactive.shadow.color: #00000050
+
+menu.border.width: 1
+menu.border.color: #333333
+menu.items.bg.color: #1e1e1e
+menu.items.text.color: #e6ebf3
+menu.items.active.bg.color: #2f5f8a
+menu.items.active.text.color: #ffffff
+menu.items.padding.x: 12
+menu.items.padding.y: 6
+menu.separator.color: #333333
+menu.title.bg.color: #212121
+menu.title.text.color: #ffffff
+
+osd.bg.color: #1e1e1e
+osd.border.color: #333333
+osd.label.text.color: #eef3fb
+osd.window-switcher.item.active.border.width: 2
