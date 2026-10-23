@@ -105,7 +105,7 @@
             el.addEventListener('mouseenter', () => showLabel(el, item.name));
             el.addEventListener('mouseleave', () => label.classList.remove('visible'));
             dock.append(el);
-            return { el, item, x: 0, y: 0, size: item.kind === 'robbie' ? 66 : 50 };
+            return { el, item, x: 0, y: 0, size: item.kind === 'robbie' ? 66 : 56 };
         }));
 
         window.icons.fill(dock);
@@ -150,6 +150,16 @@
             }
         }
         document.getElementById('dock-points').innerHTML = dots.join('');
+
+        // Sous chaque icône, un point de lumière sur l'arc : elles ont l'air posées dessus
+        zone.querySelectorAll('.appui').forEach(spot => spot.remove());
+        tiles.filter(tile => tile.item.kind !== 'robbie').forEach(tile => {
+            const spot = document.createElement('span');
+            spot.className = 'appui';
+            spot.style.left = `${tile.x}px`;
+            spot.style.top = `${arcY(tile.x, cx) + below}px`;
+            zone.append(spot);
+        });
 
         // Lumière posée sur l'arc sous Robbie, et son faisceau dans l'eau
         const robbie = tiles[middle];

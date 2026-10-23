@@ -85,11 +85,50 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     -webkit-box-reflect: below 8px linear-gradient(transparent 62%, rgba(255, 255, 255, 0.1));
 }
 
-.tuile:not(.robbie):hover { border-color: rgba(255, 255, 255, 0.2); background: rgba(16, 24, 44, 0.55); }
+/* Les applis : icônes nues, mises en valeur par leur ombre et leur reflet dans le lac */
+.tuile:not(.robbie) {
+    --s: 56px;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    border-radius: 0;
+    -webkit-box-reflect: below 6px linear-gradient(transparent 50%, rgba(255, 255, 255, 0.28));
+}
+
 .tuile:active { filter: brightness(0.85); }
 
-.tuile .icone-theme { width: 80%; height: 80%; object-fit: contain; pointer-events: none; }
-.tuile .picto { width: 62%; height: 62%; overflow: visible; pointer-events: none; }
+.tuile .icone-theme,
+.tuile .picto {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    overflow: visible;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
+    transition: filter 0.25s;
+}
+
+.tuile:not(.robbie) .picto { width: 72%; height: 72%; }
+
+/* Survol : l'icône s'illumine */
+.tuile:not(.robbie):hover .icone-theme,
+.tuile:not(.robbie):hover .picto {
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(190, 235, 255, 0.55)) brightness(1.12);
+}
+
+/* Point de lumière sur l'arc, sous chaque icône */
+.appui {
+    position: absolute;
+    width: 26px;
+    height: 3px;
+    margin: -1.5px 0 0 -13px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(225, 248, 255, 0.95), rgba(var(--accent), 0.4) 60%, transparent);
+    filter: blur(0.6px);
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+}
 .tuile .icon { width: 50%; height: 50%; color: #dbe5f5; }
 
 /* Nom de l'appli au survol */
