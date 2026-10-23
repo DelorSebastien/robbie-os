@@ -21,9 +21,9 @@ cat > "$HOME_DIR/.bash_profile" <<'EOF'
 [ -f ~/.bashrc ] && . ~/.bashrc
 
 if [ "$(tty)" = /dev/tty1 ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
-    # D'abord avec la carte graphique ; si elle ne répond pas (machine virtuelle sans 3D),
-    # l'écran est dessiné par le processeur
-    labwc > ~/.robbie-os-session.log 2>&1 || WLR_RENDERER=pixman exec labwc >> ~/.robbie-os-session.log 2>&1
+    # Machine virtuelle sans 3D : l'écran est dessiné par le processeur
+    systemd-detect-virt -q && export WLR_RENDERER=pixman
+    exec labwc > ~/.robbie-os-session.log 2>&1
 fi
 EOF
 
@@ -56,12 +56,8 @@ cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
 </labwc_config>
 EOF
 
-# Dans une machine virtuelle, l'interface passe par XWayland : le pilote graphique
-# de VirtualBox ne sait pas partager ses images avec Chromium sous Wayland
 cat > "$HOME_DIR/.config/labwc/autostart" <<EOF
-FLAGS=""
-systemd-detect-virt -q && FLAGS="--ozone-platform=x11"
-cd "$ROBBIE_DIR" && ./node_modules/.bin/electron . \$FLAGS > ~/.robbie-os-interface.log 2>&1 &
+cd "$ROBBIE_DIR" && ./node_modules/.bin/electron . > ~/.robbie-os-interface.log 2>&1 &
 EOF
 
 chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR/.bash_profile" "$HOME_DIR/.config"
