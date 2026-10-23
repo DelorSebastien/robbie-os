@@ -67,15 +67,14 @@ EOF
 # Dans une machine virtuelle :
 # - le cerveau de Robbie (Ollama) est celui de l'ordinateur hôte, qui a la carte graphique :
 #   VirtualBox le rend joignable à l'adresse 10.0.2.2 ;
-# - l'interface passe par XWayland : le pilote graphique de VirtualBox ne sait pas
-#   partager ses images avec Chromium sous Wayland
+# - l'interface est dessinée par le processeur : la carte graphique simulée de VirtualBox
+#   accélère labwc, mais pas Chromium (qui retomberait sur un rendu logiciel plus lent)
 cat > "$HOME_DIR/.config/labwc/autostart" <<EOF
-FLAGS=""
 if systemd-detect-virt -q; then
     export ROBBIE_OLLAMA=http://10.0.2.2:11434
-    FLAGS="--ozone-platform=x11"
+    export ROBBIE_SANS_GPU=1
 fi
-cd "$ROBBIE_DIR" && ./node_modules/.bin/electron . \$FLAGS > ~/.robbie-os-interface.log 2>&1 &
+cd "$ROBBIE_DIR" && ./node_modules/.bin/electron . > ~/.robbie-os-interface.log 2>&1 &
 EOF
 
 # Machine virtuelle : tampons audio plus grands, pour que la voix de Robbie

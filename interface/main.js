@@ -20,7 +20,12 @@ app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 // Chromium refuse par prudence certaines cartes graphiques (celle de VirtualBox par exemple) :
 // on l'utilise quand même, c'est bien plus fluide que le dessin par le processeur
 app.commandLine.appendSwitch('ignore-gpu-blocklist');
-if (process.platform === 'linux') {
+
+// Machine virtuelle (ROBBIE_SANS_GPU) : sa carte graphique simulée ne marche pas avec Chromium
+// (rendu logiciel llvmpipe, pire que le dessin par le processeur de Chromium lui-même)
+if (process.env.ROBBIE_SANS_GPU) {
+    app.disableHardwareAcceleration();
+} else if (process.platform === 'linux') {
     // Sous Wayland, Vulkan n'est pas pris en charge par Chromium : on passe par OpenGL
     app.commandLine.appendSwitch('disable-features', 'Vulkan');
     app.commandLine.appendSwitch('use-angle', 'gl');
