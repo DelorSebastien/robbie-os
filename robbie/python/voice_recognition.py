@@ -80,7 +80,7 @@ def load_model():
             print(f"Whisper : CUDA indisponible ({error})", file=sys.stderr, flush=True)
 
     print(f"Whisper {CPU_MODEL} : processeur", file=sys.stderr, flush=True)
-    return WhisperModel(CPU_MODEL, device="cpu", compute_type="int8")
+    return WhisperModel(CPU_MODEL, device="cpu", compute_type="int8", cpu_threads=os.cpu_count() or 4)
 
 
 model = load_model()

@@ -21,6 +21,6 @@ for file in "$VOICE.onnx" "$VOICE.onnx.json"; do
 done
 
 # Modèle Whisper téléchargé tout de suite (sinon au premier mot prononcé)
-"$VENV/bin/python" -c "from faster_whisper import WhisperModel; WhisperModel('${WHISPER_MODEL:-base}', device='cpu', compute_type='int8')"
+"$VENV/bin/python" -c "from faster_whisper import WhisperModel; WhisperModel('${WHISPER_MODEL:-small}', device='cpu', compute_type='int8')"
 
 echo "Voix et oreille de Robbie installées"

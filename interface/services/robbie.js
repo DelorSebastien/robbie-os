@@ -166,7 +166,9 @@ function createRobbie({ send }) {
                 send('robbie-micro', { ok: false, ...problem });
             }
         });
-        microphone.setVocabulary(['Robbie', 'Robbie OS', 'Firefox', 'Thunar', 'téléchargements']);
+        // Mots que Whisper doit écrire en priorité (sinon « la météo » devient « la métier »)
+        microphone.setVocabulary(['Robbie', 'Robbie OS', 'météo', 'quelle heure', 'Firefox', 'navigateur', 'terminal',
+            'volume', 'musique', 'téléchargements', 'capture d\'écran', 'redémarre', 'éteins', 'mets en veille', 'YouTube']);
     }
 
     // (l'aperçu sur Windows n'a ni Whisper ni micro configuré : on n'écoute que sous Linux)

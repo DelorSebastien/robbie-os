@@ -44,9 +44,9 @@ function createMicrophone({ onHeard, onVoiceActive, onProblem }) {
         let errors = '';
 
         // (sortie Python en UTF-8 pour garder les accents)
-        // (modèle Whisper « base » par défaut : assez rapide sur un processeur modeste)
+        // (modèle Whisper « small » par défaut : bon en français, assez rapide sur le processeur)
         child = spawn(PYTHON, ['-u', python('voice_recognition.py')], {
-            env: { WHISPER_MODEL: 'base', ...process.env, PYTHONIOENCODING: 'utf-8' }
+            env: { WHISPER_MODEL: 'small', ...process.env, PYTHONIOENCODING: 'utf-8' }
         });
 
         child.stdout.setEncoding('utf8');
