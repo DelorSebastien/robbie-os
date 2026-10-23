@@ -9,7 +9,8 @@ GTK_THEME="Orchis-Dark"
 CURSOR="Bibata-Modern-Classic"
 
 export DEBIAN_FRONTEND=noninteractive
-apt-get install -y --no-install-recommends orchis-gtk-theme bibata-cursor-theme \n    dconf-cli dconf-gsettings-backend gsettings-desktop-schemas libglib2.0-bin
+apt-get install -y --no-install-recommends orchis-gtk-theme bibata-cursor-theme \
+    dconf-cli dconf-gsettings-backend gsettings-desktop-schemas libglib2.0-bin
 
 # Thème d'icônes, extrait sous Linux pour garder ses liens (une icône sert sous plusieurs noms)
 rm -rf "/usr/share/icons/$ICONS"
