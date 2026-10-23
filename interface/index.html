@@ -2,14 +2,15 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: fond:; style-src 'self' 'unsafe-inline'">
     <title>Robbie OS</title>
     <link rel="stylesheet" href="./styles/horizon.css">
     <link rel="stylesheet" href="./styles/panneaux.css">
+    <link rel="stylesheet" href="./styles/reglages.css">
 </head>
 <body class="demarrage">
     <!-- Fond d'écran (une vraie image) -->
-    <img class="fond" id="fond" src="./fonds/reference-temporaire.png" alt="">
+    <img class="fond recadre" id="fond" src="./fonds/reference-temporaire.png" alt="">
 
     <!-- Barre latérale : notifications, contacts, raccourcis -->
     <aside class="laterale" aria-label="Barre latérale">
@@ -99,6 +100,7 @@
     <script src="./js/lanceur.js"></script>
     <script src="./js/laterale.js"></script>
     <script src="./js/notifications.js"></script>
+    <script src="./js/reglages.js"></script>
     <script src="./js/coin.js"></script>
     <script src="./js/robbie-panneau.js"></script>
 </body>

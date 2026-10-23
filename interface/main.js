@@ -1,5 +1,6 @@
 // Robbie OS : l'interface, lancée en plein écran au démarrage de la machine
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, protocol, net } = require('electron');
+const { pathToFileURL } = require('node:url');
 const path = require('node:path');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -15,6 +16,10 @@ const { createNotifications } = require('./services/notifications');
 const reseau = require('./services/reseau');
 const luminosite = require('./services/luminosite');
 const actions = require('./services/actions');
+const parametres = require('./services/parametres');
+
+// Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
+protocol.registerSchemesAsPrivileged([{ scheme: 'fond', privileges: { standard: true, secure: true } }]);
 
 // Nom de l'appli pour Wayland (règles de fenêtre de labwc)
 app.setName('robbie-os');
@@ -126,12 +131,28 @@ ipcMain.handle('luminosite', () => luminosite.get());
 ipcMain.handle('set-luminosite', (_event, percent) => luminosite.set(percent));
 ipcMain.handle('capture', () => actions.execute({ type: 'screenshot' }));
 
+// Réglages : fonds d'écran, voix, écran, informations, ville de la météo
+ipcMain.handle('fonds', () => parametres.wallpapers());
+ipcMain.handle('voix', () => parametres.voices());
+ipcMain.handle('ecrans', () => parametres.displays());
+ipcMain.handle('set-resolution', (_event, name, width, height) => parametres.setResolution(name, width, height));
+ipcMain.handle('systeme-infos', () => parametres.systemInfo());
+ipcMain.handle('chercher-ville', (_event, name) => parametres.searchCity(String(name)));
+ipcMain.on('robbie-voix-recharger', () => robbie?.reloadVoice());
+ipcMain.on('robbie-oreille-recharger', () => robbie?.reloadEars());
+
 // Notifications des applis
 let notifications = null;
 ipcMain.on('notification-action', (_event, id, key) => notifications?.invoke(id, key));
 ipcMain.on('notification-fermer', (_event, id) => notifications?.dismiss(id));
 
 app.whenReady().then(() => {
+    protocol.handle('fond', request => {
+        const file = new URL(request.url).searchParams.get('chemin') || '';
+        if (!parametres.isWallpaper(file)) return new Response('', { status: 403 });
+        return net.fetch(pathToFileURL(file).toString());
+    });
+
     createWindow();
     const send = (channel, data) => win?.webContents.send(channel, data);
     robbie = createRobbie({ send });

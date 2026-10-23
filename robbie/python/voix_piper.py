@@ -18,13 +18,15 @@ sys.stdin.reconfigure(encoding="utf-8")
 # Voix de Robbie : Siwis (voix féminine), passée par l'effet « robot léger » :
 # un peu plus aiguë, un peu plus rapide, avec un léger chœur métallique
 VOICE_NAME = os.environ.get("ROBBIE_VOIX", "fr_FR-siwis-medium")
+# Effet (réglable dans les réglages : ROBBIE_EFFET = "robot" ou "aucun")
+ROBOT = os.environ.get("ROBBIE_EFFET", "robot") != "aucun"
 ROBOT_EFFECT = ["pitch", "280", "tempo", "1.05", "chorus", "0.6", "0.9", "20", "0.4", "0.3", "2", "-s"]
 
 VOICE = Path(__file__).resolve().parent.parent / "voix" / f"{VOICE_NAME}.onnx"
 voice = PiperVoice.load(str(VOICE))
-SOX = shutil.which("sox")
-print(f"Voix chargée : {VOICE.stem}{' + effet robot' if SOX else ' (sox absent : sans effet robot)'}",
-      file=sys.stderr, flush=True)
+SOX = shutil.which("sox") if ROBOT else None
+effect = " + effet robot" if SOX else (" (sox absent : sans effet robot)" if ROBOT else " (sans effet)")
+print(f"Voix chargée : {VOICE.stem}{effect}", file=sys.stderr, flush=True)
 
 
 def robot(audio):

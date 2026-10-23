@@ -18,7 +18,11 @@ const CONVERSATION_SECONDS = 20;
 
 function createRobbie({ send }) {
     const ollama = createOllama({ settings: { get: () => ({ brain: MODEL }) } });
-    const speech = createSpeech();
+    // Voix et sensibilité du micro : celles des réglages
+    const speech = createSpeech(() => {
+        const settings = notes.getSettings();
+        return { voice: settings.voice, robot: settings.robotVoice };
+    });
     const history = [];
 
     let busy = false;
@@ -185,6 +189,7 @@ function createRobbie({ send }) {
 
     function startMicrophone() {
         microphone = createMicrophone({
+            threshold: () => notes.getSettings().voiceThreshold,
             onHeard: handleHeard,
             onVoiceActive: () => {
                 if (!speaking) send('robbie-ecoute', null);
@@ -236,6 +241,17 @@ function createRobbie({ send }) {
         confirm(action) {
             const ok = actions.confirm(action);
             return ok;
+        },
+        // Réglages changés : la voix est rechargée (et Robbie la fait entendre)
+        reloadVoice() {
+            speech.stop();
+            setTimeout(() => say('Voilà ma voix. Elle te plaît ?'), 300);
+        },
+        // Sensibilité du micro changée : l'écoute redémarre avec le nouveau seuil
+        reloadEars() {
+            if (!microphone) return;
+            microphone.stop();
+            startMicrophone();
         },
         stop() {
             speech.stop();

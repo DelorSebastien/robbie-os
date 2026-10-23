@@ -3,15 +3,22 @@
 const { spawn } = require('node:child_process');
 const { python, PYTHON } = require('./paths');
 
-function createSpeech() {
+// `options()` : { voice, robot } au moment de lancer le serveur (voix choisie dans les réglages)
+function createSpeech(options = () => ({})) {
     let server = null;
     let buffer = '';
     let count = 0;
     const jobs = new Map();
 
     function start() {
+        const { voice, robot } = options();
         server = spawn(PYTHON, ['-u', python('voix_piper.py')], {
-            env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
+            env: {
+                ...process.env,
+                PYTHONIOENCODING: 'utf-8',
+                ...(voice ? { ROBBIE_VOIX: voice } : {}),
+                ROBBIE_EFFET: robot === false ? 'aucun' : 'robot'
+            }
         });
 
         server.stdout.setEncoding('utf8');

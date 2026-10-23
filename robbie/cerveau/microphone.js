@@ -32,7 +32,8 @@ function explain(errors) {
     };
 }
 
-function createMicrophone({ onHeard, onVoiceActive, onProblem }) {
+// `threshold()` : seuil de détection de la voix au moment de lancer l'écoute (réglable)
+function createMicrophone({ onHeard, onVoiceActive, onProblem, threshold = () => null }) {
     let child = null;
     let restarts = 0;
     let stopped = false;
@@ -46,7 +47,12 @@ function createMicrophone({ onHeard, onVoiceActive, onProblem }) {
         // (sortie Python en UTF-8 pour garder les accents)
         // (modèle Whisper « small » par défaut : bon en français, assez rapide sur le processeur)
         child = spawn(PYTHON, ['-u', python('voice_recognition.py')], {
-            env: { WHISPER_MODEL: 'small', ...process.env, PYTHONIOENCODING: 'utf-8' }
+            env: {
+                WHISPER_MODEL: 'small',
+                ...process.env,
+                PYTHONIOENCODING: 'utf-8',
+                ...(threshold() ? { VOICE_THRESHOLD: String(threshold()) } : {})
+            }
         });
 
         child.stdout.setEncoding('utf8');

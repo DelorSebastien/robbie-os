@@ -28,7 +28,13 @@ const DEFAULT_SETTINGS = {
     eyeColor: 'cyan',
     skin: 'none',
     doNotDisturb: false,
-    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'org.xfce.ristretto']
+    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'org.xfce.ristretto'],
+    // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
+    wallpaper: null,
+    voice: 'fr_FR-siwis-medium',
+    robotVoice: true,
+    voiceThreshold: 150,
+    lockMinutes: 0
 };
 
 module.exports = {

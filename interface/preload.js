@@ -35,7 +35,15 @@ contextBridge.exposeInMainWorld('os', {
     connectWifi: (ssid, password) => ipcRenderer.invoke('wifi-connecter', ssid, password),
     brightness: () => ipcRenderer.invoke('luminosite'),
     setBrightness: percent => ipcRenderer.invoke('set-luminosite', percent),
-    screenshot: () => ipcRenderer.invoke('capture')
+    screenshot: () => ipcRenderer.invoke('capture'),
+    wallpapers: () => ipcRenderer.invoke('fonds'),
+    voices: () => ipcRenderer.invoke('voix'),
+    displays: () => ipcRenderer.invoke('ecrans'),
+    setResolution: (name, width, height) => ipcRenderer.invoke('set-resolution', name, width, height),
+    systemInfo: () => ipcRenderer.invoke('systeme-infos'),
+    searchCity: name => ipcRenderer.invoke('chercher-ville', name),
+    reloadVoice: () => ipcRenderer.send('robbie-voix-recharger'),
+    reloadEars: () => ipcRenderer.send('robbie-oreille-recharger')
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état
