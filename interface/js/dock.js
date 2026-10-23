@@ -52,10 +52,10 @@
     document.body.append(label);
 
     // Forme de l'arc : les icônes du bord sont plus hautes que celles du centre
-    const SPACING = 74;
-    const ROBBIE_GAP = 16;
-    const BASE = 118;
-    const CURVE = 0.00027;
+    const SPACING = 66;
+    const ROBBIE_GAP = 12;
+    const BASE = 106;
+    const CURVE = 0.00024;
 
     const arcY = (x, cx) => BASE - CURVE * (x - cx) ** 2;
 
@@ -105,7 +105,7 @@
             el.addEventListener('mouseenter', () => showLabel(el, item.name));
             el.addEventListener('mouseleave', () => label.classList.remove('visible'));
             dock.append(el);
-            return { el, item, x: 0, y: 0, size: item.kind === 'robbie' ? 78 : 56 };
+            return { el, item, x: 0, y: 0, size: item.kind === 'robbie' ? 66 : 50 };
         }));
 
         window.icons.fill(dock);
@@ -122,14 +122,14 @@
             const offset = index - middle;
             const extra = Math.sign(offset) * ROBBIE_GAP;
             tile.x = cx + offset * SPACING + extra;
-            tile.y = tile.item.kind === 'robbie' ? arcY(cx, cx) - 14 : arcY(tile.x, cx);
+            tile.y = tile.item.kind === 'robbie' ? arcY(cx, cx) - 8 : arcY(tile.x, cx);
             tile.el.style.left = `${tile.x}px`;
             tile.el.style.top = `${tile.y}px`;
         });
 
         // L'arc passe juste sous les icônes et se prolonge de chaque côté
         const half = (tiles.length / 2) * SPACING + 230;
-        const below = 40;
+        const below = 34;
         const y0 = arcY(cx - half, cx) + below;
         const control = 2 * (arcY(cx, cx) + below) - y0;
         const d = `M${cx - half} ${y0} Q${cx} ${control} ${cx + half} ${y0}`;
@@ -140,8 +140,8 @@
         const dots = [];
         for (let i = 0; i < 7; i++) {
             const dx = outer + i * 30;
-            const size = 6.5 - i * 0.55;
-            const opacity = 0.95 - i * 0.11;
+            const size = 4.4 - i * 0.4;
+            const opacity = 0.9 - i * 0.11;
             for (const side of [-1, 1]) {
                 const x = cx + side * dx;
                 // Les points s'allument puis scintillent l'un après l'autre, vers l'extérieur
@@ -171,7 +171,7 @@
     function magnify(mouseX) {
         tiles.forEach(tile => {
             const distance = mouseX == null ? Infinity : Math.abs(mouseX - tile.x);
-            const scale = 1 + 0.32 * Math.max(0, 1 - distance / 160);
+            const scale = 1 + 0.18 * Math.max(0, 1 - distance / 130);
             tile.el.style.transform = scale === 1 ? '' : `translateY(${-(scale - 1) * tile.size * 0.45}px) scale(${scale})`;
         });
     }

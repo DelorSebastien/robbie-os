@@ -18,7 +18,7 @@
 
         mouse.x += dx * 0.035;
         mouse.y += dy * 0.035;
-        wallpaper.style.transform = `scale(1.06) translate(${(-mouse.x * 1.4).toFixed(3)}%, ${(-mouse.y * 1).toFixed(3)}%)`;
+        wallpaper.style.transform = `scale(1.03) translate(${(-mouse.x * 0.8).toFixed(3)}%, ${(-mouse.y * 0.6).toFixed(3)}%)`;
     }
 
     requestAnimationFrame(frame);
