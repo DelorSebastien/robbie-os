@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'">
+    <title>Robbie OS – Bienvenue</title>
+    <link rel="stylesheet" href="./accueil.css">
+</head>
+<body>
+    <img class="fond" src="../fonds/reference-temporaire.png" alt="">
+
+    <header class="heure">
+        <time id="heure">--:--</time>
+        <span id="date"></span>
+    </header>
+
+    <main class="accueil">
+        <div class="robbie">
+            <canvas id="face"></canvas>
+        </div>
+        <p class="salut" id="salut">Qui est là ?</p>
+        <div class="comptes" id="comptes" role="list"></div>
+        <form class="mot-de-passe" id="formulaire" hidden>
+            <input type="password" id="mot-de-passe" placeholder="Mot de passe" autocomplete="off" aria-label="Mot de passe">
+            <button aria-label="Se connecter" title="Entrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+            </button>
+        </form>
+        <p class="erreur" id="erreur" role="alert"></p>
+    </main>
+
+    <footer class="pied">
+        <span class="marque">ROBBIE OS</span>
+        <div class="alimentation">
+            <button data-action="reboot" aria-label="Redémarrer" title="Redémarrer">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4.5h4.5"/></svg>
+            </button>
+            <button data-action="poweroff" aria-label="Éteindre" title="Éteindre">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8M6.3 6.8a8 8 0 1 0 11.4 0"/></svg>
+            </button>
+        </div>
+    </footer>
+
+    <script src="../../robbie/visage/face.js"></script>
+    <script src="./accueil.js"></script>
+</body>
+</html>

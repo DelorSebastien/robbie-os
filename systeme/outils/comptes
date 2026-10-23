@@ -1,0 +1,147 @@
+#!/bin/sh
+# Gestion des comptes de Robbie OS. Lancé en root par sudo, depuis les Réglages d'un administrateur
+# (son mot de passe est demandé à chaque fois). Les mots de passe arrivent sur l'entrée standard,
+# jamais dans les arguments (qui seraient visibles par tous les utilisateurs).
+#
+#   comptes creer <identifiant> <nom complet> <rang>    (mot de passe sur l'entrée)
+#   comptes rang <identifiant> <rang>                   (admin, standard ou enfant)
+#   comptes nom <identifiant> <nom complet>
+#   comptes motdepasse <identifiant>                    (mot de passe sur l'entrée)
+#   comptes supprimer <identifiant>
+#   comptes invite on|off
+#   comptes enfant <identifiant>                        (règles JSON sur l'entrée)
+set -eu
+
+ENFANTS=/etc/robbie-os/enfants
+CALLER="${SUDO_USER:-}"
+
+fail() {
+    echo "$1" >&2
+    exit 1
+}
+
+valid_user() {
+    echo "$1" | grep -Eq '^[a-z][a-z0-9_-]{1,30}$' || fail "Identifiant invalide : lettres minuscules, chiffres, - et _"
+}
+
+# Seuls les comptes de personnes (UID 1000 à 59999) peuvent être modifiés, jamais les comptes du système
+human_user() {
+    uid=$(id -u "$1" 2>/dev/null) || fail "Ce compte n'existe pas"
+    [ "$uid" -ge 1000 ] && [ "$uid" -lt 60000 ] || fail "Ce compte appartient au système"
+}
+
+admins_count() {
+    getent group sudo | cut -d: -f4 | tr ',' '\n' | grep -c . || true
+}
+
+is_admin() {
+    id -nG "$1" | tr ' ' '\n' | grep -qx sudo
+}
+
+set_role() {
+    user=$1
+    role=$2
+    case "$role" in
+        admin|standard|enfant) ;;
+        *) fail "Rang inconnu : $role" ;;
+    esac
+
+    # On ne retire jamais le dernier administrateur
+    if is_admin "$user" && [ "$role" != admin ] && [ "$(admins_count)" -le 1 ]; then
+        fail "Il faut garder au moins un administrateur"
+    fi
+
+    gpasswd -d "$user" sudo >/dev/null 2>&1 || true
+    gpasswd -d "$user" robbie-enfant >/dev/null 2>&1 || true
+    case "$role" in
+        admin) usermod -aG sudo "$user" ;;
+        enfant) usermod -aG robbie-enfant "$user" ;;
+    esac
+}
+
+read_password() {
+    IFS= read -r password || true
+    [ "${#password}" -ge 4 ] || fail "Mot de passe trop court (4 caractères minimum)"
+}
+
+command=${1:-}
+[ $# -gt 0 ] && shift
+
+case "$command" in
+    creer)
+        [ $# -eq 3 ] || fail "Usage : creer <identifiant> <nom> <rang>"
+        valid_user "$1"
+        id "$1" >/dev/null 2>&1 && fail "Ce compte existe déjà"
+        read_password
+        useradd -m -s /bin/bash -c "$2" -G video,audio,input,render "$1"
+        echo "$1:$password" | chpasswd
+        set_role "$1" "$3"
+        ;;
+
+    rang)
+        [ $# -eq 2 ] || fail "Usage : rang <identifiant> <rang>"
+        valid_user "$1"
+        human_user "$1"
+        set_role "$1" "$2"
+        ;;
+
+    nom)
+        [ $# -eq 2 ] || fail "Usage : nom <identifiant> <nom>"
+        valid_user "$1"
+        human_user "$1"
+        usermod -c "$2" "$1"
+        ;;
+
+    motdepasse)
+        [ $# -eq 1 ] || fail "Usage : motdepasse <identifiant>"
+        valid_user "$1"
+        human_user "$1"
+        read_password
+        echo "$1:$password" | chpasswd
+        ;;
+
+    supprimer)
+        [ $# -eq 1 ] || fail "Usage : supprimer <identifiant>"
+        valid_user "$1"
+        human_user "$1"
+        [ "$1" = "$CALLER" ] && fail "Tu ne peux pas supprimer ton propre compte"
+        if is_admin "$1" && [ "$(admins_count)" -le 1 ]; then fail "Il faut garder au moins un administrateur"; fi
+        pkill -KILL -u "$1" 2>/dev/null || true
+        userdel -r "$1" 2>/dev/null || userdel "$1"
+        rm -f "$ENFANTS/$1.json"
+        ;;
+
+    invite)
+        case "${1:-}" in
+            on)
+                if ! id invite >/dev/null 2>&1; then
+                    useradd -m -s /bin/bash -c "Invité" -G video,audio,input,render invite
+                fi
+                # Sans mot de passe : la session invité s'ouvre d'un clic, et elle est effacée à la fin
+                passwd -d invite >/dev/null
+                ;;
+            off)
+                if id invite >/dev/null 2>&1; then
+                    pkill -KILL -u invite 2>/dev/null || true
+                    userdel -r invite 2>/dev/null || userdel invite
+                fi
+                ;;
+            *) fail "Usage : invite on|off" ;;
+        esac
+        ;;
+
+    enfant)
+        [ $# -eq 1 ] || fail "Usage : enfant <identifiant>"
+        valid_user "$1"
+        human_user "$1"
+        mkdir -p "$ENFANTS"
+        # Règles (applis autorisées, horaires) : lisibles par tous, modifiables seulement ici
+        cat > "$ENFANTS/$1.json.tmp"
+        mv "$ENFANTS/$1.json.tmp" "$ENFANTS/$1.json"
+        chmod 644 "$ENFANTS/$1.json"
+        ;;
+
+    *)
+        fail "Commande inconnue"
+        ;;
+esac

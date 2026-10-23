@@ -45,6 +45,10 @@ contextBridge.exposeInMainWorld('os', {
     reloadVoice: () => ipcRenderer.send('robbie-voix-recharger'),
     reloadEars: () => ipcRenderer.send('robbie-oreille-recharger'),
     lock: () => ipcRenderer.send('verrouiller'),
+    me: () => ipcRenderer.invoke('moi'),
+    accounts: () => ipcRenderer.invoke('comptes'),
+    changeAccount: (args, password, input) => ipcRenderer.invoke('compte-modifier', args, password, input),
+    logout: () => ipcRenderer.send('deconnexion'),
     reloadIdle: () => ipcRenderer.send('inactivite-recharger')
 });
 

@@ -82,7 +82,8 @@
     function computeItems() {
         const appItem = (app, pinnedApp) => ({ kind: 'app', id: app.id, app, pinned: pinnedApp, ...(KNOWN[app.id] || { name: app.name, tint: '190, 205, 230' }) });
 
-        const pinnedItems = pinned.map(appById).filter(Boolean).map(app => appItem(app, true));
+        // (un compte enfant ne voit que ses applis autorisées)
+        const pinnedItems = pinned.map(appById).filter(app => app && window.compte.allowed(app.id)).map(app => appItem(app, true));
         const extras = [];
         for (const w of windows) {
             const app = appForWindow(w);
@@ -347,6 +348,7 @@
     window.addEventListener('resize', layout);
 
     (async () => {
+        await window.compte.ready;
         const settings = await window.os.settings();
         face.setEyeColor(settings.eyeColor);
         face.setSkin(settings.skin);

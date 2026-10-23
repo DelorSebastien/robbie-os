@@ -1,44 +1,45 @@
 #!/bin/sh
-# Démarrage de Robbie OS : connexion automatique sur l'écran 1, puis labwc
-# qui lance l'interface en plein écran (aucun bureau, aucun écran de connexion)
-# À lancer en root : sudo sh installer-session.sh <utilisateur> <dossier de Robbie OS>
+# Robbie OS pour tous les comptes : installé dans /opt/robbie-os, écran de connexion de Robbie OS
+# (greetd), puis pour chaque personne sa propre session (labwc et l'interface).
+# À lancer en root : sudo sh installer-session.sh <dossier source de Robbie OS>
 set -eu
 
-USER_NAME="${1:-robbie}"
-ROBBIE_DIR="${2:-/home/$USER_NAME/robbie-os}"
-HOME_DIR="$(getent passwd "$USER_NAME" | cut -d: -f6)"
+SOURCE="${1:-/home/robbie/robbie-os}"
+ROBBIE_DIR=/opt/robbie-os
+CONFIG=/etc/robbie-os
 
-# Connexion automatique sur le premier écran
-mkdir -p /etc/systemd/system/getty@tty1.service.d
-cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf <<EOF
-[Service]
-ExecStart=
-ExecStart=-/sbin/agetty --autologin $USER_NAME --noclear --noissue --skip-login --nohints %I \$TERM
-EOF
-
-# Une fois connecté sur l'écran 1, on lance labwc (les autres écrans restent des consoles)
-cat > "$HOME_DIR/.bash_profile" <<'EOF'
-[ -f ~/.bashrc ] && . ~/.bashrc
-
-if [ "$(tty)" = /dev/tty1 ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
-    # D'abord avec la carte graphique ; si elle ne répond pas (machine virtuelle sans 3D),
-    # l'écran est dessiné par le processeur
-    labwc > ~/.robbie-os-session.log 2>&1 || WLR_RENDERER=pixman exec labwc >> ~/.robbie-os-session.log 2>&1
+# ---- Robbie OS dans /opt, lisible par tous ----
+if [ "$(realpath "$SOURCE")" != "$ROBBIE_DIR" ]; then
+    mkdir -p "$ROBBIE_DIR"
+    # (--remove-destination : remplace aussi les programmes en cours d'utilisation, comme Electron)
+    cp -a --remove-destination "$SOURCE/." "$ROBBIE_DIR/"
 fi
-EOF
+# Modèles de Whisper partagés (sinon chaque compte retéléchargerait 500 Mo)
+mkdir -p "$ROBBIE_DIR/modeles"
+for home in /home/*; do
+    [ -d "$home/.cache/huggingface/hub" ] && cp -an "$home/.cache/huggingface/hub" "$ROBBIE_DIR/modeles/" || true
+done
+chown -R root:root "$ROBBIE_DIR"
+chmod -R a+rX "$ROBBIE_DIR"
 
-# labwc : clavier français, et l'interface de Robbie OS au démarrage
-mkdir -p "$HOME_DIR/.config/labwc"
-cat > "$HOME_DIR/.config/labwc/environment" <<'EOF'
+# ---- Outil de gestion des comptes (lancé par sudo depuis les Réglages) ----
+install -D -m 755 "$ROBBIE_DIR/systeme/outils/comptes" /usr/local/lib/robbie-os/comptes
+getent group robbie-enfant >/dev/null || groupadd robbie-enfant
+mkdir -p "$CONFIG/enfants"
+
+# ---- Configuration de labwc commune à tous les comptes ----
+mkdir -p "$CONFIG/labwc"
+
+cat > "$CONFIG/labwc/environment" <<'EOF'
 XKB_DEFAULT_LAYOUT=fr
 WLR_NO_HARDWARE_CURSORS=1
 XCURSOR_THEME=Bibata-Modern-Classic
 XCURSOR_SIZE=24
 EOF
 
-# Raccourcis : touche Super seule = palette de Robbie (signal envoyé à l'interface),
-# Super+Entrée = terminal, et les raccourcis habituels de labwc (Alt+Tab...)
-cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
+# Raccourcis : Super seule = Robbie, Super+A applis, Super+N notifications, Super+I réglages,
+# Super+L verrouiller, Super+Entrée terminal (et ceux de labwc : Alt+Tab…)
+cat > "$CONFIG/labwc/rc.xml" <<'EOF'
 <?xml version="1.0"?>
 <labwc_config>
   <theme>
@@ -49,60 +50,125 @@ cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
     <font place="InactiveWindow"><name>Orbitron</name><size>9</size><weight>Medium</weight></font>
     <font place="MenuItem"><name>Orbitron</name><size>9</size></font>
   </theme>
-  <!-- Place réservée au dock (en bas) et à la barre latérale (à droite) :
-       les fenêtres, même agrandies, ne les recouvrent pas -->
+  <!-- Place réservée au dock (en bas) et à la barre latérale (à droite) -->
   <margin top="10" bottom="120" left="10" right="78" />
   <keyboard>
     <default />
     <keybind key="Super_L" onRelease="yes">
       <action name="Execute" command="sh -c 'kill -USR2 $(cat $HOME/.cache/robbie-os.pid)'" />
     </keybind>
-    <keybind key="W-Return">
-      <action name="Execute" command="foot" />
-    </keybind>
-    <keybind key="W-a">
-      <action name="Execute" command="sh -c 'echo lanceur > $HOME/.cache/robbie-os.commande'" />
-    </keybind>
-    <keybind key="W-n">
-      <action name="Execute" command="sh -c 'echo notifications > $HOME/.cache/robbie-os.commande'" />
-    </keybind>
-    <keybind key="W-i">
-      <action name="Execute" command="sh -c 'echo reglages > $HOME/.cache/robbie-os.commande'" />
-    </keybind>
-    <keybind key="W-l">
-      <action name="Execute" command="sh -c 'echo verrouiller > $HOME/.cache/robbie-os.commande'" />
-    </keybind>
+    <keybind key="W-Return"><action name="Execute" command="foot" /></keybind>
+    <keybind key="W-a"><action name="Execute" command="sh -c 'echo lanceur > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-n"><action name="Execute" command="sh -c 'echo notifications > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-i"><action name="Execute" command="sh -c 'echo reglages > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-l"><action name="Execute" command="sh -c 'echo verrouiller > $HOME/.cache/robbie-os.commande'" /></keybind>
   </keyboard>
 </labwc_config>
 EOF
 
-# Dans une machine virtuelle :
-# - le cerveau de Robbie (Ollama) est celui de l'ordinateur hôte, qui a la carte graphique :
-#   VirtualBox le rend joignable à l'adresse 10.0.2.2 ;
-# - l'interface est dessinée par le processeur : la carte graphique simulée de VirtualBox
-#   accélère labwc, mais pas Chromium (qui retomberait sur un rendu logiciel plus lent)
-cat > "$HOME_DIR/.config/labwc/autostart" <<EOF
-# Amplification du micro quand la carte son la propose (sinon il faut parler collé au micro)
+# Au démarrage de la session : l'interface de Robbie OS
+# (machine virtuelle : le cerveau de Robbie est sur l'ordinateur hôte, et l'interface est
+#  dessinée par le processeur, la carte graphique simulée de VirtualBox ne convenant pas à Chromium)
+cat > "$CONFIG/labwc/autostart" <<EOF
 amixer -q sset 'Mic Boost (+20dB)' on 2>/dev/null
-
 if systemd-detect-virt -q; then
     export ROBBIE_OLLAMA=http://10.0.2.2:11434
     export ROBBIE_SANS_GPU=1
 fi
-cd "$ROBBIE_DIR" && ./node_modules/.bin/electron . > ~/.robbie-os-interface.log 2>&1 &
+mkdir -p "\$HOME/.cache"
+$ROBBIE_DIR/node_modules/.bin/electron $ROBBIE_DIR > "\$HOME/.cache/robbie-os-interface.log" 2>&1 &
 EOF
 
-# Machine virtuelle : tampons audio plus grands, pour que la voix de Robbie
-# ne saccade pas quand le processeur est occupé (un peu plus de latence, sans importance ici)
+# ---- Session d'une personne (lancée par l'écran de connexion) ----
+cat > /usr/local/bin/robbie-os-session <<'EOF'
+#!/bin/sh
+# Session Robbie OS : labwc avec la configuration commune, avec la carte graphique si possible
+export XDG_CURRENT_DESKTOP=Robbie-OS
+export XDG_SESSION_TYPE=wayland
+mkdir -p "$HOME/.cache"
+
+# Invité : on repart toujours d'un dossier vide, et on l'efface en partant
+clean_guest() {
+    if [ "$(id -un)" = invite ] && [ "$HOME" = /home/invite ]; then
+        find "$HOME" -mindepth 1 -delete 2>/dev/null
+        cp -r /etc/skel/. "$HOME/"
+        mkdir -p "$HOME/.cache"
+    fi
+}
+
+# Fin de session : tout ce qui reste de la session s'arrête (interface, oreille de Robbie…),
+# sinon ces programmes continueraient d'écouter le micro après la déconnexion.
+# Tous les programmes de la connexion sont dans le même groupe (cgroup) : on les arrête tous.
+stop_leftovers() {
+    group="/sys/fs/cgroup$(sed -n 's/^0:://p' /proc/$$/cgroup)"
+    for signal in TERM KILL; do
+        for pid in $(cat "$group/cgroup.procs" 2>/dev/null); do
+            [ "$pid" != $$ ] && kill -s "$signal" "$pid" 2>/dev/null
+        done
+        [ "$signal" = TERM ] && sleep 2
+    done
+}
+
+clean_guest
+labwc -C /etc/robbie-os/labwc > "$HOME/.cache/robbie-os-session.log" 2>&1 \
+    || WLR_RENDERER=pixman labwc -C /etc/robbie-os/labwc >> "$HOME/.cache/robbie-os-session.log" 2>&1
+stop_leftovers
+clean_guest
+EOF
+chmod 755 /usr/local/bin/robbie-os-session
+
+# ---- Écran de connexion de Robbie OS (greetd + cage) ----
+cat > /usr/local/bin/robbie-os-accueil <<EOF
+#!/bin/sh
+# Écran de connexion : l'interface de Robbie OS en mode accueil, seule à l'écran (cage)
+export XKB_DEFAULT_LAYOUT=fr
+export XCURSOR_THEME=Bibata-Modern-Classic
+export XCURSOR_SIZE=24
+systemd-detect-virt -q && export ROBBIE_SANS_GPU=1
+APP="$ROBBIE_DIR/node_modules/.bin/electron $ROBBIE_DIR --accueil"
+cage -s -d -- \$APP || WLR_RENDERER=pixman exec cage -s -d -- \$APP
+EOF
+chmod 755 /usr/local/bin/robbie-os-accueil
+
+cat > /etc/greetd/config.toml <<'EOF'
+[terminal]
+vt = 1
+
+[default_session]
+command = "/usr/local/bin/robbie-os-accueil"
+user = "_greetd"
+EOF
+
+# L'écran de connexion remplace la connexion automatique sur l'écran 1
+rm -f /etc/systemd/system/getty@tty1.service.d/autologin.conf
+mkdir -p /etc/systemd/system/greetd.service.d
+cat > /etc/systemd/system/greetd.service.d/robbie-os.conf <<'EOF'
+[Unit]
+Conflicts=getty@tty1.service
+After=getty@tty1.service
+EOF
+systemctl disable getty@tty1.service >/dev/null 2>&1 || true
+
+# L'écran de connexion peut éteindre ou redémarrer l'ordinateur
+mkdir -p /etc/polkit-1/rules.d
+cat > /etc/polkit-1/rules.d/50-robbie-os-accueil.rules <<'EOF'
+polkit.addRule(function (action, subject) {
+    if (subject.user === "_greetd" && /^org\.freedesktop\.login1\.(power-off|reboot)/.test(action.id)) {
+        return polkit.Result.YES;
+    }
+});
+EOF
+
+# Machine virtuelle : tampons audio plus grands (la voix de Robbie ne saccade pas)
 if systemd-detect-virt -q; then
-    mkdir -p "$HOME_DIR/.config/pipewire/pipewire.conf.d" "$HOME_DIR/.config/pipewire/pipewire-pulse.conf.d"
-    cat > "$HOME_DIR/.config/pipewire/pipewire.conf.d/10-robbie-vm.conf" <<'EOF'
+    mkdir -p /etc/pipewire/pipewire.conf.d /etc/pipewire/pipewire-pulse.conf.d
+    cat > /etc/pipewire/pipewire.conf.d/10-robbie-vm.conf <<'EOF'
 context.properties = {
     default.clock.quantum = 2048
     default.clock.min-quantum = 1024
 }
 EOF
-    cat > "$HOME_DIR/.config/pipewire/pipewire-pulse.conf.d/10-robbie-vm.conf" <<'EOF'
+    cat > /etc/pipewire/pipewire-pulse.conf.d/10-robbie-vm.conf <<'EOF'
 pulse.properties = {
     pulse.min.req = 1024/48000
     pulse.min.quantum = 1024/48000
@@ -110,7 +176,7 @@ pulse.properties = {
 EOF
 fi
 
-chown -R "$USER_NAME:$USER_NAME" "$HOME_DIR/.bash_profile" "$HOME_DIR/.config"
 systemctl daemon-reload
+systemctl enable greetd >/dev/null 2>&1
 
-echo "Session de Robbie OS installée"
+echo "Robbie OS installé pour tous les comptes"

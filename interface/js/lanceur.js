@@ -79,7 +79,8 @@
 
     window.panneaux.register('lanceur', panel, {
         onOpen: async () => {
-            apps = await window.os.apps();
+            await window.compte.ready;
+            apps = (await window.os.apps()).filter(app => window.compte.allowed(app.id));
             search.value = '';
             selected = 0;
             render();

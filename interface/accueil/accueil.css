@@ -1,0 +1,220 @@
+/* Écran d'accueil de Robbie OS : fond flouté, heure en Orbitron, Robbie, cartes des comptes */
+@font-face {
+    font-family: 'Orbitron';
+    src: url('../../assets/polices/Orbitron.ttf') format('truetype');
+    font-weight: 400 900;
+}
+
+:root {
+    --accent: 94, 231, 255;
+    --texte: #eef3fb;
+    --doux: rgba(226, 234, 248, 0.7);
+    --bord: rgba(255, 255, 255, 0.1);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #02060d;
+    color: var(--texte);
+    font: 14px/1.4 'Inter', 'Noto Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+}
+
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Fond : l'image floutée et assombrie (verre dépoli) ; le dock dessiné sur l'image de référence est caché */
+.fond {
+    position: fixed;
+    inset: -40px;
+    width: calc(100% + 80px);
+    height: calc(100% + 80px);
+    object-fit: cover;
+    object-view-box: inset(0 100px 165px 0);
+    filter: blur(22px) brightness(0.62) saturate(1.1);
+}
+
+.heure {
+    position: fixed;
+    top: 8vh;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.heure time { font: 500 64px 'Orbitron', sans-serif; letter-spacing: 4px; text-shadow: 0 4px 30px rgba(0, 0, 0, 0.4); }
+.heure span { font-size: 15px; color: var(--doux); }
+
+.accueil {
+    position: fixed;
+    left: 50%;
+    top: 54%;
+    transform: translate(-50%, -50%);
+    width: min(760px, 92vw);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+
+.robbie {
+    position: relative;
+    width: 108px;
+    height: 84px;
+    border-radius: 26px;
+    background: #02060d;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 30px -10px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+}
+
+.robbie #face {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 200px;
+    height: 125px;
+    transform: translate(-50%, -50%) scale(0.7);
+}
+
+.salut { margin: 0; font: 500 12px 'Orbitron', sans-serif; letter-spacing: 0.24em; text-transform: uppercase; color: var(--doux); }
+
+.comptes { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+
+.compte {
+    width: 132px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 10px 14px;
+    border-radius: 20px;
+    background: rgba(10, 16, 32, 0.5);
+    border: 1px solid var(--bord);
+    backdrop-filter: blur(20px);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s, background 0.2s, opacity 0.2s;
+}
+
+.compte:hover { transform: translateY(-3px); border-color: rgba(255, 255, 255, 0.22); }
+.compte.choisi { border-color: rgba(var(--accent), 0.7); background: rgba(10, 16, 32, 0.7); box-shadow: 0 0 24px -8px rgba(var(--accent), 0.7); }
+.comptes.un-choisi .compte:not(.choisi) { opacity: 0.45; }
+.compte.bloque { opacity: 0.5; }
+
+.avatar {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font: 600 22px 'Orbitron', sans-serif;
+}
+
+.compte.choisi .avatar { background: rgba(var(--accent), 0.2); border-color: rgba(var(--accent), 0.5); }
+.compte b { font-weight: 600; font-size: 14px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.rang {
+    font: 600 9px 'Orbitron', sans-serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--doux);
+}
+
+.rang.admin { background: rgba(var(--accent), 0.18); color: rgb(var(--accent)); }
+.rang.enfant { background: rgba(255, 200, 70, 0.16); color: #ffd46b; }
+.rang.invite { background: rgba(170, 120, 255, 0.18); color: #c9a8ff; }
+
+.mot-de-passe {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: min(340px, 90vw);
+    padding: 6px 6px 6px 16px;
+    border-radius: 16px;
+    background: rgba(10, 16, 32, 0.6);
+    border: 1px solid rgba(var(--accent), 0.5);
+    backdrop-filter: blur(20px);
+    animation: apparition 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mot-de-passe input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: 0;
+    outline: none;
+    color: var(--texte);
+    font: 16px 'Inter', sans-serif;
+}
+
+.mot-de-passe input::placeholder { color: rgba(226, 234, 248, 0.45); }
+
+.mot-de-passe button {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(var(--accent), 0.85);
+    color: #04121c;
+}
+
+.mot-de-passe.secoue { animation: secoue 0.4s; }
+.mot-de-passe button:focus-visible, .compte:focus-visible, .alimentation button:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 2px; }
+
+@keyframes apparition { from { opacity: 0; transform: translateY(8px); } }
+
+@keyframes secoue {
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+.erreur { min-height: 1.4em; margin: 0; color: #ff9a9a; font-size: 13px; }
+
+.pied {
+    position: fixed;
+    left: 28px;
+    right: 22px;
+    bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.marque { font: 500 11px 'Orbitron', sans-serif; letter-spacing: 0.4em; color: rgba(226, 234, 248, 0.5); }
+
+.alimentation { display: flex; gap: 8px; }
+
+.alimentation button {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: rgba(10, 16, 32, 0.5);
+    border: 1px solid var(--bord);
+    color: var(--doux);
+}
+
+.alimentation button:hover { color: #fff; border-color: rgba(255, 255, 255, 0.25); }
+.alimentation button[data-action='poweroff']:hover { color: #ff8a8a; }
+.alimentation button.confirmer { color: #ff8a8a; border-color: rgba(255, 107, 107, 0.6); }
+
+/* Invité : pas de champ, seulement le bouton pour entrer */
+.mot-de-passe.sans-mot-de-passe { width: auto; padding: 6px; }
+.mot-de-passe.sans-mot-de-passe input { display: none; }
+
+/* (le style du formulaire ne doit pas le faire apparaître quand il est caché) */
+.mot-de-passe[hidden] { display: none; }

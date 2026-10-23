@@ -5,7 +5,7 @@
   "private": true,
   "license": "ISC",
   "type": "commonjs",
-  "main": "interface/main.js",
+  "main": "interface/lancement.js",
   "scripts": {
     "start": "electron ."
   },

@@ -6,6 +6,7 @@
     const SECTIONS = [
         ['apparence', 'Apparence', 'sparkles'],
         ['robbie', 'Robbie', 'person'],
+        ['comptes', 'Comptes', 'users'],
         ['son', 'Son', 'volume'],
         ['ecran', 'Écran', 'grid'],
         ['systeme', 'Système', 'cpu']
@@ -227,6 +228,7 @@
             + block('Alimentation', `
             <div class="reglage-ligne boutons">
                 <button class="bouton" data-verrouiller>Verrouiller</button>
+                <button class="bouton" data-deconnecter>Se déconnecter</button>
                 <button class="bouton" data-power="suspend">Mettre en veille</button>
                 <button class="bouton" data-power="reboot">Redémarrer</button>
                 <button class="bouton danger" data-power="poweroff">Éteindre</button>
@@ -241,6 +243,7 @@
             window.panneaux.close();
             window.os.lock();
         });
+        content.querySelector('[data-deconnecter]').addEventListener('click', () => window.os.logout());
 
         content.querySelectorAll('[data-power]').forEach(button => button.addEventListener('click', () => {
             if (button.dataset.confirm) return window.os.power(button.dataset.power);
@@ -254,7 +257,210 @@
         }));
     }
 
-    const RENDER = { apparence: renderAppearance, robbie: renderRobbie, son: renderSound, ecran: renderScreen, systeme: renderSystem };
+    // ---- Comptes ----
+    const ROLES = { admin: 'Administrateur', standard: 'Standard', enfant: 'Enfant', invite: 'Invité' };
+
+    // Mot de passe administrateur : demandé dans le panneau, gardé 2 minutes en mémoire
+    let adminPassword = null;
+    let adminTimer = null;
+
+    function askAdmin() {
+        if (adminPassword) return Promise.resolve(adminPassword);
+        return new Promise(resolve => {
+            const box = document.createElement('form');
+            box.className = 'admin-demande';
+            box.innerHTML = `
+                <p>Mot de passe d'un administrateur, pour confirmer</p>
+                <div class="champ-ajout">
+                    <input type="password" placeholder="Mot de passe" aria-label="Mot de passe administrateur">
+                    <button aria-label="Valider" data-icon="check"></button>
+                </div>
+                <button type="button" class="petit-bouton" data-annuler>Annuler</button>`;
+            window.icons.fill(box);
+            content.prepend(box);
+            box.querySelector('input').focus();
+            box.addEventListener('submit', event => {
+                event.preventDefault();
+                box.remove();
+                resolve(box.querySelector('input').value);
+            });
+            box.querySelector('[data-annuler]').addEventListener('click', () => {
+                box.remove();
+                resolve(null);
+            });
+        });
+    }
+
+    async function adminChange(args, input = '') {
+        const password = await askAdmin();
+        if (password == null) return false;
+        const result = await window.os.changeAccount(args, password, input);
+        if (!result.ok) {
+            adminPassword = null;
+            toast(result.error, 'x');
+            return false;
+        }
+        adminPassword = password;
+        clearTimeout(adminTimer);
+        adminTimer = setTimeout(() => {
+            adminPassword = null;
+        }, 2 * 60 * 1000);
+        return true;
+    }
+
+    // Identifiant tiré du prénom : « Léa Martin » → « leamartin »
+    const slug = text => String(text).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '').replace(/^[0-9]+/, '').slice(0, 30);
+
+    async function renderAccounts() {
+        const [me, accounts] = await Promise.all([window.os.me(), window.os.accounts()]);
+        const admin = me.role === 'admin';
+        const guest = accounts.some(a => a.role === 'invite');
+        const people = accounts.filter(a => a.role !== 'invite');
+
+        content.innerHTML = block('Ton compte', `
+            <div class="compte-ligne">
+                <span class="contact-rond">${escape(me.name.charAt(0).toUpperCase())}</span>
+                <span class="liste-texte"><b>${escape(me.name)}</b><small>${escape(me.user)}</small></span>
+                <span class="rang-badge ${me.role}">${ROLES[me.role]}</span>
+                <button class="bouton" data-deconnexion>Se déconnecter</button>
+            </div>`)
+            + block('Comptes', `
+            <div class="comptes-liste">${people.map(a => `
+                <div class="compte-ligne" data-user="${escape(a.user)}">
+                    <span class="contact-rond">${escape(a.name.charAt(0).toUpperCase())}</span>
+                    <span class="liste-texte"><b>${escape(a.name)}</b><small>${escape(a.user)}</small></span>
+                    ${admin ? `
+                        <select data-rang aria-label="Rang de ${escape(a.name)}">${['admin', 'standard', 'enfant'].map(r => `<option value="${r}" ${r === a.role ? 'selected' : ''}>${ROLES[r]}</option>`).join('')}</select>
+                        ${a.role === 'enfant' ? '<button class="petit-bouton" data-regles>Règles</button>' : ''}
+                        <button class="petit-bouton" data-motdepasse>Mot de passe</button>
+                        ${a.user !== me.user ? '<button class="petit-bouton danger" data-supprimer>Supprimer</button>' : ''}
+                    ` : `<span class="rang-badge ${a.role}">${ROLES[a.role]}</span>`}
+                </div>`).join('')}
+            </div>
+            ${admin ? '' : '<p class="reglage-aide">Seul un administrateur peut créer ou modifier des comptes.</p>'}`)
+            + (admin ? block('Ajouter un compte', `
+            <form class="compte-nouveau" data-nouveau>
+                <input placeholder="Prénom ou nom" maxlength="40" required aria-label="Prénom ou nom" data-nom>
+                <input placeholder="Identifiant" maxlength="30" required pattern="[a-z][a-z0-9_-]{1,29}" aria-label="Identifiant" data-identifiant>
+                <select aria-label="Rang" data-nouveau-rang>${['standard', 'enfant', 'admin'].map(r => `<option value="${r}">${ROLES[r]}</option>`).join('')}</select>
+                <input type="password" placeholder="Mot de passe" minlength="4" required aria-label="Mot de passe" data-mdp>
+                <button class="bouton">Créer le compte</button>
+            </form>`)
+            + block('Session invité', `
+            <label class="interrupteur"><input type="checkbox" data-invite ${guest ? 'checked' : ''}>
+                <span>Permettre une session invité (sans mot de passe, effacée à chaque fois)</span></label>`) : '');
+
+        content.querySelector('[data-deconnexion]').addEventListener('click', () => window.os.logout());
+        if (!admin) return;
+
+        const nameInput = content.querySelector('[data-nom]');
+        const idInput = content.querySelector('[data-identifiant]');
+        nameInput.addEventListener('input', () => {
+            if (!idInput.dataset.touche) idInput.value = slug(nameInput.value);
+        });
+        idInput.addEventListener('input', () => {
+            idInput.dataset.touche = '1';
+        });
+
+        content.querySelector('[data-nouveau]').addEventListener('submit', async event => {
+            event.preventDefault();
+            const role = content.querySelector('[data-nouveau-rang]').value;
+            const ok = await adminChange(['creer', idInput.value, nameInput.value.trim(), role], `${content.querySelector('[data-mdp]').value}\n`);
+            if (ok) {
+                toast(`Compte de ${nameInput.value.trim()} créé`, 'check');
+                // Un enfant commence avec quelques applis autorisées, sans le terminal
+                if (role === 'enfant') await adminChange(['enfant', idInput.value], JSON.stringify({ apps: ['firefox-esr', 'org.xfce.ristretto'], debut: '08:00', fin: '20:00' }));
+                show('comptes');
+            }
+        });
+
+        content.querySelectorAll('.comptes-liste .compte-ligne').forEach(row => {
+            const user = row.dataset.user;
+            const account = accounts.find(a => a.user === user);
+
+            row.querySelector('[data-rang]').addEventListener('change', async event => {
+                const ok = await adminChange(['rang', user, event.target.value]);
+                if (ok && event.target.value === 'enfant' && !account.rules) {
+                    await adminChange(['enfant', user], JSON.stringify({ apps: ['firefox-esr', 'org.xfce.ristretto'], debut: '08:00', fin: '20:00' }));
+                }
+                toast(ok ? `${account.name} : ${ROLES[event.target.value]}` : 'Rang inchangé', ok ? 'check' : 'x');
+                show('comptes');
+            });
+
+            row.querySelector('[data-motdepasse]').addEventListener('click', () => {
+                if (row.nextElementSibling?.matches('.compte-edition')) return row.nextElementSibling.remove();
+                const form = document.createElement('form');
+                form.className = 'compte-edition champ-ajout';
+                form.innerHTML = `<input type="password" placeholder="Nouveau mot de passe de ${escape(account.name)}" minlength="4" required aria-label="Nouveau mot de passe">
+                    <button aria-label="Valider" data-icon="check"></button>`;
+                window.icons.fill(form);
+                row.after(form);
+                form.querySelector('input').focus();
+                form.addEventListener('submit', async event => {
+                    event.preventDefault();
+                    const ok = await adminChange(['motdepasse', user], `${form.querySelector('input').value}\n`);
+                    if (ok) {
+                        toast(`Mot de passe de ${account.name} changé`, 'check');
+                        form.remove();
+                    }
+                });
+            });
+
+            row.querySelector('[data-supprimer]')?.addEventListener('click', async event => {
+                const button = event.currentTarget;
+                if (!button.dataset.confirm) {
+                    button.dataset.confirm = '1';
+                    button.textContent = 'Confirmer ?';
+                    return;
+                }
+                const ok = await adminChange(['supprimer', user]);
+                if (ok) {
+                    toast(`Compte de ${account.name} supprimé`, 'check');
+                    show('comptes');
+                }
+            });
+
+            row.querySelector('[data-regles]')?.addEventListener('click', async () => {
+                if (row.nextElementSibling?.matches('.regles-enfant')) return row.nextElementSibling.remove();
+                const apps = await window.os.apps();
+                const rules = account.rules || { apps: [], debut: '', fin: '' };
+                const box = document.createElement('form');
+                box.className = 'regles-enfant';
+                box.innerHTML = `
+                    <p class="reglage-aide">Applis que ${escape(account.name)} peut utiliser</p>
+                    <div class="regles-applis">${apps.map(app => `
+                        <label><input type="checkbox" value="${escape(app.id)}" ${rules.apps.includes(app.id) ? 'checked' : ''}> ${escape(app.name)}</label>`).join('')}
+                    </div>
+                    <div class="reglage-ligne">
+                        <span>Utilisable de</span><input type="time" value="${escape(rules.debut || '')}" data-debut aria-label="Heure de début">
+                        <span>à</span><input type="time" value="${escape(rules.fin || '')}" data-fin aria-label="Heure de fin">
+                        <button class="bouton">Enregistrer</button>
+                    </div>`;
+                row.after(box);
+                box.addEventListener('submit', async event => {
+                    event.preventDefault();
+                    const next = {
+                        apps: [...box.querySelectorAll('.regles-applis input:checked')].map(input => input.value),
+                        debut: box.querySelector('[data-debut]').value,
+                        fin: box.querySelector('[data-fin]').value
+                    };
+                    const ok = await adminChange(['enfant', user], JSON.stringify(next));
+                    if (ok) {
+                        toast(`Règles de ${account.name} enregistrées`, 'check');
+                        show('comptes');
+                    }
+                });
+            });
+        });
+
+        content.querySelector('[data-invite]').addEventListener('change', async event => {
+            const ok = await adminChange(['invite', event.target.checked ? 'on' : 'off']);
+            if (!ok) event.target.checked = !event.target.checked;
+            else toast(event.target.checked ? 'Session invité activée' : 'Session invité désactivée', 'check');
+        });
+    }
+
+    const RENDER = { apparence: renderAppearance, robbie: renderRobbie, comptes: renderAccounts, son: renderSound, ecran: renderScreen, systeme: renderSystem };
 
     // ---- Fond d'écran ----
     const wallpaperImg = document.getElementById('fond');

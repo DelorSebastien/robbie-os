@@ -18,6 +18,8 @@ const luminosite = require('./services/luminosite');
 const actions = require('./services/actions');
 const parametres = require('./services/parametres');
 const verrouillage = require('./services/verrouillage');
+const comptes = require('./services/comptes');
+const { spawn } = require('node:child_process');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
 protocol.registerSchemesAsPrivileged([{ scheme: 'fond', privileges: { standard: true, secure: true } }]);
@@ -144,6 +146,21 @@ ipcMain.handle('chercher-ville', (_event, name) => parametres.searchCity(String(
 ipcMain.on('robbie-voix-recharger', () => robbie?.reloadVoice());
 ipcMain.on('robbie-oreille-recharger', () => robbie?.reloadEars());
 ipcMain.on('verrouiller', () => verrouillage.lock());
+
+// Comptes : qui est connecté, liste, modifications (mot de passe administrateur demandé),
+// déconnexion (retour à l'écran d'accueil)
+const ACCOUNT_COMMANDS = ['creer', 'rang', 'nom', 'motdepasse', 'supprimer', 'invite', 'enfant'];
+ipcMain.handle('moi', () => comptes.me());
+ipcMain.handle('comptes', () => comptes.list());
+ipcMain.handle('compte-modifier', (_event, args, password, input) => {
+    if (!Array.isArray(args) || !ACCOUNT_COMMANDS.includes(args[0])) return { ok: false, error: 'Modification inconnue' };
+    return comptes.change(args, String(password || ''), String(input || ''));
+});
+ipcMain.on('deconnexion', () => {
+    robbie?.stop();
+    // labwc --exit ferme la session ; l'écran d'accueil revient
+    spawn('labwc', ['--exit'], { detached: true, stdio: 'ignore' }).unref();
+});
 ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
 
 // Notifications des applis
@@ -175,3 +192,12 @@ app.on('before-quit', () => {
     robbie?.stop();
     verrouillage.stop();
 });
+
+// Fin de session (déconnexion, extinction) : Robbie s'arrête proprement, avec son oreille et sa voix
+for (const signal of ['SIGTERM', 'SIGHUP', 'SIGINT']) {
+    process.on(signal, () => {
+        robbie?.stop();
+        verrouillage.stop();
+        app.quit();
+    });
+}

@@ -7,6 +7,7 @@ const { createMicrophone } = require('../../robbie/cerveau/microphone');
 const actions = require('./actions');
 const meteo = require('./meteo');
 const notes = require('./notes');
+const comptes = require('./comptes');
 
 const MODEL = process.env.ROBBIE_MODEL || 'qwen3:8b';
 const WAKE_WORD = /\b(robbie|robby|robie|roby|robi|robbi|ruby)\b/i;
@@ -33,7 +34,9 @@ function createRobbie({ send }) {
     // Contexte du moment : date, heure, météo de la ville choisie
     async function context() {
         const now = new Date();
+        const account = await comptes.me();
         const lines = [
+            `La personne qui te parle s'appelle ${account.name}${account.role === 'enfant' ? ' (c\'est un enfant : adapte ton langage)' : ''}${account.role === 'invite' ? ' (c\'est un invité de passage)' : ''}.`,
             `Nous sommes le ${now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}.`,
             `Il est ${now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.`
         ];
@@ -78,7 +81,9 @@ function createRobbie({ send }) {
         let answer = String(reply.text || '').trim() || 'Hmm, je n\'ai pas compris.';
 
         // Action demandée : exécutée, ou proposée à confirmer
-        const result = reply.action ? await actions.execute(reply.action) : { done: false };
+        // (un compte enfant n'ouvre que ses applis autorisées, et ne touche pas à l'alimentation)
+        const account = await comptes.me();
+        const result = reply.action ? await actions.execute(reply.action, account) : { done: false };
         if (result.say) answer = result.say;
 
         history.push({ role: 'user', content: question }, { role: 'assistant', content: JSON.stringify({ emotion, text: answer }) });

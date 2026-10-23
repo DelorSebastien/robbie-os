@@ -4,9 +4,8 @@
 # À lancer en root : sudo sh installer-demarrage.sh <utilisateur> <dossier de Robbie OS>
 set -eu
 
-USER_NAME="${1:-robbie}"
+USER_NAME="${1:-robbie}"   # (sert seulement à trouver le dossier de Robbie OS par défaut)
 ROBBIE_DIR="${2:-/home/$USER_NAME/robbie-os}"
-HOME_DIR="$(getent passwd "$USER_NAME" | cut -d: -f6)"
 THEME=/usr/share/plymouth/themes/robbie
 FONT=/usr/share/fonts/truetype/robbie-os/Orbitron.ttf
 
@@ -32,15 +31,5 @@ sed -i 's/^GRUB_TIMEOUT_STYLE=.*/GRUB_TIMEOUT_STYLE=hidden/' /etc/default/grub
 update-grub
 update-initramfs -u
 
-# Connexion automatique sans la bannière ni le message du jour de Debian
-mkdir -p /etc/systemd/system/getty@tty1.service.d
-cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf <<EOF
-[Service]
-ExecStart=
-ExecStart=-/sbin/agetty --autologin $USER_NAME --noclear --noissue --skip-login --nohints %I \$TERM
-EOF
-touch "$HOME_DIR/.hushlogin"
-chown "$USER_NAME:$USER_NAME" "$HOME_DIR/.hushlogin"
-systemctl daemon-reload
-
+# (après l'écran de démarrage vient l'écran de connexion de Robbie OS : voir installer-session.sh)
 echo "Démarrage de Robbie OS installé"

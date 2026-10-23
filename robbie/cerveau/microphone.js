@@ -1,6 +1,10 @@
 // Micro : reconnaissance vocale Whisper (script Python), relancée toute seule si elle s'arrête
 const { spawn } = require('node:child_process');
-const { python, PYTHON } = require('./paths');
+const fs = require('node:fs');
+const path = require('node:path');
+const { python, PYTHON, ROOT } = require('./paths');
+
+const MODELS = path.join(ROOT, '..', 'modeles');
 
 // Au-delà, le problème est expliqué à l'utilisateur au lieu de relancer en boucle
 const MAX_RESTARTS = 3;
@@ -49,6 +53,8 @@ function createMicrophone({ onHeard, onVoiceActive, onProblem, threshold = () =>
         child = spawn(PYTHON, ['-u', python('voice_recognition.py')], {
             env: {
                 WHISPER_MODEL: 'small',
+                // Modèles de Whisper partagés par tous les comptes (installés avec Robbie OS)
+                ...(fs.existsSync(MODELS) ? { HF_HOME: MODELS, HF_HUB_OFFLINE: '1' } : {}),
                 ...process.env,
                 PYTHONIOENCODING: 'utf-8',
                 ...(threshold() ? { VOICE_THRESHOLD: String(threshold()) } : {})

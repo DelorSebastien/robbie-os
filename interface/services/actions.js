@@ -135,14 +135,21 @@ function undoOrganize() {
 
 // Exécution d'une action. Résultat : { done, say? } ; say remplace la phrase de Robbie
 // quand l'action n'a pas pu se faire. Les actions sensibles renvoient { confirm }.
-async function execute(action) {
+async function execute(action, account = null) {
     if (!action || typeof action !== 'object') return { done: false };
+
+    // Compte enfant : seulement ses applis autorisées, et pas d'extinction ni de redémarrage
+    const child = account?.role === 'enfant';
+    if (child && action.type === 'power') return { done: false, say: 'Demande à un adulte pour éteindre l\'ordinateur.' };
 
     try {
         switch (action.type) {
             case 'open_app': {
                 const app = findApp(action.name);
                 if (!app) return { done: false, say: `Je ne trouve pas d'appli qui s'appelle « ${action.name} ».` };
+                if (child && !(account.rules?.apps || []).includes(app.id)) {
+                    return { done: false, say: `${app.name} n'est pas autorisée sur ton compte. Demande à un adulte !` };
+                }
                 applis.launch(app.id);
                 return { done: true };
             }
@@ -202,6 +209,10 @@ async function execute(action) {
                 const count = undoOrganize();
                 return { done: true, say: count ? `C'est fait, j'ai remis ${count} fichier${count > 1 ? 's' : ''} à leur place.` : 'Il n\'y a aucun rangement à annuler.' };
             }
+
+            case 'logout':
+                setTimeout(() => run('labwc', ['--exit']), 1800);
+                return { done: true };
 
             case 'lock':
                 // (petit délai : le temps que Robbie dise sa phrase)
