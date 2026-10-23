@@ -65,7 +65,39 @@ for version in gtk-3.0 gtk-4.0; do
         -e 's/#3C3C3C/rgba(255, 255, 255, 0.08)/gI' \
         -e 's/#404040/rgba(255, 255, 255, 0.12)/gI' \
         -e 's/#3281EA/#1e9cc4/gI' {} +
+
 done
+
+# Menus, menus contextuels, bulles d'aide et listes déroulantes restent opaques :
+# translucides, on lirait le contenu de la fenêtre à travers.
+# (une règle CSS est ignorée en entier si un seul nom est inconnu : une version par GTK ;
+# en mode sombre, GTK lit gtk-dark.css au lieu de gtk.css : on complète les deux)
+cat > /tmp/robbie-menus-gtk3.css <<'EOF'
+
+/* Robbie OS : menus et bulles opaques, lisibles par-dessus les fenêtres translucides */
+menu, .menu, .context-menu, .background.popup > menu, .background.csd > menu, combobox menu {
+    background-color: #0f1a30;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+popover.background, tooltip.background {
+    background-color: #0f1a30;
+}
+EOF
+
+cat > /tmp/robbie-menus-gtk4.css <<'EOF'
+
+/* Robbie OS : menus et bulles opaques, lisibles par-dessus les fenêtres translucides */
+popover > contents, popover > arrow, popover.menu > contents, tooltip.background {
+    background-color: #0f1a30;
+}
+EOF
+for v in 3 4; do
+    for css in gtk.css gtk-dark.css; do
+        cat "/tmp/robbie-menus-gtk$v.css" >> "/usr/share/themes/Robbie/gtk-$v.0/$css"
+    done
+done
+rm -f /tmp/robbie-menus-gtk3.css /tmp/robbie-menus-gtk4.css
 cat > /usr/share/themes/Robbie/index.theme <<EOF
 [Desktop Entry]
 Type=X-GNOME-Metatheme
