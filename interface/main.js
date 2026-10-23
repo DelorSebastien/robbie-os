@@ -17,6 +17,7 @@ const reseau = require('./services/reseau');
 const luminosite = require('./services/luminosite');
 const actions = require('./services/actions');
 const parametres = require('./services/parametres');
+const verrouillage = require('./services/verrouillage');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
 protocol.registerSchemesAsPrivileged([{ scheme: 'fond', privileges: { standard: true, secure: true } }]);
@@ -87,7 +88,9 @@ if (!preview) {
         const name = fs.readFileSync(COMMAND_FILE, 'utf8').trim();
         if (!name) return;
         fs.writeFileSync(COMMAND_FILE, '');
-        if (/^[a-z-]+$/.test(name)) win?.webContents.send('shortcut', name);
+        // (le verrouillage se fait ici : il doit marcher même si la page ne répond plus)
+        if (name === 'verrouiller') verrouillage.lock();
+        else if (/^[a-z-]+$/.test(name)) win?.webContents.send('shortcut', name);
     });
 }
 
@@ -140,6 +143,8 @@ ipcMain.handle('systeme-infos', () => parametres.systemInfo());
 ipcMain.handle('chercher-ville', (_event, name) => parametres.searchCity(String(name)));
 ipcMain.on('robbie-voix-recharger', () => robbie?.reloadVoice());
 ipcMain.on('robbie-oreille-recharger', () => robbie?.reloadEars());
+ipcMain.on('verrouiller', () => verrouillage.lock());
+ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
 
 // Notifications des applis
 let notifications = null;
@@ -158,6 +163,7 @@ app.whenReady().then(() => {
     robbie = createRobbie({ send });
     if (!preview) {
         fenetres.watch(list => send('fenetres', list));
+        verrouillage.watchIdle();
         notifications = createNotifications({
             onNotify: notification => send('notification', notification),
             onClose: id => send('notification-close', id)
@@ -165,4 +171,7 @@ app.whenReady().then(() => {
     }
 });
 app.on('window-all-closed', () => app.quit());
-app.on('before-quit', () => robbie?.stop());
+app.on('before-quit', () => {
+    robbie?.stop();
+    verrouillage.stop();
+});

@@ -43,7 +43,9 @@ contextBridge.exposeInMainWorld('os', {
     systemInfo: () => ipcRenderer.invoke('systeme-infos'),
     searchCity: name => ipcRenderer.invoke('chercher-ville', name),
     reloadVoice: () => ipcRenderer.send('robbie-voix-recharger'),
-    reloadEars: () => ipcRenderer.send('robbie-oreille-recharger')
+    reloadEars: () => ipcRenderer.send('robbie-oreille-recharger'),
+    lock: () => ipcRenderer.send('verrouiller'),
+    reloadIdle: () => ipcRenderer.send('inactivite-recharger')
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état

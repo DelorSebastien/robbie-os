@@ -10,7 +10,7 @@ CURSOR="Bibata-Modern-Classic"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get install -y --no-install-recommends orchis-gtk-theme bibata-cursor-theme \
-    dconf-cli dconf-gsettings-backend gsettings-desktop-schemas libglib2.0-bin
+    dconf-cli dconf-gsettings-backend gsettings-desktop-schemas libglib2.0-bin gettext
 
 # Police de Robbie OS (Orbitron, licence OFL) pour tout le système
 mkdir -p /usr/share/fonts/truetype/robbie-os
@@ -109,6 +109,9 @@ GtkTheme=Robbie
 IconTheme=$ICONS
 CursorTheme=$CURSOR
 EOF
+
+# Écran de verrouillage en français (gtklock n'a pas de traduction française : on fournit la nôtre)
+msgfmt -o /usr/share/locale/fr/LC_MESSAGES/gtklock.mo "$ROBBIE_DIR/systeme/traductions/gtklock-fr.po"
 
 # Thunar (fichiers) épuré par défaut : sans barre de menus (touche Alt pour l'afficher),
 # icônes moyennes, petites icônes dans la colonne et la barre d'outils, sans barre d'état

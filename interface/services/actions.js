@@ -203,6 +203,11 @@ async function execute(action) {
                 return { done: true, say: count ? `C'est fait, j'ai remis ${count} fichier${count > 1 ? 's' : ''} à leur place.` : 'Il n\'y a aucun rangement à annuler.' };
             }
 
+            case 'lock':
+                // (petit délai : le temps que Robbie dise sa phrase)
+                setTimeout(() => require('./verrouillage').lock(), 1500);
+                return { done: true };
+
             case 'power':
                 // Jamais sans confirmation : c'est le panneau qui demandera
                 if (!['suspend', 'reboot', 'poweroff'].includes(action.command)) return { done: false };

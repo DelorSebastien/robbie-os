@@ -226,6 +226,7 @@
             <p class="reglage-aide">Super+L verrouille tout de suite.</p>`)
             + block('Alimentation', `
             <div class="reglage-ligne boutons">
+                <button class="bouton" data-verrouiller>Verrouiller</button>
                 <button class="bouton" data-power="suspend">Mettre en veille</button>
                 <button class="bouton" data-power="reboot">Redémarrer</button>
                 <button class="bouton danger" data-power="poweroff">Éteindre</button>
@@ -233,6 +234,12 @@
 
         content.querySelector('[data-verrou]').addEventListener('change', async event => {
             await change({ lockMinutes: Number(event.target.value) });
+            window.os.reloadIdle();
+        });
+
+        content.querySelector('[data-verrouiller]').addEventListener('click', () => {
+            window.panneaux.close();
+            window.os.lock();
         });
 
         content.querySelectorAll('[data-power]').forEach(button => button.addEventListener('click', () => {

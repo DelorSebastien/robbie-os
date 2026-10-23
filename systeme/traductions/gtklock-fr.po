@@ -1,0 +1,20 @@
+# Traduction française de gtklock (écran de verrouillage), faite pour Robbie OS
+msgid ""
+msgstr ""
+"Project-Id-Version: gtklock\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Caps Lock is on"
+msgstr "Verrouillage des majuscules activé"
+
+msgid "Login failed"
+msgstr "Mot de passe incorrect"
+
+msgid "Password:"
+msgstr "MOT DE PASSE"
+
+msgid "Unlock"
+msgstr "Déverrouiller"
