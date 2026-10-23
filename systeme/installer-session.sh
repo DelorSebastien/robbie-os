@@ -70,6 +70,9 @@ EOF
 # - l'interface est dessinée par le processeur : la carte graphique simulée de VirtualBox
 #   accélère labwc, mais pas Chromium (qui retomberait sur un rendu logiciel plus lent)
 cat > "$HOME_DIR/.config/labwc/autostart" <<EOF
+# Amplification du micro quand la carte son la propose (sinon il faut parler collé au micro)
+amixer -q sset 'Mic Boost (+20dB)' on 2>/dev/null
+
 if systemd-detect-virt -q; then
     export ROBBIE_OLLAMA=http://10.0.2.2:11434
     export ROBBIE_SANS_GPU=1

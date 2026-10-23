@@ -22,7 +22,8 @@ CPU_MODEL = os.environ.get("WHISPER_MODEL", "small")
 DEVICE = os.environ.get("WHISPER_DEVICE", "auto")  # auto, cuda ou cpu
 SAMPLE_RATE = 16000
 BLOCK_SECONDS = 0.1
-VOICE_THRESHOLD = 600     # volume minimal à partir duquel on considère qu'on parle
+# Volume minimal à partir duquel on considère qu'on parle (réglable : VOICE_THRESHOLD)
+VOICE_THRESHOLD = int(os.environ.get("VOICE_THRESHOLD", 150))
 NOISE_FACTOR = 3          # la voix doit dépasser le bruit de fond (ambiance, ventilateur) de ce facteur
 SILENCE_END = 0.8         # secondes de silence qui terminent une phrase
 MIN_SPEECH = 0.4          # durée minimale d'une phrase
