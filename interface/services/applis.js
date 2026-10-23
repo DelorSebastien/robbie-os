@@ -14,7 +14,8 @@ const FOLDERS = [
 const ICON_THEMES = ['Papirus-Dark', 'Papirus', 'Adwaita', 'hicolor'];
 const ICON_SIZES = ['scalable', '256x256', '128x128', '96x96', '64x64', '48x48', '512x512'];
 const ICON_FOLDERS = [
-    ...ICON_THEMES.flatMap(theme => ['64x64', '48x48', 'scalable', '128x128'].map(size => `/usr/share/icons/${theme}/${size}/apps`)),
+    ...ICON_THEMES.flatMap(theme => ['64x64', '48x48', 'scalable', '128x128'].flatMap(size =>
+        ['apps', 'places'].map(kind => `/usr/share/icons/${theme}/${size}/${kind}`))),
     ...ICON_SIZES.map(size => `/usr/share/icons/hicolor/${size}/apps`),
     '/usr/share/pixmaps'
 ];
@@ -130,4 +131,12 @@ function launch(id) {
     return true;
 }
 
-module.exports = { list, launch };
+// Ouvre un dossier ou un emplacement (trash:///…) dans le gestionnaire de fichiers
+function openLocation(location) {
+    const child = spawn('xdg-open', [location], { detached: true, stdio: 'ignore' });
+    child.on('error', error => console.error(`Ouverture impossible : ${location}`, error.message));
+    child.unref();
+    return true;
+}
+
+module.exports = { list, launch, iconData, openLocation };

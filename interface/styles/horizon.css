@@ -1,0 +1,351 @@
+/* Robbie OS — style « Horizon » : fond d'écran plein, dock incurvé en verre,
+   Robbie lumineux au centre, barre latérale fine à droite */
+:root {
+    --accent: 94, 231, 255;
+    --texte: #eef3fb;
+    --texte-doux: rgba(226, 234, 248, 0.82);
+    --verre: rgba(16, 26, 50, 0.42);
+    --bord: rgba(255, 255, 255, 0.13);
+    --police: 'Inter', 'Noto Sans', system-ui, sans-serif;
+    --ressort: cubic-bezier(0.25, 1.4, 0.4, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #050a16;
+    color: var(--texte);
+    font: 14px/1.4 var(--police);
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+}
+
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.icon { width: 1.25em; height: 1.25em; flex: none; }
+
+/* ---- Fond d'écran ---- */
+.fond {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Image de référence provisoire : on cache son dock et sa barre dessinés */
+    object-view-box: inset(0 112px 226px 0);
+}
+
+/* Assombrit doucement le bas pour que le dock ressorte */
+body::after {
+    content: '';
+    position: fixed;
+    inset: auto 0 0 0;
+    height: 34vh;
+    background: linear-gradient(to bottom, transparent, rgba(3, 7, 18, 0.55));
+    pointer-events: none;
+}
+
+#face { position: fixed; left: -9999px; width: 200px; height: 125px; }
+
+/* ---- Dock ---- */
+.dock-zone {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 210px;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.dock-arc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.arc-ligne { fill: none; stroke: url(#arc-degrade); stroke-width: 1.6; }
+.arc-halo { fill: none; stroke: url(#arc-degrade); stroke-width: 7; opacity: 0.55; }
+
+.dock-points span {
+    position: absolute;
+    border-radius: 50%;
+    background: #e9f8ff;
+    box-shadow: 0 0 8px rgba(var(--accent), 0.9);
+    transform: translate(-50%, -50%);
+}
+
+.dock { position: absolute; inset: 0; pointer-events: none; }
+
+.tuile {
+    --s: 56px;
+    --teinte: 94, 231, 255;
+    position: absolute;
+    width: var(--s);
+    height: var(--s);
+    margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+    border-radius: 30%;
+    display: grid;
+    place-items: center;
+    pointer-events: auto;
+    background: linear-gradient(180deg, rgba(64, 80, 116, 0.5), rgba(12, 18, 36, 0.78));
+    border: 1px solid rgba(255, 255, 255, 0.17);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+        inset 0 -10px 18px rgba(0, 0, 0, 0.35),
+        0 10px 22px -6px rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(14px) saturate(150%);
+    transform-origin: 50% 100%;
+    transition: transform 0.18s var(--ressort);
+    -webkit-box-reflect: below 10px linear-gradient(transparent 52%, rgba(255, 255, 255, 0.22));
+}
+
+.tuile img { width: 66%; height: 66%; object-fit: contain; filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45)); pointer-events: none; }
+.tuile .icon { width: 50%; height: 50%; color: #dbe5f5; }
+
+/* Halo coloré de l'icône, reflété dans l'eau */
+.tuile::after {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: 112%;
+    height: 70%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(var(--teinte), 0.45), transparent);
+    filter: blur(6px);
+    pointer-events: none;
+}
+
+/* Appli ouverte : petit point dessous */
+.tuile.ouverte::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -9px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px #fff;
+}
+
+.tuile:active { filter: brightness(0.85); }
+
+/* Nom de l'appli au survol */
+.etiquette {
+    position: fixed;
+    z-index: 10;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: rgba(14, 22, 42, 0.78);
+    border: 1px solid var(--bord);
+    backdrop-filter: blur(20px);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    transform: translate(-50%, -100%);
+    opacity: 0;
+    transition: opacity 0.12s;
+    pointer-events: none;
+}
+
+.etiquette.visible { opacity: 1; }
+
+/* Robbie : plus grand, lumineux, avec son vrai visage animé */
+.tuile.robbie {
+    --s: 78px;
+    border-radius: 28%;
+    border: 2px solid rgba(var(--accent), 0.95);
+    background: radial-gradient(120% 100% at 50% 30%, #0c1832, #02060e 70%);
+    box-shadow:
+        0 0 22px rgba(var(--accent), 0.6),
+        0 0 70px -6px rgba(var(--accent), 0.35),
+        inset 0 0 20px -4px rgba(var(--accent), 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    overflow: visible;
+    -webkit-box-reflect: below 14px linear-gradient(transparent 45%, rgba(255, 255, 255, 0.3));
+}
+
+.tuile.robbie .visage {
+    position: absolute;
+    inset: 4px;
+    border-radius: 24%;
+    overflow: hidden;
+}
+
+.tuile.robbie #face {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.56);
+}
+
+/* Point de lumière sous Robbie, posé sur l'arc */
+.robbie-lueur {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    margin: -4.5px 0 0 -4.5px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px 3px rgba(var(--accent), 1), 0 0 34px 10px rgba(var(--accent), 0.55);
+    pointer-events: none;
+}
+
+.robbie-faisceau {
+    position: absolute;
+    width: 3px;
+    height: 70px;
+    margin-left: -1.5px;
+    background: linear-gradient(to bottom, rgba(var(--accent), 0.85), transparent);
+    filter: blur(1.5px);
+    pointer-events: none;
+}
+
+/* ---- Barre latérale ---- */
+.laterale {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    bottom: 22vh;
+    width: 60px;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0 14px;
+    border-radius: 24px;
+    background: var(--verre);
+    border: 1px solid var(--bord);
+    backdrop-filter: blur(28px) saturate(160%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), -10px 0 40px -20px rgba(0, 0, 0, 0.6);
+}
+
+.laterale-trait {
+    width: 26px;
+    height: 2px;
+    margin-bottom: 8px;
+    border-radius: 2px;
+    background: rgb(var(--accent));
+    box-shadow: 0 0 10px rgba(var(--accent), 0.9);
+}
+
+.lat-bouton {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: #e3eaf6;
+    transition: background 0.15s, color 0.15s;
+}
+
+.lat-bouton .icon { width: 22px; height: 22px; stroke-width: 1.6; }
+.lat-bouton:hover { background: rgba(255, 255, 255, 0.09); color: #fff; }
+
+.pastille {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgb(var(--accent));
+    box-shadow: 0 0 6px rgb(var(--accent));
+}
+
+.lat-sep { width: 26px; height: 1px; margin: 4px 0; background: rgba(255, 255, 255, 0.16); }
+
+.contacts { display: flex; flex-direction: column; gap: 12px; }
+
+.contact {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    font-size: 16px;
+    color: #fff;
+    background: var(--photo);
+    background-size: cover;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 6px 14px -6px rgba(0, 0, 0, 0.7);
+    transition: transform 0.2s var(--ressort);
+}
+
+.contact:hover { transform: scale(1.08); }
+
+.contact .statut {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2.5px solid #0e1830;
+}
+
+.lat-ajout {
+    margin-top: auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e3eaf6;
+}
+
+.lat-ajout:hover { background: rgba(255, 255, 255, 0.08); }
+
+/* ---- Coin : réseau, son, heure ---- */
+.coin {
+    position: fixed;
+    right: 26px;
+    bottom: 20px;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 19px;
+    font-weight: 500;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+}
+
+.coin .icon { width: 21px; height: 21px; filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.6)); }
+
+/* ---- Notifications discrètes ---- */
+.toasts {
+    position: fixed;
+    left: 50%;
+    bottom: 190px;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(14, 22, 42, 0.78);
+    border: 1px solid rgba(var(--accent), 0.35);
+    backdrop-filter: blur(20px);
+    animation: toast-entree 0.35s var(--ressort);
+    transition: opacity 0.4s, transform 0.4s;
+}
+
+.toast .icon { color: rgb(var(--accent)); }
+.toast.out { opacity: 0; transform: translateY(8px); }
+
+@keyframes toast-entree {
+    from { opacity: 0; transform: translateY(12px) scale(0.96); }
+}

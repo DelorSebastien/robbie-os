@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld('os', {
     system: () => ipcRenderer.invoke('system'),
     apps: () => ipcRenderer.invoke('apps'),
     launch: id => ipcRenderer.invoke('launch', id),
+    icon: name => ipcRenderer.invoke('icon', name),
+    openLocation: location => ipcRenderer.invoke('open-location', location),
     weather: () => ipcRenderer.invoke('weather'),
     volume: () => ipcRenderer.invoke('volume'),
     setVolume: level => ipcRenderer.invoke('set-volume', level),
