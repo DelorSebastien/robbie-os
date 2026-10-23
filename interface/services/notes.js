@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
     eyeColor: 'cyan',
     skin: 'none',
     doNotDisturb: false,
-    pinned: ['firefox-esr', 'thunar', 'foot', 'org.xfce.mousepad']
+    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'org.xfce.ristretto']
 };
 
 module.exports = {

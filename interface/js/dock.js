@@ -1,5 +1,6 @@
 // Dock incurvé : les icônes suivent un arc lumineux, Robbie (son vrai visage animé) au centre,
-// et le dock grossit sous la souris comme sur macOS
+// et le dock grossit sous la souris comme sur macOS. Il montre les applis épinglées et les
+// applis ouvertes (un point dessous) ; un clic ramène leur fenêtre, même réduite.
 (() => {
     const { toast } = window.ui;
     const face = window.face;
@@ -29,20 +30,25 @@
             <path d="M16 4.5l2.2 2.6 3.3-.6.9 3.2 3.1 1.4-.9 3.2 1.9 2.7-2.6 2.1.3 3.4-3.3.6-1.5 3-3.1-1.2-2.9 1.8-2-2.7-3.4-.2-.2-3.4-2.7-2 1.8-2.9-1.2-3.1 3-1.5.6-3.3 3.4.3z"/>
             <circle cx="16" cy="16" r="4.2"/></g>`),
         trash: svg(`<g fill="none" stroke="#e8eef9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9h20M12.5 9V6h7v3M8.5 9l1.3 17h12.4l1.3-17M13.5 13.5v8M18.5 13.5v8"/></g>`)
+            <path d="M6 9h20M12.5 9V6h7v3M8.5 9l1.3 17h12.4l1.3-17M13.5 13.5v8M18.5 13.5v8"/></g>`),
+        grid: svg(`${gradient('g-grille', '#bfefff', '#5ec8ff')}
+            <g fill="url(#g-grille)"><rect x="6" y="6" width="8" height="8" rx="2.5"/><rect x="18" y="6" width="8" height="8" rx="2.5"/>
+            <rect x="6" y="18" width="8" height="8" rx="2.5"/><rect x="18" y="18" width="8" height="8" rx="2.5"/></g>`)
     };
 
-    // Contenu du dock : applis, Robbie au milieu, puis réglages et corbeille.
-    // `icon` : icône du thème Vivid Glassy ; `glyph` : picto dessiné si le thème manque (aperçu Windows)
-    const ITEMS = [
-        { kind: 'app', id: 'thunar', icon: 'folder', glyph: 'folder', name: 'Fichiers', tint: '80, 170, 255' },
-        { kind: 'app', id: 'firefox-esr', icon: 'firefox-esr', glyph: 'globe', name: 'Navigateur', tint: '255, 130, 60' },
-        { kind: 'app', id: 'foot', icon: 'utilities-terminal', glyph: 'terminal', name: 'Terminal', tint: '190, 205, 230' },
-        { kind: 'app', id: 'org.xfce.mousepad', icon: 'accessories-text-editor', glyph: 'code', name: 'Éditeur de texte', tint: '60, 130, 255' },
-        { kind: 'robbie', name: 'Robbie' },
-        { kind: 'app', id: 'org.xfce.ristretto', icon: 'image-viewer', glyph: 'image', name: 'Images', tint: '160, 90, 255' },
+    // Apparence soignée pour les applis connues ; les autres prennent l'icône de leur thème
+    const KNOWN = {
+        thunar: { icon: 'folder', glyph: 'folder', name: 'Fichiers', tint: '80, 170, 255' },
+        'firefox-esr': { icon: 'firefox-esr', glyph: 'globe', name: 'Navigateur', tint: '255, 130, 60' },
+        foot: { icon: 'utilities-terminal', glyph: 'terminal', name: 'Terminal', tint: '190, 205, 230' },
+        'org.xfce.mousepad': { icon: 'accessories-text-editor', glyph: 'code', name: 'Éditeur de texte', tint: '60, 130, 255' },
+        'org.xfce.ristretto': { icon: 'image-viewer', glyph: 'image', name: 'Images', tint: '160, 90, 255' }
+    };
+
+    const SYSTEM_ITEMS = [
         { kind: 'settings', icon: 'preferences-system', glyph: 'gear', name: 'Réglages', tint: '190, 205, 230' },
-        { kind: 'trash', icon: 'user-trash', glyph: 'trash', name: 'Corbeille', tint: '190, 205, 230' }
+        { kind: 'trash', icon: 'user-trash', glyph: 'trash', name: 'Corbeille', tint: '190, 205, 230' },
+        { kind: 'launcher', glyph: 'grid', name: 'Toutes les applis', tint: '120, 210, 255' }
     ];
 
     const dock = document.getElementById('dock');
@@ -59,39 +65,78 @@
 
     const arcY = (x, cx) => BASE - CURVE * (x - cx) ** 2;
 
+    let apps = [];
+    let pinned = [];
+    let windows = [];
     let tiles = [];
+    let items = [];
+
+    const appById = id => apps.find(app => app.id === id);
+    const isOpen = app => app && windows.some(w => w.appId.toLowerCase() === app.windowId || w.appId.toLowerCase() === app.id.toLowerCase());
+
+    // Appli correspondant à une fenêtre ouverte (pour les applis non épinglées)
+    const appForWindow = w => apps.find(app => app.windowId === w.appId.toLowerCase() || app.id.toLowerCase() === w.appId.toLowerCase());
+
+    // Liste du dock : épinglées, puis ouvertes non épinglées, puis réglages, corbeille, toutes les applis ;
+    // Robbie au milieu
+    function computeItems() {
+        const appItem = (app, pinnedApp) => ({ kind: 'app', id: app.id, app, pinned: pinnedApp, ...(KNOWN[app.id] || { name: app.name, tint: '190, 205, 230' }) });
+
+        const pinnedItems = pinned.map(appById).filter(Boolean).map(app => appItem(app, true));
+        const extras = [];
+        for (const w of windows) {
+            const app = appForWindow(w);
+            if (app && !pinned.includes(app.id) && !extras.some(item => item.id === app.id)) extras.push(appItem(app, false));
+        }
+
+        const others = [...pinnedItems, ...extras, ...SYSTEM_ITEMS];
+        const half = Math.floor(others.length / 2);
+        return [...others.slice(0, half), { kind: 'robbie', name: 'Robbie' }, ...others.slice(half)];
+    }
+
+    const signature = list => list.map(item => item.id || item.kind).join('|');
+
+    async function tileVisual(el, item) {
+        if (item.kind === 'robbie') {
+            const visage = document.createElement('span');
+            visage.className = 'visage';
+            visage.append(document.getElementById('face'));
+            el.append(visage);
+            return;
+        }
+
+        const src = (item.icon && await window.os.icon(item.icon)) || item.app?.icon;
+        if (src) {
+            const img = document.createElement('img');
+            img.className = 'icone-theme';
+            img.src = src;
+            img.alt = '';
+            el.append(img);
+        } else {
+            el.innerHTML = GLYPHS[item.glyph] || GLYPHS.grid;
+        }
+    }
 
     async function build() {
-        const apps = await window.os.apps();
+        const next = computeItems();
+        if (signature(next) === signature(items) && tiles.length) return markOpen();
+        items = next;
 
-        const middle = ITEMS.findIndex(item => item.kind === 'robbie');
+        // Le visage de Robbie est gardé (son canvas est déplacé, pas recréé)
+        const faceCanvas = document.getElementById('face');
+        document.body.append(faceCanvas);
+        dock.innerHTML = '';
 
-        tiles = await Promise.all(ITEMS.map(async (item, index) => {
+        const middle = items.findIndex(item => item.kind === 'robbie');
+
+        tiles = await Promise.all(items.map(async (item, index) => {
             const el = document.createElement('button');
             el.className = `tuile${item.kind === 'robbie' ? ' robbie' : ''}`;
             // Ordre d'apparition au démarrage : du centre vers les bords
             el.style.setProperty('--i', Math.abs(index - middle));
             el.setAttribute('aria-label', item.name);
             if (item.tint) el.style.setProperty('--teinte', item.tint);
-
-            if (item.kind === 'robbie') {
-                const visage = document.createElement('span');
-                visage.className = 'visage';
-                visage.append(document.getElementById('face'));
-                el.append(visage);
-            } else {
-                const src = await window.os.icon(item.icon);
-                if (src) {
-                    const img = document.createElement('img');
-                    img.className = 'icone-theme';
-                    img.src = src;
-                    img.alt = '';
-                    el.append(img);
-                } else {
-                    el.innerHTML = GLYPHS[item.glyph];
-                }
-                if (item.kind === 'app' && apps.length && !apps.some(a => a.id === item.id)) el.style.opacity = '0.4';
-            }
+            await tileVisual(el, item);
 
             el.addEventListener('click', () => {
                 el.classList.remove('rebond');
@@ -99,23 +144,34 @@
                 if (item.kind !== 'robbie') el.classList.add('rebond');
                 activate(item);
             });
+            el.addEventListener('contextmenu', event => {
+                event.preventDefault();
+                if (item.kind === 'app') showMenu(item, el);
+            });
             el.addEventListener('animationend', event => {
                 if (event.animationName === 'rebond') el.classList.remove('rebond');
             });
             el.addEventListener('mouseenter', () => showLabel(el, item.name));
             el.addEventListener('mouseleave', () => label.classList.remove('visible'));
-            dock.append(el);
             return { el, item, x: 0, y: 0, size: item.kind === 'robbie' ? 66 : 56 };
         }));
 
+        tiles.forEach(tile => dock.append(tile.el));
         window.icons.fill(dock);
+        markOpen();
         layout();
     }
 
+    // Point sous les applis qui ont une fenêtre ouverte
+    function markOpen() {
+        tiles.forEach(tile => tile.el.classList.toggle('ouverte', tile.item.kind === 'app' && isOpen(tile.item.app)));
+    }
+
     function layout() {
+        if (!tiles.length) return;
         const width = window.innerWidth;
         const cx = width / 2;
-        const middle = ITEMS.findIndex(item => item.kind === 'robbie');
+        const middle = items.findIndex(item => item.kind === 'robbie');
 
         // Position de chaque tuile le long de l'arc
         tiles.forEach((tile, index) => {
@@ -128,7 +184,8 @@
         });
 
         // L'arc passe juste sous les icônes et se prolonge de chaque côté
-        const half = (tiles.length / 2) * SPACING + 230;
+        const outerTile = Math.max(...tiles.map(tile => Math.abs(tile.x - cx)));
+        const half = outerTile + 260;
         const below = 34;
         const y0 = arcY(cx - half, cx) + below;
         const control = 2 * (arcY(cx, cx) + below) - y0;
@@ -136,7 +193,7 @@
         document.querySelectorAll('#dock-arc path').forEach(path => path.setAttribute('d', d));
 
         // Points qui prolongent l'arc, de plus en plus petits et pâles
-        const outer = Math.max(...tiles.map(tile => Math.abs(tile.x - cx))) + 52;
+        const outer = outerTile + 52;
         const dots = [];
         for (let i = 0; i < 7; i++) {
             const dx = outer + i * 30;
@@ -144,7 +201,6 @@
             const opacity = 0.9 - i * 0.11;
             for (const side of [-1, 1]) {
                 const x = cx + side * dx;
-                // Les points s'allument puis scintillent l'un après l'autre, vers l'extérieur
                 const delay = 1.6 + i * 0.12;
                 dots.push(`<span style="left:${x}px; top:${arcY(x, cx) + below - 10}px; width:${size}px; height:${size}px; opacity:${opacity}; animation-delay:${delay}s, ${delay}s"></span>`);
             }
@@ -187,7 +243,8 @@
     }
 
     document.addEventListener('mousemove', event => {
-        const inDock = event.clientY > window.innerHeight - 190 && Math.abs(event.clientX - window.innerWidth / 2) < 420;
+        const span = tiles.length ? Math.max(...tiles.map(tile => Math.abs(tile.x - window.innerWidth / 2))) + 60 : 420;
+        const inDock = event.clientY > window.innerHeight - 190 && Math.abs(event.clientX - window.innerWidth / 2) < span;
         magnify(inDock ? event.clientX : null);
     });
 
@@ -201,6 +258,8 @@
 
     async function activate(item) {
         if (item.kind === 'app') {
+            // Appli déjà ouverte : on ramène sa fenêtre (même réduite) au lieu d'en ouvrir une autre
+            if (isOpen(item.app) && await window.os.focusWindow(windowOf(item.app))) return;
             const opened = await window.os.launch(item.id);
             if (!opened) toast(`${item.name} n'est pas installé`, 'x');
         } else if (item.kind === 'trash') {
@@ -208,9 +267,57 @@
         } else if (item.kind === 'robbie') {
             face.blink();
             window.robbiePanel.toggle();
-        } else {
-            toast('Les réglages arrivent bientôt', 'gear');
+        } else if (item.kind === 'launcher') {
+            window.launcher.toggle();
+        } else if (item.kind === 'settings') {
+            if (window.reglages) window.reglages.open();
+            else toast('Les réglages arrivent bientôt', 'gear');
         }
+    }
+
+    const windowOf = app => (windows.find(w => w.appId.toLowerCase() === app.windowId || w.appId.toLowerCase() === app.id.toLowerCase()) || {}).appId;
+
+    // ---- Menu du clic droit : épingler, retirer, nouvelle fenêtre ----
+    const menu = document.createElement('div');
+    menu.className = 'menu-dock';
+    menu.hidden = true;
+    document.body.append(menu);
+
+    function showMenu(item, el) {
+        const entries = [
+            { label: 'Nouvelle fenêtre', run: () => window.os.launch(item.id) },
+            item.pinned
+                ? { label: 'Retirer du dock', run: () => setPinned(pinned.filter(id => id !== item.id)) }
+                : { label: 'Épingler au dock', run: () => setPinned([...pinned, item.id]) }
+        ];
+
+        menu.innerHTML = '';
+        for (const entry of entries) {
+            const button = document.createElement('button');
+            button.textContent = entry.label;
+            button.addEventListener('click', () => {
+                menu.hidden = true;
+                entry.run();
+            });
+            menu.append(button);
+        }
+
+        const box = el.getBoundingClientRect();
+        menu.hidden = false;
+        menu.style.left = `${box.left + box.width / 2}px`;
+        menu.style.top = `${box.top - 14}px`;
+        label.classList.remove('visible');
+    }
+
+    document.addEventListener('mousedown', event => {
+        if (!menu.hidden && !menu.contains(event.target)) menu.hidden = true;
+    });
+
+    async function setPinned(list) {
+        pinned = [...new Set(list)];
+        await window.os.setSettings({ pinned });
+        document.dispatchEvent(new CustomEvent('settings-changed'));
+        build();
     }
 
     // Robbie suit la souris des yeux
@@ -237,17 +344,32 @@
     // (le son de la voix de Robbie ne saccade plus quand la machine est chargée)
     if (window.ui.light) face.setMaxFps(30);
 
-    window.os.settings().then(settings => {
+    window.addEventListener('resize', layout);
+
+    (async () => {
+        const settings = await window.os.settings();
         face.setEyeColor(settings.eyeColor);
         face.setSkin(settings.skin);
+        pinned = settings.pinned || [];
+        apps = await window.os.apps();
+        windows = await window.os.windows();
+        await build();
+    })();
+
+    // Fenêtres ouvertes ou fermées : le dock suit
+    window.os.onWindows(list => {
+        windows = list;
+        build();
     });
 
-    window.addEventListener('resize', layout);
-    build();
+    // Épinglage depuis le lanceur
+    document.addEventListener('pinned-changed', event => setPinned(event.detail));
 
     // Fin de la séquence de démarrage : les animations habituelles prennent le relais
     setTimeout(() => {
         document.body.classList.remove('demarrage');
         face.setExpression('happy', 1800);
     }, 3500);
+
+    window.dock = { pinned: () => pinned, setPinned };
 })();

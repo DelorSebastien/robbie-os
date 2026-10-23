@@ -81,6 +81,12 @@ function iconData(name) {
     return data;
 }
 
+// Entrées techniques que personne ne lance à la main (variantes, réglages internes, outils en console)
+const HIDDEN = new Set([
+    'footclient', 'foot-server', 'thunar-settings', 'thunar-bulk-rename', 'org.xfce.mousepad-settings',
+    'vim', 'display-im7.q16', 'display-im6.q16', 'org.freedesktop.Xwayland', 'python3.13', 'debian-uxterm', 'debian-xterm'
+]);
+
 let cache = null;
 
 function list() {
@@ -100,6 +106,7 @@ function list() {
             const entry = parseDesktop(fs.readFileSync(path.join(folder, name), 'utf8'));
             if (entry.Type !== 'Application' || !entry.Exec) continue;
             if (entry.NoDisplay === 'true' || entry.Hidden === 'true') continue;
+            if (HIDDEN.has(name.replace(/\.desktop$/, ''))) continue;
 
             const categories = entry.Categories || '';
             byId.set(name.replace(/\.desktop$/, ''), {
@@ -110,7 +117,9 @@ function list() {
                 family: (FAMILIES.find(([, pattern]) => pattern.test(categories)) || ['autres'])[0],
                 exec: entry.Exec,
                 terminal: entry.Terminal === 'true',
-                icon: iconData(entry.Icon)
+                icon: iconData(entry.Icon),
+                // Identifiant de ses fenêtres (app_id Wayland) : souvent le nom du fichier .desktop
+                windowId: (entry.StartupWMClass || name.replace(/\.desktop$/, '')).toLowerCase()
             });
         }
     }

@@ -20,6 +20,8 @@ apt-get install -y --no-install-recommends \
     nodejs npm libnss3 libgtk-3-0t64 libgbm1 libasound2t64 libxss1 libxtst6 libdrm2 libatk-bridge2.0-0t64 libcups2t64 \
     `# Voix : Python` \
     python3 python3-venv python3-pip libportaudio2 \
+    `# Bureau : fenêtres ouvertes, verrouillage, démarrage, notifications, réseau, luminosité` \
+    wlrctl gtklock plymouth plymouth-themes libnotify-bin network-manager brightnessctl xdg-user-dirs \
     `# Outils` \
     ca-certificates curl git dbus-user-session
 

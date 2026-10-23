@@ -60,6 +60,18 @@ cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
     <keybind key="W-Return">
       <action name="Execute" command="foot" />
     </keybind>
+    <keybind key="W-a">
+      <action name="Execute" command="sh -c 'echo lanceur > $HOME/.cache/robbie-os.commande'" />
+    </keybind>
+    <keybind key="W-n">
+      <action name="Execute" command="sh -c 'echo notifications > $HOME/.cache/robbie-os.commande'" />
+    </keybind>
+    <keybind key="W-i">
+      <action name="Execute" command="sh -c 'echo reglages > $HOME/.cache/robbie-os.commande'" />
+    </keybind>
+    <keybind key="W-l">
+      <action name="Execute" command="sh -c 'echo verrouiller > $HOME/.cache/robbie-os.commande'" />
+    </keybind>
   </keyboard>
 </labwc_config>
 EOF

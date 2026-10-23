@@ -18,7 +18,10 @@ contextBridge.exposeInMainWorld('os', {
     settings: () => ipcRenderer.invoke('settings'),
     setSettings: changes => ipcRenderer.invoke('set-settings', changes),
     power: action => ipcRenderer.invoke('power', action),
-    onShortcut: callback => ipcRenderer.on('shortcut', (_event, name) => callback(name))
+    onShortcut: callback => ipcRenderer.on('shortcut', (_event, name) => callback(name)),
+    windows: () => ipcRenderer.invoke('fenetres'),
+    focusWindow: appId => ipcRenderer.invoke('fenetre-focus', appId),
+    onWindows: callback => ipcRenderer.on('fenetres', (_event, list) => callback(list))
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état

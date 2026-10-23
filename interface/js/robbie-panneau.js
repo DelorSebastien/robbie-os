@@ -22,6 +22,7 @@
     let closeTimer = null;
 
     function open() {
+        window.panneaux?.close();
         clearTimeout(closeTimer);
         panel.hidden = false;
         requestAnimationFrame(() => panel.classList.add('ouvert'));

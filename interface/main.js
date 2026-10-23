@@ -10,6 +10,7 @@ const son = require('./services/son');
 const notes = require('./services/notes');
 const { power } = require('./services/alimentation');
 const { createRobbie } = require('./services/robbie');
+const fenetres = require('./services/fenetres');
 
 // Nom de l'appli pour Wayland (règles de fenêtre de labwc)
 app.setName('robbie-os');
@@ -69,6 +70,16 @@ if (!preview) {
     fs.mkdirSync(path.dirname(PID_FILE), { recursive: true });
     fs.writeFileSync(PID_FILE, String(process.pid));
     process.on('SIGUSR2', () => win?.webContents.send('shortcut', 'palette'));
+
+    // Autres raccourcis (Super+A, Super+N…) : labwc écrit leur nom dans ce fichier
+    const COMMAND_FILE = path.join(os.homedir(), '.cache', 'robbie-os.commande');
+    fs.writeFileSync(COMMAND_FILE, '');
+    fs.watch(COMMAND_FILE, () => {
+        const name = fs.readFileSync(COMMAND_FILE, 'utf8').trim();
+        if (!name) return;
+        fs.writeFileSync(COMMAND_FILE, '');
+        if (/^[a-z-]+$/.test(name)) win?.webContents.send('shortcut', name);
+    });
 }
 
 ipcMain.handle('system', () => systeme.snapshot());
@@ -95,9 +106,14 @@ ipcMain.handle('robbie-confirmer', (_event, action) => robbie?.confirm(action));
 ipcMain.on('robbie-parle', (_event, speaking) => robbie?.setSpeaking(speaking));
 ipcMain.on('robbie-panneau', (_event, open) => robbie?.setPanelOpen(open));
 
+// Fenêtres ouvertes : suivies pour le dock, et ramenées au premier plan sur demande
+ipcMain.handle('fenetres', () => fenetres.list());
+ipcMain.handle('fenetre-focus', (_event, appId) => fenetres.focus(String(appId)));
+
 app.whenReady().then(() => {
     createWindow();
     robbie = createRobbie({ send: (channel, data) => win?.webContents.send(channel, data) });
+    if (!preview) fenetres.watch(list => win?.webContents.send('fenetres', list));
 });
 app.on('window-all-closed', () => app.quit());
 app.on('before-quit', () => robbie?.stop());
