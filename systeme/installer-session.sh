@@ -21,9 +21,9 @@ cat > "$HOME_DIR/.bash_profile" <<'EOF'
 [ -f ~/.bashrc ] && . ~/.bashrc
 
 if [ "$(tty)" = /dev/tty1 ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
-    # Machine virtuelle sans 3D : l'écran est dessiné par le processeur
-    systemd-detect-virt -q && export WLR_RENDERER=pixman
-    exec labwc > ~/.robbie-os-session.log 2>&1
+    # D'abord avec la carte graphique ; si elle ne répond pas (machine virtuelle sans 3D),
+    # l'écran est dessiné par le processeur
+    labwc > ~/.robbie-os-session.log 2>&1 || WLR_RENDERER=pixman exec labwc >> ~/.robbie-os-session.log 2>&1
 fi
 EOF
 
@@ -64,11 +64,18 @@ cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
 </labwc_config>
 EOF
 
-# Dans une machine virtuelle, le cerveau de Robbie (Ollama) est celui de l'ordinateur hôte,
-# qui a la carte graphique : VirtualBox le rend joignable à l'adresse 10.0.2.2
+# Dans une machine virtuelle :
+# - le cerveau de Robbie (Ollama) est celui de l'ordinateur hôte, qui a la carte graphique :
+#   VirtualBox le rend joignable à l'adresse 10.0.2.2 ;
+# - l'interface passe par XWayland : le pilote graphique de VirtualBox ne sait pas
+#   partager ses images avec Chromium sous Wayland
 cat > "$HOME_DIR/.config/labwc/autostart" <<EOF
-systemd-detect-virt -q && export ROBBIE_OLLAMA=http://10.0.2.2:11434
-cd "$ROBBIE_DIR" && ./node_modules/.bin/electron . > ~/.robbie-os-interface.log 2>&1 &
+FLAGS=""
+if systemd-detect-virt -q; then
+    export ROBBIE_OLLAMA=http://10.0.2.2:11434
+    FLAGS="--ozone-platform=x11"
+fi
+cd "$ROBBIE_DIR" && ./node_modules/.bin/electron . \$FLAGS > ~/.robbie-os-interface.log 2>&1 &
 EOF
 
 # Machine virtuelle : tampons audio plus grands, pour que la voix de Robbie
