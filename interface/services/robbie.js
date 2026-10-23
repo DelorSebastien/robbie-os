@@ -14,7 +14,7 @@ const EMOTIONS = ['happy', 'sad', 'angry', 'curious', 'shocked', 'love', 'tired'
     'dizzy', 'proud', 'excited', 'scared', 'mocking', 'laughing', 'neutral'];
 
 // Après une réponse, on peut continuer à lui parler sans redire « Robbie » pendant ce temps
-const CONVERSATION_SECONDS = 12;
+const CONVERSATION_SECONDS = 20;
 
 function createRobbie({ send }) {
     const ollama = createOllama({ settings: { get: () => ({ brain: MODEL }) } });
@@ -106,6 +106,7 @@ function createRobbie({ send }) {
             console.error('Voix de Robbie :', error.message);
             muteEars(false);
             send('robbie-etat', 'pret');
+            whenFree();
         }
     }
 
@@ -121,15 +122,62 @@ function createRobbie({ send }) {
         }
     }
 
-    // Phrase entendue qui ressemble trop à ce que Robbie vient de dire : c'est son écho
+    // Phrase entendue presque identique à ce que Robbie vient de dire, juste après qu'il l'a dit :
+    // c'est l'écho de sa voix dans les haut-parleurs (et pas une vraie réponse qui reprend ses mots)
     const words = text => new Set(String(text).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[a-z]{3,}/g) || []);
+    let lastSpeechEnd = 0;
 
     function isEcho(text) {
+        if (Date.now() - lastSpeechEnd > 4000) return false;
         const heard = words(text);
         const said = words(lastSaid);
-        if (heard.size === 0 || said.size === 0) return false;
+        if (heard.size < 2 || said.size === 0) return false;
         const common = [...heard].filter(word => said.has(word)).length;
-        return common / heard.size >= 0.6;
+        return common / heard.size >= 0.8;
+    }
+
+    // Phrase dite pendant que Robbie réfléchit ou parle : gardée pour juste après (au lieu d'être perdue)
+    let pending = null;
+
+    function handleHeard(heard) {
+        // (Whisper ajoute parfois des « … » sur les silences)
+        const text = heard.replace(/…|\.{3,}/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!text) return;
+
+        if (isEcho(text)) return console.log(`Ignoré (écho de sa voix) : ${text}`);
+
+        // Robbie réfléchit ou parle : on est forcément en pleine conversation, la phrase est gardée
+        if (speaking || busy) {
+            console.log(`Mis de côté (Robbie est occupé) : ${text}`);
+            pending = text;
+            return;
+        }
+
+        const named = WAKE_WORD.test(text);
+        const inConversation = Date.now() < listeningUntil;
+        if (!named && !inConversation) return console.log(`Ignoré (sans « Robbie », hors conversation) : ${text}`);
+
+        const request = text.replace(new RegExp(WAKE_WORD.source, 'gi'), '').replace(/^[\s,.!?]+|[\s,]+$/g, '');
+        if (!request || request.length < 2) {
+            send('robbie-ouvrir', null);
+            listeningUntil = Date.now() + CONVERSATION_SECONDS * 1000;
+            send('robbie-reponse', { text: 'Oui ?', emotion: 'curious', confirm: null });
+            say('Oui ?');
+            return;
+        }
+
+        send('robbie-ouvrir', null);
+        ask(request, { fromVoice: true });
+    }
+
+    // Robbie redevient libre : la phrase mise de côté passe
+    function whenFree() {
+        if (!pending || busy || speaking) return;
+        const text = pending;
+        pending = null;
+        // (elle a été dite pendant la conversation : elle compte même sans « Robbie »)
+        listeningUntil = Math.max(listeningUntil, Date.now() + 1000);
+        handleHeard(text);
     }
 
     // Oreille : « Robbie, … » déclenche une question ; juste après une réponse, inutile de redire son nom
@@ -137,27 +185,7 @@ function createRobbie({ send }) {
 
     function startMicrophone() {
         microphone = createMicrophone({
-            onHeard: heard => {
-                // (Whisper ajoute parfois des « … » sur les silences)
-                const text = heard.replace(/…|\.{3,}/g, ' ').replace(/\s+/g, ' ').trim();
-                if (speaking || busy || !text || isEcho(text)) return;
-
-                const named = WAKE_WORD.test(text);
-                const inConversation = Date.now() < listeningUntil;
-                if (!named && !inConversation) return;
-
-                const request = text.replace(new RegExp(WAKE_WORD.source, 'gi'), '').replace(/^[\s,.!?]+|[\s,]+$/g, '');
-                if (!request || request.length < 2) {
-                    send('robbie-ouvrir', null);
-                    listeningUntil = Date.now() + CONVERSATION_SECONDS * 1000;
-                    send('robbie-reponse', { text: 'Oui ?', emotion: 'curious', confirm: null });
-                    say('Oui ?');
-                    return;
-                }
-
-                send('robbie-ouvrir', null);
-                ask(request, { fromVoice: true });
-            },
+            onHeard: handleHeard,
             onVoiceActive: () => {
                 if (!speaking) send('robbie-ecoute', null);
             },
@@ -195,8 +223,10 @@ function createRobbie({ send }) {
             speaking = Boolean(value);
             if (!speaking) {
                 muteEars(false);
+                lastSpeechEnd = Date.now();
                 listeningUntil = Date.now() + CONVERSATION_SECONDS * 1000;
                 send('robbie-etat', 'pret');
+                whenFree();
             }
         },
         setPanelOpen(value) {
