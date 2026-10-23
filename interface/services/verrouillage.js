@@ -5,11 +5,12 @@ const path = require('node:path');
 const os = require('node:os');
 const { spawn, execFile } = require('node:child_process');
 const notes = require('./notes');
+const soleil = require('../js/soleil');
 
 const CACHE = path.join(os.homedir(), '.cache', 'robbie-os');
 const STYLE = path.join(CACHE, 'verrou.css');
 const BACKGROUND = path.join(CACHE, 'verrou-fond.jpg');
-const REFERENCE = path.join(__dirname, '..', 'fonds', 'reference-temporaire.png');
+const ROOT = path.join(__dirname, '..', '..');
 
 // Style de l'écran de verrouillage : verre sombre, heure en Orbitron, champ et bouton cyan
 const CSS = `
@@ -51,10 +52,14 @@ const run = (command, args) => new Promise(resolve => {
     execFile(command, args, { timeout: 20000 }, error => resolve(!error));
 });
 
-// Fond : le fond d'écran flouté et assombri (verre dépoli). L'image de référence provisoire
-// est d'abord recadrée pour cacher le dock et la barre qui y sont dessinés.
+// Fond : le fond d'écran flouté et assombri (verre dépoli) ; pour le fond au fil du jour,
+// la photo du moment. L'image de référence provisoire est d'abord recadrée pour cacher
+// le dock et la barre qui y sont dessinés.
 async function background() {
-    const wallpaper = notes.getSettings().wallpaper || REFERENCE;
+    const { wallpaper: chosen, place } = notes.getSettings();
+    const wallpaper = !chosen || chosen === 'jour'
+        ? path.join(ROOT, soleil.DOSSIER, `${soleil.current(new Date(), place.latitude, place.longitude)}.png`)
+        : chosen;
     if (!fs.existsSync(wallpaper)) return null;
 
     const stamp = `${wallpaper}:${fs.statSync(wallpaper).mtimeMs}`;

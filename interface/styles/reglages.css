@@ -121,6 +121,23 @@
 .fond-choix.actif { border-color: rgb(var(--accent)); }
 .fond-choix img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+/* « Au fil du jour » : les six moments de la journée côte à côte, en tranches */
+.fond-choix.jour { position: relative; }
+.fond-choix.jour img { position: absolute; inset: 0; }
+
+.fond-choix.jour span {
+    position: absolute;
+    left: 8px;
+    bottom: 7px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(5, 10, 22, 0.6);
+    backdrop-filter: blur(6px);
+    font: 600 9px var(--police);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
 /* Couleurs des yeux */
 .pastilles { display: flex; gap: 12px; }
 

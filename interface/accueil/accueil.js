@@ -11,6 +11,9 @@
     const ROLES = { admin: 'Administrateur', standard: 'Standard', enfant: 'Enfant', invite: 'Invité' };
     const escape = text => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+    // ---- Fond : le lac au fil du jour (ville par défaut : personne n'est encore connecté) ----
+    window.fond.set('jour', { instant: true });
+
     // ---- Heure ----
     const time = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
     function tick() {

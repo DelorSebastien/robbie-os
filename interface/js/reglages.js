@@ -54,15 +54,23 @@
 
     async function renderAppearance() {
         const wallpapers = await window.os.wallpapers();
-        const current = settings.wallpaper || wallpapers[0]?.path;
+        const current = settings.wallpaper || 'jour';
+        // Vignette du fond au fil du jour : une tranche de chaque moment de la journée
+        const slices = window.soleil.PHOTOS.map((name, i, all) =>
+            `<img src="${window.fond.photo(name)}" alt="" loading="lazy" style="clip-path: inset(0 ${(100 - (i + 1) * 100 / all.length).toFixed(2)}% 0 ${(i * 100 / all.length).toFixed(2)}%)">`).join('');
 
         content.innerHTML = block('Fond d\'écran', `
-            <div class="fonds">${wallpapers.map((w, index) => `
+            <div class="fonds">
+                <button class="fond-choix jour${current === 'jour' ? ' actif' : ''}" data-fond="jour" title="Au fil du jour">
+                    ${slices}<span>Au fil du jour</span>
+                </button>${wallpapers.map((w, index) => `
                 <button class="fond-choix${w.path === current ? ' actif' : ''}" data-fond="${index}" title="${escape(w.name)}">
                     <img src="${wallpaperUrl(w.path)}" alt="${escape(w.name)}" loading="lazy">
                 </button>`).join('')}
             </div>
-            <p class="reglage-aide">Ajoute tes images dans le dossier Images (ou Images › Fonds d'écran) pour les retrouver ici.</p>`)
+            ${current === 'jour' ? '<div class="reglage-ligne"><button class="bouton" data-defiler>Voir défiler la journée</button></div>' : ''}
+            <p class="reglage-aide">« Au fil du jour » suit le soleil de ta ville (celle de la météo), de l'aurore à la nuit.
+                Ajoute tes images dans le dossier Images (ou Images › Fonds d'écran) pour les retrouver ici.</p>`)
             + block('Couleur des yeux de Robbie', `
             <div class="pastilles">${Object.entries(EYE_COLORS).map(([key, rgb]) => `
                 <button class="pastille-couleur${key === settings.eyeColor ? ' actif' : ''}" data-couleur="${key}" style="--c: ${rgb}" aria-label="${EYE_NAMES[key]}" title="${EYE_NAMES[key]}"></button>`).join('')}
@@ -72,11 +80,17 @@
                 <span>Costumes selon les fêtes (citrouille à Halloween…)</span></label>`);
 
         content.querySelectorAll('[data-fond]').forEach(button => button.addEventListener('click', async () => {
-            const wallpaper = wallpapers[Number(button.dataset.fond)];
-            await change({ wallpaper: wallpaper.path });
-            applyWallpaper(wallpaper.path);
+            const wallpaper = button.dataset.fond === 'jour' ? 'jour' : wallpapers[Number(button.dataset.fond)].path;
+            await change({ wallpaper });
+            applyWallpaper(wallpaper);
             renderAppearance().then(() => window.icons.fill(content));
         }));
+
+        // (le panneau se ferme pour laisser voir tout le fond)
+        content.querySelector('[data-defiler]')?.addEventListener('click', () => {
+            window.panneaux.close();
+            window.fond.preview(40);
+        });
 
         content.querySelectorAll('[data-couleur]').forEach(button => button.addEventListener('click', async () => {
             await change({ eyeColor: button.dataset.couleur });
@@ -154,6 +168,7 @@
                 const place = await window.os.searchCity(input.value.trim());
                 if (!place) throw new Error('introuvable');
                 await change({ place: { name: place.name, latitude: place.latitude, longitude: place.longitude } });
+                applyWallpaper(settings.wallpaper);
                 info.textContent = `Ville actuelle : ${place.name}${place.region ? `, ${place.region}` : ''}`;
                 input.value = '';
                 input.placeholder = place.name;
@@ -462,18 +477,14 @@
 
     const RENDER = { apparence: renderAppearance, robbie: renderRobbie, comptes: renderAccounts, son: renderSound, ecran: renderScreen, systeme: renderSystem };
 
-    // ---- Fond d'écran ----
-    const wallpaperImg = document.getElementById('fond');
-
-    function applyWallpaper(file) {
-        if (!file) return;
-        wallpaperImg.src = wallpaperUrl(file);
-        // (seule l'image de référence provisoire a un dock et une barre dessinés à cacher)
-        wallpaperImg.classList.toggle('recadre', /reference-temporaire/.test(file));
+    // ---- Fond d'écran : une image choisie, ou « jour » (par défaut) qui suit le soleil ----
+    function applyWallpaper(file, options = {}) {
+        window.fond.set(!file || file === 'jour' ? 'jour' : wallpaperUrl(file), { place: settings?.place, ...options });
     }
 
     window.os.settings().then(value => {
-        if (value.wallpaper) applyWallpaper(value.wallpaper);
+        settings = settings || value;
+        applyWallpaper(value.wallpaper, { instant: true });
     });
 
     const open = (id = section) => {
