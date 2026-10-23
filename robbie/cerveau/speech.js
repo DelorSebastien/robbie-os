@@ -1,36 +1,26 @@
-// Voix de Robbie : serveur edge-tts (Python lancé une seule fois, au lieu d'un
-// démarrage par phrase), plusieurs phrases synthétisées en parallèle
+// Voix de Robbie : serveur Piper (Python lancé une seule fois, la voix reste en mémoire),
+// voix française hors ligne
 const { spawn } = require('node:child_process');
-const { python } = require('./paths');
+const { python, PYTHON } = require('./paths');
 
-function createSpeech({ settings }) {
-    // Voix de Robbie, d'après les réglages
-    function robotVoice() {
-        const { voice, rate, pitch } = settings.get();
-        const signed = (value, unit) => `${value >= 0 ? '+' : ''}${value}${unit}`;
+function createSpeech() {
+    let server = null;
+    let buffer = '';
+    let count = 0;
+    const jobs = new Map();
 
-        return { name: voice, rate: signed(rate, '%'), pitch: signed(pitch, 'Hz') };
-    }
-
-    // Serveur de synthèse vocale : Python lancé une seule fois (au lieu d'un
-    // démarrage par phrase), plusieurs phrases synthétisées en parallèle
-    let ttsServer = null;
-    let ttsBuffer = '';
-    let ttsCount = 0;
-    const ttsJobs = new Map();
-
-    function startTTS() {
-        ttsServer = spawn('python', ['-u', python('tts_server.py')], {
+    function start() {
+        server = spawn(PYTHON, ['-u', python('voix_piper.py')], {
             env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
         });
 
-        ttsServer.stdout.setEncoding('utf8');
+        server.stdout.setEncoding('utf8');
 
-        ttsServer.stdout.on('data', data => {
-            ttsBuffer += data;
+        server.stdout.on('data', data => {
+            buffer += data;
 
-            const lines = ttsBuffer.split('\n');
-            ttsBuffer = lines.pop();
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
 
             lines.forEach(line => {
                 let reply;
@@ -41,46 +31,46 @@ function createSpeech({ settings }) {
                     return;
                 }
 
-                const job = ttsJobs.get(reply.id);
+                const job = jobs.get(reply.id);
                 if (!job) return;
 
-                ttsJobs.delete(reply.id);
+                jobs.delete(reply.id);
                 clearTimeout(job.timeout);
 
-                if (reply.error) job.reject(new Error(`edge-tts : ${reply.error}`));
+                if (reply.error) job.reject(new Error(`Piper : ${reply.error}`));
                 else job.resolve(Buffer.from(reply.audio, 'base64'));
             });
         });
 
-        ttsServer.stderr.on('data', data => console.error('Voix :', data.toString().trim()));
-        ttsServer.on('error', error => console.error('Erreur serveur vocal :', error.message));
+        server.stderr.on('data', data => console.log('Voix :', data.toString().trim()));
+        server.on('error', error => console.error('Erreur serveur vocal :', error.message));
 
-        // Arrêt du serveur : les phrases en attente passent à la voix Windows
-        ttsServer.on('exit', () => {
-            ttsServer = null;
-            ttsJobs.forEach(job => job.reject(new Error('serveur vocal arrêté')));
-            ttsJobs.clear();
+        server.on('exit', () => {
+            server = null;
+            jobs.forEach(job => job.reject(new Error('serveur vocal arrêté')));
+            jobs.clear();
         });
     }
 
-    function synthesize(text, voice = robotVoice()) {
-        if (!ttsServer) startTTS();
+    // Phrase → son WAV
+    function synthesize(text) {
+        if (!server) start();
 
         return new Promise((resolve, reject) => {
-            const id = ++ttsCount;
+            const id = ++count;
             const timeout = setTimeout(() => {
-                ttsJobs.delete(id);
-                reject(new Error('edge-tts : délai dépassé'));
-            }, 15000);
+                jobs.delete(id);
+                reject(new Error('Piper : délai dépassé'));
+            }, 30000);
 
-            ttsJobs.set(id, { resolve, reject, timeout });
-            ttsServer.stdin.write(`${JSON.stringify({ id, text, voice: voice.name, rate: voice.rate, pitch: voice.pitch })}\n`);
+            jobs.set(id, { resolve, reject, timeout });
+            server.stdin.write(`${JSON.stringify({ id, text })}\n`);
         });
     }
 
-    const stop = () => ttsServer?.kill();
+    const stop = () => server?.kill();
 
-    return { synthesize, robotVoice, stop };
+    return { synthesize, stop };
 }
 
 // Suppression des emojis et de la mise en forme avant la lecture

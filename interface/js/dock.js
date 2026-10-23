@@ -206,8 +206,8 @@
         } else if (item.kind === 'trash') {
             window.os.openLocation('trash:///');
         } else if (item.kind === 'robbie') {
-            face.setExpression('happy', 1400);
             face.blink();
+            window.robbiePanel.toggle();
         } else {
             toast('Les réglages arrivent bientôt', 'gear');
         }

@@ -64,7 +64,10 @@ cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
 </labwc_config>
 EOF
 
+# Dans une machine virtuelle, le cerveau de Robbie (Ollama) est celui de l'ordinateur hôte,
+# qui a la carte graphique : VirtualBox le rend joignable à l'adresse 10.0.2.2
 cat > "$HOME_DIR/.config/labwc/autostart" <<EOF
+systemd-detect-virt -q && export ROBBIE_OLLAMA=http://10.0.2.2:11434
 cd "$ROBBIE_DIR" && ./node_modules/.bin/electron . > ~/.robbie-os-interface.log 2>&1 &
 EOF
 

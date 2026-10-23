@@ -9,9 +9,13 @@ const meteo = require('./services/meteo');
 const son = require('./services/son');
 const notes = require('./services/notes');
 const { power } = require('./services/alimentation');
+const { createRobbie } = require('./services/robbie');
 
 // Nom de l'appli pour Wayland (règles de fenêtre de labwc)
 app.setName('robbie-os');
+
+// Robbie parle sans attendre un premier clic dans la page
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
 let win = null;
 
@@ -64,5 +68,16 @@ ipcMain.handle('settings', () => notes.getSettings());
 ipcMain.handle('set-settings', (_event, changes) => notes.setSettings(changes));
 ipcMain.handle('power', (_event, action) => power(action));
 
-app.whenReady().then(createWindow);
+// Robbie : cerveau, voix, oreille et actions
+let robbie = null;
+ipcMain.handle('robbie-demander', (_event, text) => robbie?.ask(text));
+ipcMain.handle('robbie-confirmer', (_event, action) => robbie?.confirm(action));
+ipcMain.on('robbie-parle', (_event, speaking) => robbie?.setSpeaking(speaking));
+ipcMain.on('robbie-panneau', (_event, open) => robbie?.setPanelOpen(open));
+
+app.whenReady().then(() => {
+    createWindow();
+    robbie = createRobbie({ send: (channel, data) => win?.webContents.send(channel, data) });
+});
 app.on('window-all-closed', () => app.quit());
+app.on('before-quit', () => robbie?.stop());

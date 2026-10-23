@@ -4,7 +4,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 
-const OLLAMA = 'http://127.0.0.1:11434';
+// Adresse d'Ollama : sur cette machine par défaut, ou ailleurs (ROBBIE_OLLAMA), par exemple
+// l'Ollama de Windows vu depuis une machine virtuelle (http://10.0.2.2:11434)
+const OLLAMA = process.env.ROBBIE_OLLAMA || 'http://127.0.0.1:11434';
 const OLLAMA_URL = `${OLLAMA}/api/chat`;
 
 // Taille de la mémoire de travail du modèle (en jetons)

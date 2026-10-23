@@ -410,3 +410,172 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @keyframes fondu-simple {
     from { opacity: 0; }
 }
+
+/* ===================== Panneau de Robbie ===================== */
+.robbie-panneau {
+    position: fixed;
+    left: 50%;
+    bottom: 150px;
+    z-index: 15;
+    width: min(560px, 70vw);
+    max-height: min(460px, 56vh);
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    background: rgba(10, 16, 32, 0.62);
+    border: 1px solid var(--bord);
+    backdrop-filter: blur(30px) saturate(140%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 30px 60px -20px rgba(0, 0, 0, 0.7);
+    transform: translate(-50%, 16px) scale(0.97);
+    transform-origin: 50% 100%;
+    opacity: 0;
+    transition: opacity 0.22s, transform 0.3s var(--doux);
+}
+
+.robbie-panneau.ouvert { opacity: 1; transform: translate(-50%, 0); }
+
+.rp-tete {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px 10px 20px;
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+}
+
+.rp-titre { font-weight: 700; }
+
+.rp-etat {
+    color: rgb(var(--accent));
+    font-weight: 500;
+}
+
+.robbie-panneau[data-etat='reflechit'] .rp-etat,
+.robbie-panneau[data-etat='ecoute'] .rp-etat { animation: clignote 1.2s ease-in-out infinite; }
+
+@keyframes clignote {
+    50% { opacity: 0.35; }
+}
+
+.rp-fermer {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    color: var(--texte-doux);
+}
+
+.rp-fermer:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.rp-fermer .icon { width: 15px; height: 15px; }
+
+/* La conversation reste en Inter : plus lisible qu'Orbitron pour des phrases */
+.rp-fil {
+    flex: 1;
+    min-height: 120px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 6px 20px 14px;
+    font-family: 'Inter', 'Noto Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    user-select: text;
+}
+
+.rp-message { max-width: 85%; }
+
+.rp-message.moi {
+    align-self: flex-end;
+    padding: 8px 13px;
+    border-radius: 14px 14px 4px 14px;
+    background: rgba(255, 255, 255, 0.09);
+}
+
+.rp-message.robbie {
+    align-self: flex-start;
+    padding-left: 14px;
+    border-left: 2px solid rgba(var(--accent), 0.75);
+}
+
+.rp-message.systeme {
+    align-self: center;
+    font-size: 12px;
+    color: #ffb4a8;
+    text-align: center;
+}
+
+.rp-message.attente { display: flex; gap: 5px; padding: 8px 0 8px 14px; }
+
+.rp-message.attente i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgb(var(--accent));
+    animation: attente 1s ease-in-out infinite;
+}
+
+.rp-message.attente i:nth-child(2) { animation-delay: 0.15s; }
+.rp-message.attente i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes attente {
+    50% { opacity: 0.25; transform: translateY(-3px); }
+}
+
+.rp-confirmer {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px 12px;
+    font-family: 'Inter', sans-serif;
+}
+
+.rp-confirmer button {
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--bord);
+}
+
+.rp-oui { background: rgba(255, 107, 107, 0.2); border-color: rgba(255, 107, 107, 0.5) !important; }
+.rp-non { background: rgba(255, 255, 255, 0.06); }
+
+.rp-saisie {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 12px 12px;
+    padding: 6px 6px 6px 14px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--bord);
+    transition: border-color 0.2s;
+}
+
+.rp-saisie:focus-within { border-color: rgba(var(--accent), 0.5); }
+
+.rp-saisie input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: 0;
+    outline: none;
+    color: var(--texte);
+    font: 14px 'Inter', 'Noto Sans', sans-serif;
+}
+
+.rp-saisie input::placeholder { color: rgba(226, 234, 248, 0.45); }
+
+.rp-saisie button {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: rgba(var(--accent), 0.85);
+    color: #04121c;
+}
+
+.rp-saisie button .icon { width: 17px; height: 17px; stroke-width: 2.2; }

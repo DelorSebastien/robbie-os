@@ -20,3 +20,16 @@ contextBridge.exposeInMainWorld('os', {
     power: action => ipcRenderer.invoke('power', action),
     onShortcut: callback => ipcRenderer.on('shortcut', (_event, name) => callback(name))
 });
+
+// Robbie : lui parler, et recevoir ses réponses, sa voix et son état
+const ROBBIE_EVENTS = ['robbie-question', 'robbie-reponse', 'robbie-voix', 'robbie-etat', 'robbie-ecoute', 'robbie-ouvrir', 'robbie-micro'];
+
+contextBridge.exposeInMainWorld('robbieApi', {
+    ask: text => ipcRenderer.invoke('robbie-demander', text),
+    confirm: action => ipcRenderer.invoke('robbie-confirmer', action),
+    setSpeaking: speaking => ipcRenderer.send('robbie-parle', speaking),
+    setPanelOpen: open => ipcRenderer.send('robbie-panneau', open),
+    on: (channel, callback) => {
+        if (ROBBIE_EVENTS.includes(channel)) ipcRenderer.on(channel, (_event, data) => callback(data));
+    }
+});

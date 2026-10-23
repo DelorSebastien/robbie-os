@@ -1,6 +1,6 @@
 // Micro : reconnaissance vocale Whisper (script Python), relancée toute seule si elle s'arrête
 const { spawn } = require('node:child_process');
-const { python } = require('./paths');
+const { python, PYTHON } = require('./paths');
 
 // Au-delà, le problème est expliqué à l'utilisateur au lieu de relancer en boucle
 const MAX_RESTARTS = 3;
@@ -20,14 +20,14 @@ function explain(errors) {
     if (/PortAudio|Invalid (input )?device|device unavailable|-999[68]/i.test(errors)) {
         return {
             title: 'Micro introuvable',
-            detail: 'Vérifie que ton micro est branché et autorisé dans Paramètres › Confidentialité › Microphone.',
+            detail: 'Vérifie que ton micro est branché et activé.',
             speech: "Je ne trouve pas de micro. Vérifie qu'il est bien branché."
         };
     }
 
     return {
         title: 'Micro arrêté',
-        detail: 'La reconnaissance vocale s\'est arrêtée plusieurs fois. Le détail est dans le journal (menu de l\'icône › Journal).',
+        detail: 'La reconnaissance vocale s\'est arrêtée plusieurs fois. Le détail est dans le journal de Robbie OS.',
         speech: "Mon micro s'est arrêté plusieurs fois. Le détail est dans mon journal."
     };
 }
@@ -44,8 +44,9 @@ function createMicrophone({ onHeard, onVoiceActive, onProblem }) {
         let errors = '';
 
         // (sortie Python en UTF-8 pour garder les accents)
-        child = spawn('python', ['-u', python('voice_recognition.py')], {
-            env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
+        // (modèle Whisper « base » par défaut : assez rapide sur un processeur modeste)
+        child = spawn(PYTHON, ['-u', python('voice_recognition.py')], {
+            env: { WHISPER_MODEL: 'base', ...process.env, PYTHONIOENCODING: 'utf-8' }
         });
 
         child.stdout.setEncoding('utf8');
@@ -87,7 +88,7 @@ function createMicrophone({ onHeard, onVoiceActive, onProblem }) {
                 stopped = true;
                 onProblem({
                     title: 'Python introuvable',
-                    detail: 'Installe Python 3 depuis python.org en cochant « Add python.exe to PATH ».',
+                    detail: 'Python est introuvable : relance systeme/installer-robbie.sh.',
                     speech: "Je ne trouve pas Python : sans lui, je ne peux pas t'entendre."
                 });
             }

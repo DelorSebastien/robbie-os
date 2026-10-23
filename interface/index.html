@@ -54,6 +54,21 @@
         <time id="heure">--:--</time>
     </div>
 
+    <!-- Panneau de Robbie : la conversation, au-dessus du dock -->
+    <section class="robbie-panneau" id="robbie-panneau" aria-label="Robbie" hidden>
+        <header class="rp-tete">
+            <span class="rp-titre">ROBBIE</span>
+            <span class="rp-etat" id="rp-etat">PRÊT</span>
+            <button class="rp-fermer" id="rp-fermer" data-icon="x" aria-label="Fermer"></button>
+        </header>
+        <div class="rp-fil" id="rp-fil" aria-live="polite"></div>
+        <div class="rp-confirmer" id="rp-confirmer" hidden></div>
+        <form class="rp-saisie" id="rp-saisie">
+            <input id="rp-texte" placeholder="Écris à Robbie… ou dis « Robbie »" autocomplete="off" aria-label="Message pour Robbie">
+            <button type="submit" data-icon="send" aria-label="Envoyer"></button>
+        </form>
+    </section>
+
     <div class="toasts" id="toasts"></div>
 
     <!-- Visage de Robbie : face.js le cherche au chargement, le dock le place dans sa tuile -->
@@ -66,5 +81,6 @@
     <script src="./js/dock.js"></script>
     <script src="./js/laterale.js"></script>
     <script src="./js/coin.js"></script>
+    <script src="./js/robbie-panneau.js"></script>
 </body>
 </html>
