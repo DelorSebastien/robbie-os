@@ -1,14 +1,15 @@
 #!/bin/sh
 # Voix et oreille de Robbie : environnement Python avec Whisper (reconnaissance vocale)
 # et Piper (synthèse vocale hors ligne), plus une voix française
+# (l'effet « robot » de la voix utilise sox, installé par installer-base.sh)
 # À lancer en tant qu'utilisateur (pas en root) : sh installer-robbie.sh <dossier de Robbie OS>
 set -eu
 
 ROBBIE_DIR="${1:-$HOME/robbie-os}"
 VENV="$ROBBIE_DIR/.venv"
 VOICES="$ROBBIE_DIR/robbie/voix"
-VOICE="fr_FR-tom-medium"
-VOICE_URL="https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/tom/medium"
+VOICE="fr_FR-siwis-medium"
+VOICE_URL="https://huggingface.co/rhasspy/piper-voices/resolve/main/fr/fr_FR/siwis/medium"
 
 python3 -m venv "$VENV"
 "$VENV/bin/pip" install --quiet --upgrade pip

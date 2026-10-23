@@ -15,7 +15,7 @@ apt-get install -y --no-install-recommends \
     `# Premières applis : navigateur, fichiers, texte, images` \
     firefox-esr firefox-esr-l10n-fr thunar mousepad ristretto adwaita-icon-theme papirus-icon-theme \
     `# Son et micro` \
-    pipewire pipewire-pulse pipewire-alsa wireplumber alsa-utils playerctl \
+    pipewire pipewire-pulse pipewire-alsa wireplumber alsa-utils playerctl sox \
     `# Interface : Node.js et ce dont Electron a besoin` \
     nodejs npm libnss3 libgtk-3-0t64 libgbm1 libasound2t64 libxss1 libxtst6 libdrm2 libatk-bridge2.0-0t64 libcups2t64 \
     `# Voix : Python` \
