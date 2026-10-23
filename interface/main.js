@@ -13,6 +13,15 @@ const { power } = require('./services/alimentation');
 // Nom de l'appli pour Wayland (règles de fenêtre de labwc)
 app.setName('robbie-os');
 
+// Chromium refuse par prudence certaines cartes graphiques (celle de VirtualBox par exemple) :
+// on l'utilise quand même, c'est bien plus fluide que le dessin par le processeur
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
+if (process.platform === 'linux') {
+    // Sous Wayland, Vulkan n'est pas pris en charge par Chromium : on passe par OpenGL
+    app.commandLine.appendSwitch('disable-features', 'Vulkan');
+    app.commandLine.appendSwitch('use-angle', 'gl');
+}
+
 let win = null;
 
 // Hors de Linux (aperçu sur Windows pendant le développement) : une simple fenêtre
@@ -36,6 +45,12 @@ function createWindow() {
     console.log(`Carte graphique : ${gpu || 'inconnue'}${light ? ' (mode léger)' : ''}`);
 
     win.loadFile(path.join(__dirname, 'index.html'), { query: light ? { leger: '1' } : {} });
+
+    // État réel de la carte graphique, une fois Chromium bien démarré
+    setTimeout(() => {
+        const status = app.getGPUFeatureStatus();
+        console.log(`Carte graphique (après démarrage) : composition ${status.gpu_compositing}, WebGL ${status.webgl}, canvas ${status['2d_canvas']}`);
+    }, 6000);
 }
 
 // Raccourci clavier global : labwc envoie SIGUSR2 (touche Super), on ouvre la palette.
