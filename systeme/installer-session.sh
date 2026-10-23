@@ -45,9 +45,9 @@ cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
     <name>Robbie</name>
     <cornerRadius>12</cornerRadius>
     <titlebar><layout>close,iconify,max:</layout></titlebar>
-    <font place="ActiveWindow"><name>Inter</name><size>10</size><weight>Medium</weight></font>
-    <font place="InactiveWindow"><name>Inter</name><size>10</size><weight>Medium</weight></font>
-    <font place="MenuItem"><name>Inter</name><size>10</size></font>
+    <font place="ActiveWindow"><name>Orbitron</name><size>9</size><weight>Medium</weight></font>
+    <font place="InactiveWindow"><name>Orbitron</name><size>9</size><weight>Medium</weight></font>
+    <font place="MenuItem"><name>Orbitron</name><size>9</size></font>
   </theme>
   <keyboard>
     <default />

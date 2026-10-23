@@ -1,12 +1,19 @@
 /* Robbie OS — style « Horizon » : le fond d'écran porte la couleur,
    l'interface reste fine et discrète (verre sombre, traits fins, peu de lueur) */
+/* Police de Robbie OS (licence OFL, fournie avec le projet) */
+@font-face {
+    font-family: 'Orbitron';
+    src: url('../../assets/polices/Orbitron.ttf') format('truetype');
+    font-weight: 400 900;
+}
+
 :root {
     --accent: 94, 231, 255;
     --texte: #eef3fb;
     --texte-doux: rgba(226, 234, 248, 0.78);
     --verre: rgba(10, 16, 32, 0.38);
     --bord: rgba(255, 255, 255, 0.09);
-    --police: 'Inter', 'Noto Sans', system-ui, sans-serif;
+    --police: 'Orbitron', 'Inter', 'Noto Sans', system-ui, sans-serif;
     --doux: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -140,9 +147,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     background: rgba(10, 16, 32, 0.72);
     border: 1px solid var(--bord);
     backdrop-filter: blur(20px);
-    font-size: 12px;
+    font-size: 10.5px;
     font-weight: 500;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     white-space: nowrap;
     transform: translate(-50%, -100%);
     opacity: 0;
@@ -258,8 +266,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     border-radius: 12px;
     display: grid;
     place-items: center;
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
     color: rgba(230, 238, 250, 0.85);
     background: rgba(255, 255, 255, 0.06) center / cover;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -301,9 +309,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     display: flex;
     align-items: center;
     gap: 16px;
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: 0.01em;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
     text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
 }
 
@@ -332,7 +340,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     background: rgba(10, 16, 32, 0.72);
     border: 1px solid var(--bord);
     backdrop-filter: blur(20px);
-    font-size: 13px;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
     animation: toast-entree 0.3s var(--doux);
     transition: opacity 0.4s, transform 0.4s;
 }
