@@ -141,9 +141,17 @@ function createRobbie({ send }) {
 
     // Le modèle met une trentaine de secondes à se charger la première fois :
     // on le réveille dès le démarrage plutôt qu'à la première question
-    ollama.chat([{ role: 'user', content: 'Réponds {"ok": true}' }], 0)
-        .then(() => console.log(`Cerveau de Robbie prêt (${MODEL})`))
-        .catch(error => console.error('Cerveau de Robbie injoignable :', error.message));
+    // (plusieurs essais : au démarrage, le réseau n'est pas toujours encore prêt)
+    async function wakeBrain(attempt = 1) {
+        try {
+            await ollama.chat([{ role: 'user', content: 'Réponds {"ok": true}' }], 0);
+            console.log(`Cerveau de Robbie prêt (${MODEL})`);
+        } catch (error) {
+            if (attempt < 6) setTimeout(() => wakeBrain(attempt + 1), 10000);
+            else console.error('Cerveau de Robbie injoignable :', error.message);
+        }
+    }
+    wakeBrain();
 
     return {
         ask,
