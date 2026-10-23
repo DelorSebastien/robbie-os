@@ -1,14 +1,14 @@
 # Thème de fenêtres Robbie OS pour labwc : barre de titre sombre et fine,
-# accordée au thème GTK Robbie (bleu nuit et cyan), boutons ronds discrets
+# translucide comme le verre du bureau, boutons ronds discrets
 border.width: 1
 window.titlebar.padding.width: 8
 window.titlebar.padding.height: 0
 
-window.active.border.color: #1c2842
-window.inactive.border.color: #141e33
+window.active.border.color: #ffffff1a
+window.inactive.border.color: #ffffff10
 
-window.active.title.bg.color: #0c1424
-window.inactive.title.bg.color: #0a111e
+window.active.title.bg.color: #0a122485
+window.inactive.title.bg.color: #0a122470
 window.active.label.text.color: #eef3fb
 window.inactive.label.text.color: #6f7b93
 window.label.text.justify: center
@@ -25,7 +25,7 @@ window.inactive.shadow.color: #00000050
 
 menu.border.width: 1
 menu.border.color: #1c2842
-menu.items.bg.color: #0f182b
+menu.items.bg.color: #0a1020d0
 menu.items.text.color: #e6ebf3
 menu.items.active.bg.color: #1e9cc4
 menu.items.active.text.color: #ffffff
@@ -35,7 +35,7 @@ menu.separator.color: #1c2842
 menu.title.bg.color: #0c1424
 menu.title.text.color: #ffffff
 
-osd.bg.color: #0f182b
+osd.bg.color: #0a1020d0
 osd.border.color: #1c2842
 osd.label.text.color: #eef3fb
 osd.window-switcher.item.active.border.width: 2

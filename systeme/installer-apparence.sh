@@ -46,17 +46,18 @@ EOF
 done
 
 # Thème « Robbie » : barre de titre (labwc) et fenêtres GTK.
-# Les fenêtres GTK reprennent Orchis-Dark, repeint aux couleurs du bureau (bleu nuit et cyan).
+# Les fenêtres GTK reprennent Orchis-Dark, repeint avec le verre translucide du bureau :
+# les fonds deviennent du bleu nuit transparent, comme le dock et la barre latérale.
 rm -rf /usr/share/themes/Robbie
 cp -r "$ROBBIE_DIR/systeme/theme-labwc/Robbie" /usr/share/themes/
 for version in gtk-3.0 gtk-4.0; do
     cp -r "/usr/share/themes/Orchis-Dark/$version" "/usr/share/themes/Robbie/$version"
     find "/usr/share/themes/Robbie/$version" -name '*.css' -exec sed -i \
-        -e 's/#212121/#0c1424/gI' \
-        -e 's/#242424/#0f182b/gI' \
-        -e 's/#2C2C2C/#111a2e/gI' \
-        -e 's/#3C3C3C/#1c2842/gI' \
-        -e 's/#404040/#24314d/gI' \
+        -e 's/#212121/rgba(10, 18, 36, 0.5)/gI' \
+        -e 's/#242424/rgba(10, 18, 36, 0.55)/gI' \
+        -e 's/#2C2C2C/rgba(10, 18, 36, 0.28)/gI' \
+        -e 's/#3C3C3C/rgba(255, 255, 255, 0.08)/gI' \
+        -e 's/#404040/rgba(255, 255, 255, 0.12)/gI' \
         -e 's/#3281EA/#1e9cc4/gI' {} +
 done
 cat > /usr/share/themes/Robbie/index.theme <<EOF
