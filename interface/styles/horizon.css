@@ -97,6 +97,16 @@ body::after {
     -webkit-box-reflect: below 10px linear-gradient(transparent 52%, rgba(255, 255, 255, 0.22));
 }
 
+.tuile .icone-theme {
+    width: 74%;
+    height: 74%;
+    object-fit: contain;
+    pointer-events: none;
+    filter: drop-shadow(0 0 8px rgba(var(--teinte), 0.35));
+}
+
+.tuile:hover .icone-theme { filter: drop-shadow(0 0 10px rgba(var(--teinte), 0.75)); }
+
 .tuile .picto {
     width: 70%;
     height: 70%;

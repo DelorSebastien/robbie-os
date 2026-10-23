@@ -13,7 +13,10 @@ const FOLDERS = [
 
 const ICON_THEMES = ['Papirus-Dark', 'Papirus', 'Adwaita', 'hicolor'];
 const ICON_SIZES = ['scalable', '256x256', '128x128', '96x96', '64x64', '48x48', '512x512'];
+// Thème de Robbie OS en premier (rangé par type puis taille : apps/64, places/48…)
+const ROBBIE_THEME = '/usr/share/icons/Vivid-Glassy-Dark-Icons';
 const ICON_FOLDERS = [
+    ...['64', '48', '32'].flatMap(size => ['apps', 'places', 'preferences', 'applets'].map(kind => `${ROBBIE_THEME}/${kind}/${size}`)),
     ...ICON_THEMES.flatMap(theme => ['64x64', '48x48', 'scalable', '128x128'].flatMap(size =>
         ['apps', 'places'].map(kind => `/usr/share/icons/${theme}/${size}/${kind}`))),
     ...ICON_SIZES.map(size => `/usr/share/icons/hicolor/${size}/apps`),

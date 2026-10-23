@@ -32,16 +32,17 @@
             <path d="M6 9h20M12.5 9V6h7v3M8.5 9l1.3 17h12.4l1.3-17M13.5 13.5v8M18.5 13.5v8"/></g>`)
     };
 
-    // Contenu du dock : applis, Robbie au milieu, puis réglages et corbeille
+    // Contenu du dock : applis, Robbie au milieu, puis réglages et corbeille.
+    // `icon` : icône du thème Vivid Glassy ; `glyph` : picto dessiné si le thème manque (aperçu Windows)
     const ITEMS = [
-        { kind: 'app', id: 'thunar', glyph: 'folder', name: 'Fichiers', tint: '80, 170, 255' },
-        { kind: 'app', id: 'firefox-esr', glyph: 'globe', name: 'Navigateur', tint: '80, 160, 255' },
-        { kind: 'app', id: 'foot', glyph: 'terminal', name: 'Terminal', tint: '190, 205, 230' },
-        { kind: 'app', id: 'org.xfce.mousepad', glyph: 'code', name: 'Éditeur de code', tint: '60, 130, 255' },
+        { kind: 'app', id: 'thunar', icon: 'folder', glyph: 'folder', name: 'Fichiers', tint: '80, 170, 255' },
+        { kind: 'app', id: 'firefox-esr', icon: 'firefox-esr', glyph: 'globe', name: 'Navigateur', tint: '255, 130, 60' },
+        { kind: 'app', id: 'foot', icon: 'utilities-terminal', glyph: 'terminal', name: 'Terminal', tint: '190, 205, 230' },
+        { kind: 'app', id: 'org.xfce.mousepad', icon: 'accessories-text-editor', glyph: 'code', name: 'Éditeur de texte', tint: '60, 130, 255' },
         { kind: 'robbie', name: 'Robbie' },
-        { kind: 'app', id: 'org.xfce.ristretto', glyph: 'image', name: 'Images', tint: '160, 90, 255' },
-        { kind: 'settings', glyph: 'gear', name: 'Réglages', tint: '190, 205, 230' },
-        { kind: 'trash', glyph: 'trash', name: 'Corbeille', tint: '190, 205, 230' }
+        { kind: 'app', id: 'org.xfce.ristretto', icon: 'image-viewer', glyph: 'image', name: 'Images', tint: '160, 90, 255' },
+        { kind: 'settings', icon: 'preferences-system', glyph: 'gear', name: 'Réglages', tint: '190, 205, 230' },
+        { kind: 'trash', icon: 'user-trash', glyph: 'trash', name: 'Corbeille', tint: '190, 205, 230' }
     ];
 
     const dock = document.getElementById('dock');
@@ -79,7 +80,16 @@
                 visage.append(document.getElementById('face'));
                 el.append(visage);
             } else {
-                el.innerHTML = GLYPHS[item.glyph];
+                const src = await window.os.icon(item.icon);
+                if (src) {
+                    const img = document.createElement('img');
+                    img.className = 'icone-theme';
+                    img.src = src;
+                    img.alt = '';
+                    el.append(img);
+                } else {
+                    el.innerHTML = GLYPHS[item.glyph];
+                }
                 if (item.kind === 'app' && apps.length && !apps.some(a => a.id === item.id)) el.style.opacity = '0.4';
             }
 
