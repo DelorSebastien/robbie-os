@@ -1,16 +1,16 @@
 # Thème de fenêtres Robbie OS pour labwc : barre de titre sombre et fine,
-# accordée au thème GTK Orchis-Dark, boutons ronds façon macOS
+# accordée au thème GTK Robbie (bleu nuit et cyan), boutons ronds discrets
 border.width: 1
 window.titlebar.padding.width: 8
 window.titlebar.padding.height: 0
 
-window.active.border.color: #2e2e2e
-window.inactive.border.color: #262626
+window.active.border.color: #1c2842
+window.inactive.border.color: #141e33
 
-window.active.title.bg.color: #212121
-window.inactive.title.bg.color: #1b1b1b
+window.active.title.bg.color: #0c1424
+window.inactive.title.bg.color: #0a111e
 window.active.label.text.color: #eef3fb
-window.inactive.label.text.color: #7d8594
+window.inactive.label.text.color: #6f7b93
 window.label.text.justify: center
 
 window.button.width: 22
@@ -24,18 +24,18 @@ window.active.shadow.color: #00000080
 window.inactive.shadow.color: #00000050
 
 menu.border.width: 1
-menu.border.color: #333333
-menu.items.bg.color: #1e1e1e
+menu.border.color: #1c2842
+menu.items.bg.color: #0f182b
 menu.items.text.color: #e6ebf3
-menu.items.active.bg.color: #2f5f8a
+menu.items.active.bg.color: #1e9cc4
 menu.items.active.text.color: #ffffff
 menu.items.padding.x: 12
 menu.items.padding.y: 6
-menu.separator.color: #333333
-menu.title.bg.color: #212121
+menu.separator.color: #1c2842
+menu.title.bg.color: #0c1424
 menu.title.text.color: #ffffff
 
-osd.bg.color: #1e1e1e
-osd.border.color: #333333
+osd.bg.color: #0f182b
+osd.border.color: #1c2842
 osd.label.text.color: #eef3fb
 osd.window-switcher.item.active.border.width: 2

@@ -5,7 +5,7 @@ set -eu
 
 ROBBIE_DIR="${1:-/home/robbie/robbie-os}"
 ICONS="Vivid-Glassy-Dark-Icons"
-GTK_THEME="Orchis-Dark"
+GTK_THEME="Robbie"
 CURSOR="Bibata-Modern-Classic"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -45,8 +45,30 @@ gtk-font-name=Inter 10
 EOF
 done
 
-# Thème de la barre de titre (labwc)
+# Thème « Robbie » : barre de titre (labwc) et fenêtres GTK.
+# Les fenêtres GTK reprennent Orchis-Dark, repeint aux couleurs du bureau (bleu nuit et cyan).
 rm -rf /usr/share/themes/Robbie
 cp -r "$ROBBIE_DIR/systeme/theme-labwc/Robbie" /usr/share/themes/
+for version in gtk-3.0 gtk-4.0; do
+    cp -r "/usr/share/themes/Orchis-Dark/$version" "/usr/share/themes/Robbie/$version"
+    find "/usr/share/themes/Robbie/$version" -name '*.css' -exec sed -i \
+        -e 's/#212121/#0c1424/gI' \
+        -e 's/#242424/#0f182b/gI' \
+        -e 's/#2C2C2C/#111a2e/gI' \
+        -e 's/#3C3C3C/#1c2842/gI' \
+        -e 's/#404040/#24314d/gI' \
+        -e 's/#3281EA/#1e9cc4/gI' {} +
+done
+cat > /usr/share/themes/Robbie/index.theme <<EOF
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Robbie
+Comment=Thème de Robbie OS : bleu nuit et cyan
+
+[X-GNOME-Metatheme]
+GtkTheme=Robbie
+IconTheme=$ICONS
+CursorTheme=$CURSOR
+EOF
 
 echo "Apparence de Robbie OS installée"
