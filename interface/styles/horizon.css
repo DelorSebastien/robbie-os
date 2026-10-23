@@ -579,3 +579,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 .rp-saisie button .icon { width: 17px; height: 17px; stroke-width: 2.2; }
+
+/* Mode léger (pas de carte graphique) : la lumière de l'arc ne circule plus,
+   pour laisser le processeur à la voix et à l'oreille de Robbie */
+.leger .arc-flux { display: none; }

@@ -1393,14 +1393,19 @@
     // Boucle d'animation
     let last = performance.now();
 
+    // Images par seconde maximum (réglable avec window.face.setMaxFps : 30 suffit
+    // sur un ordinateur sans carte graphique, où chaque image coûte cher)
+    let minFrameTime = 0;
+
     function frame(now) {
+        requestAnimationFrame(frame);
+        if (now - last < minFrameTime) return;
+
         const dt = Math.min((now - last) / 1000, 0.1);
         last = now;
 
         update(dt, now);
         draw(now);
-
-        requestAnimationFrame(frame);
     }
 
     requestAnimationFrame(frame);
@@ -1578,6 +1583,11 @@
 
         setThinking(value) {
             thinking = !!value && !sleeping;
+        },
+
+        // Limite d'images par seconde (0 : aucune limite)
+        setMaxFps(fps) {
+            minFrameTime = fps > 0 ? 1000 / fps - 2 : 0;
         },
 
         setSpeaking(value) {

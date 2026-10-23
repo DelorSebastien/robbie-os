@@ -87,18 +87,49 @@ function createRobbie({ send }) {
         say(answer);
     }
 
-    // Robbie parle : la page joue le son et anime sa bouche
+    // Robbie parle : la page joue le son et anime sa bouche.
+    // Son oreille est coupée pendant ce temps, sinon il s'entendrait dans les haut-parleurs
+    // et se répondrait à lui-même.
+    let lastSaid = '';
+
     async function say(text) {
         const clean = cleanForSpeech(text);
         if (!clean) return send('robbie-etat', 'pret');
+
+        lastSaid = clean;
+        muteEars(true);
 
         try {
             const audio = await speech.synthesize(clean);
             send('robbie-voix', audio.toString('base64'));
         } catch (error) {
             console.error('Voix de Robbie :', error.message);
+            muteEars(false);
             send('robbie-etat', 'pret');
         }
+    }
+
+    let unmuteTimer = null;
+
+    function muteEars(muted) {
+        clearTimeout(unmuteTimer);
+        if (muted) {
+            microphone?.listen('aucun');
+        } else {
+            // (un court délai : l'écho de sa voix dans la pièce)
+            unmuteTimer = setTimeout(() => microphone?.listen('pc'), 600);
+        }
+    }
+
+    // Phrase entendue qui ressemble trop à ce que Robbie vient de dire : c'est son écho
+    const words = text => new Set(String(text).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[a-z]{3,}/g) || []);
+
+    function isEcho(text) {
+        const heard = words(text);
+        const said = words(lastSaid);
+        if (heard.size === 0 || said.size === 0) return false;
+        const common = [...heard].filter(word => said.has(word)).length;
+        return common / heard.size >= 0.6;
     }
 
     // Oreille : « Robbie, … » déclenche une question ; juste après une réponse, inutile de redire son nom
@@ -106,8 +137,10 @@ function createRobbie({ send }) {
 
     function startMicrophone() {
         microphone = createMicrophone({
-            onHeard: text => {
-                if (speaking || busy) return;
+            onHeard: heard => {
+                // (Whisper ajoute parfois des « … » sur les silences)
+                const text = heard.replace(/…|\.{3,}/g, ' ').replace(/\s+/g, ' ').trim();
+                if (speaking || busy || !text || isEcho(text)) return;
 
                 const named = WAKE_WORD.test(text);
                 const inConversation = Date.now() < listeningUntil;
@@ -159,6 +192,7 @@ function createRobbie({ send }) {
         setSpeaking(value) {
             speaking = Boolean(value);
             if (!speaking) {
+                muteEars(false);
                 listeningUntil = Date.now() + CONVERSATION_SECONDS * 1000;
                 send('robbie-etat', 'pret');
             }

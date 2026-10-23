@@ -233,6 +233,10 @@
         document.documentElement.style.setProperty('--accent', color);
     }, 150);
 
+    // Sans carte graphique, chaque image coûte du processeur : visage à 30 images par seconde
+    // (le son de la voix de Robbie ne saccade plus quand la machine est chargée)
+    if (window.ui.light) face.setMaxFps(30);
+
     window.os.settings().then(settings => {
         face.setEyeColor(settings.eyeColor);
         face.setSkin(settings.skin);

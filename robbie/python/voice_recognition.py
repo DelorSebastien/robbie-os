@@ -121,9 +121,9 @@ def read_commands():
             audio.put(("phone", base64.b64decode(message["audio"])))
         if "vocabulary" in message:
             set_vocabulary(message["vocabulary"])
-        if message.get("listen") in ("pc", "phone"):
+        # (« aucun » : oreille coupée, par exemple pendant que Robbie parle)
+        if message.get("listen") in ("pc", "phone", "aucun"):
             listening["source"] = message["listen"]
-            print(f"Micro écouté : {'téléphone' if message['listen'] == 'phone' else 'PC'}", file=sys.stderr, flush=True)
 
 
 threading.Thread(target=read_commands, daemon=True).start()
