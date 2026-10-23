@@ -34,6 +34,28 @@ XKB_DEFAULT_LAYOUT=fr
 WLR_NO_HARDWARE_CURSORS=1
 EOF
 
+# Raccourcis : touche Super seule = palette de Robbie (signal envoyé à l'interface),
+# Super+Entrée = terminal, et les raccourcis habituels de labwc (Alt+Tab...)
+cat > "$HOME_DIR/.config/labwc/rc.xml" <<'EOF'
+<?xml version="1.0"?>
+<labwc_config>
+  <theme>
+    <name></name>
+    <cornerRadius>10</cornerRadius>
+    <font place="ActiveWindow"><name>Inter</name><size>10</size><weight>Bold</weight></font>
+  </theme>
+  <keyboard>
+    <default />
+    <keybind key="Super_L" onRelease="yes">
+      <action name="Execute" command="sh -c 'kill -USR2 $(cat $HOME/.cache/robbie-os.pid)'" />
+    </keybind>
+    <keybind key="W-Return">
+      <action name="Execute" command="foot" />
+    </keybind>
+  </keyboard>
+</labwc_config>
+EOF
+
 cat > "$HOME_DIR/.config/labwc/autostart" <<EOF
 cd "$ROBBIE_DIR" && ./node_modules/.bin/electron . > ~/.robbie-os-interface.log 2>&1 &
 EOF

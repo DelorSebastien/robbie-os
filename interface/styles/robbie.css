@@ -1,0 +1,133 @@
+/* Robbie au centre : une tête de robot dont la visière affiche son vrai visage animé */
+.robbie {
+    position: relative;
+    width: clamp(240px, 24vw, 400px);
+    cursor: pointer;
+    animation: float 7s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-0.6deg); }
+    50% { transform: translateY(-14px) rotate(0.6deg); }
+}
+
+/* Halo de la couleur de son émotion */
+.robbie-halo {
+    position: absolute;
+    inset: -45% -40%;
+    background: radial-gradient(closest-side, rgba(var(--accent), 0.22), rgba(var(--accent), 0.06) 55%, transparent);
+    pointer-events: none;
+    transition: opacity 0.4s;
+}
+
+.robbie.thinking .robbie-halo { animation: think 1.2s ease-in-out infinite; }
+
+@keyframes think {
+    50% { opacity: 0.45; transform: scale(0.94); }
+}
+
+.robbie-head {
+    position: relative;
+    aspect-ratio: 1.42;
+    border-radius: 46% 46% 42% 42% / 52% 52% 46% 46%;
+    background:
+        radial-gradient(120% 90% at 30% 15%, rgba(255, 255, 255, 0.95), transparent 45%),
+        linear-gradient(165deg, #eef3f9 0%, #c8d1dd 45%, #8794a6 85%, #6b778a 100%);
+    box-shadow:
+        inset 0 -14px 28px rgba(40, 52, 72, 0.55),
+        inset 0 6px 14px rgba(255, 255, 255, 0.6),
+        0 30px 60px -20px rgba(0, 0, 0, 0.8),
+        0 0 60px -10px rgba(var(--accent), 0.35);
+    transition: transform 0.3s var(--ease);
+}
+
+.robbie:hover .robbie-head { transform: scale(1.025); }
+
+/* Oreilles : disques avec un anneau lumineux */
+.robbie-ear {
+    position: absolute;
+    top: 34%;
+    width: 15%;
+    aspect-ratio: 0.62;
+    border-radius: 45%;
+    background: linear-gradient(90deg, #7c889b, #dfe6ef 55%, #9aa6b8);
+    box-shadow: inset 0 0 0 3px rgba(20, 30, 46, 0.35), 0 0 16px -4px rgba(var(--accent), 0.6);
+}
+
+.robbie-ear::after {
+    content: '';
+    position: absolute;
+    inset: 32% 30%;
+    border-radius: 50%;
+    background: rgb(var(--accent));
+    box-shadow: 0 0 10px rgb(var(--accent));
+    opacity: 0.85;
+}
+
+.robbie-ear.left { left: -7%; }
+.robbie-ear.right { right: -7%; }
+
+/* Visière sombre où vivent les yeux */
+.robbie-visor {
+    position: absolute;
+    inset: 13% 10% 17%;
+    border-radius: 40% 40% 36% 36% / 48% 48% 42% 42%;
+    overflow: hidden;
+    background: radial-gradient(90% 80% at 50% 40%, #0c1626, #03060c 75%);
+    box-shadow:
+        inset 0 8px 20px rgba(0, 0, 0, 0.9),
+        inset 0 -4px 12px rgba(var(--accent), 0.12),
+        0 0 0 3px rgba(30, 40, 58, 0.55),
+        0 0 0 5px rgba(255, 255, 255, 0.35);
+}
+
+.robbie-visor #face { position: absolute; inset: -6% -4%; width: 108%; height: 112%; }
+
+.visor-shine {
+    position: absolute;
+    left: 10%;
+    top: 6%;
+    width: 46%;
+    height: 22%;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent);
+    transform: rotate(-8deg);
+    pointer-events: none;
+}
+
+/* Ombre au sol, qui respire avec le flottement */
+.robbie-shadow {
+    width: 58%;
+    height: 18px;
+    margin: 7% auto 0;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(0, 0, 0, 0.6), transparent);
+    animation: shadow 7s ease-in-out infinite;
+}
+
+@keyframes shadow {
+    50% { transform: scaleX(0.82); opacity: 0.6; }
+}
+
+/* Bulle de parole */
+.robbie-bubble {
+    position: absolute;
+    left: 78%;
+    bottom: 88%;
+    width: max-content;
+    max-width: 320px;
+    padding: 13px 17px;
+    border-radius: 18px 18px 18px 4px;
+    background: var(--glass-strong);
+    border-color: rgba(var(--accent), 0.4);
+    box-shadow: 0 0 30px -8px rgba(var(--accent), 0.5), 0 18px 40px -16px rgba(0, 0, 0, 0.8);
+    font-size: 14.5px;
+    line-height: 1.45;
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+    transform-origin: bottom left;
+    transition: opacity 0.25s, transform 0.3s var(--ease);
+    cursor: default;
+}
+
+.robbie-bubble.show { opacity: 1; transform: none; }

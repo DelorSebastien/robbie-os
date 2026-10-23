@@ -2,17 +2,189 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; connect-src https://geocoding-api.open-meteo.com; style-src 'self' 'unsafe-inline'">
     <title>Robbie OS</title>
-    <style>
-        html, body { margin: 0; height: 100%; background: #030609; overflow: hidden; cursor: default; }
-        #face { display: block; width: 100vw; height: 100vh; }
-    </style>
+    <link rel="stylesheet" href="./styles/base.css">
+    <link rel="stylesheet" href="./styles/bureau.css">
+    <link rel="stylesheet" href="./styles/robbie.css">
+    <link rel="stylesheet" href="./styles/widgets.css">
+    <link rel="stylesheet" href="./styles/panneaux.css">
 </head>
 <body>
-    <canvas id="face"></canvas>
+    <!-- Décor : ciel dessiné en direct selon l'heure -->
+    <canvas id="ciel"></canvas>
+    <div class="vignette"></div>
+
+    <div class="bureau">
+        <nav class="rail" aria-label="Navigation">
+            <button class="rail-logo" data-action="robbie" title="Robbie">
+                <span class="logo-eye"></span><span class="logo-eye"></span>
+            </button>
+            <div class="rail-list">
+                <button class="rail-item active" data-action="accueil" data-icon="home"><span>Accueil</span></button>
+                <button class="rail-item" data-action="lanceur" data-icon="grid"><span>Applis</span></button>
+                <button class="rail-item" data-action="app:thunar" data-icon="folder"><span>Fichiers</span></button>
+                <button class="rail-item" data-action="app:foot" data-icon="terminal"><span>Terminal</span></button>
+                <button class="rail-item" data-action="reglages" data-icon="sliders"><span>Réglages</span></button>
+            </div>
+            <button class="rail-item rail-power" data-action="alimentation" data-icon="power" title="Éteindre"></button>
+        </nav>
+
+        <header class="hero">
+            <div class="clock"><span id="heure">--:--</span><span id="secondes">00</span></div>
+            <div class="hero-line">
+                <span id="date"></span>
+                <span class="hero-sep"></span>
+                <button class="weather" id="meteo" title="Météo">
+                    <span class="weather-icon" id="meteo-icone"></span>
+                    <span class="weather-temp" id="meteo-temp">--°</span>
+                    <span class="weather-text">
+                        <strong id="meteo-ville">Météo</strong>
+                        <small id="meteo-detail">chargement…</small>
+                    </span>
+                </button>
+            </div>
+            <p class="robbie-says" id="robbie-dit"></p>
+        </header>
+
+        <main class="scene">
+            <div class="robbie" id="robbie" title="Parler à Robbie">
+                <div class="robbie-halo"></div>
+                <div class="robbie-head">
+                    <span class="robbie-ear left"></span>
+                    <span class="robbie-ear right"></span>
+                    <div class="robbie-visor">
+                        <canvas id="face"></canvas>
+                        <span class="visor-shine"></span>
+                    </div>
+                </div>
+                <div class="robbie-shadow"></div>
+                <div class="robbie-bubble" id="bulle" hidden></div>
+            </div>
+        </main>
+
+        <aside class="widgets">
+            <section class="card systeme">
+                <header class="card-head"><span data-icon="cpu"></span>Système<small id="sys-uptime"></small></header>
+                <div class="gauges">
+                    <div class="gauge" id="g-cpu"><svg viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="27"/><circle class="value" cx="32" cy="32" r="27"/></svg><b>--</b><small>Processeur</small></div>
+                    <div class="gauge" id="g-ram"><svg viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="27"/><circle class="value" cx="32" cy="32" r="27"/></svg><b>--</b><small>Mémoire</small></div>
+                    <div class="gauge" id="g-disk"><svg viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="27"/><circle class="value" cx="32" cy="32" r="27"/></svg><b>--</b><small>Disque</small></div>
+                    <div class="gauge" id="g-temp"><svg viewBox="0 0 64 64"><circle class="track" cx="32" cy="32" r="27"/><circle class="value" cx="32" cy="32" r="27"/></svg><b>--</b><small>Température</small></div>
+                </div>
+                <svg class="sparkline" id="sparkline" viewBox="0 0 300 44" preserveAspectRatio="none"><path class="area"/><path class="line"/></svg>
+                <footer class="sys-foot">
+                    <span><i data-icon="arrow-down"></i><b id="net-down">0 o/s</b></span>
+                    <span><i data-icon="arrow-up"></i><b id="net-up">0 o/s</b></span>
+                    <span id="sys-mem"></span>
+                </footer>
+            </section>
+
+            <section class="card musique" id="musique">
+                <header class="card-head"><span data-icon="music"></span>Musique<small id="music-player"></small></header>
+                <div class="music-body">
+                    <div class="music-cover" id="music-cover"><span data-icon="music"></span></div>
+                    <div class="music-info">
+                        <strong id="music-title">Rien en lecture</strong>
+                        <span id="music-artist">Lance de la musique, je l'afficherai ici</span>
+                    </div>
+                </div>
+                <div class="music-progress"><span id="music-bar"></span></div>
+                <div class="music-controls">
+                    <button data-music="previous" data-icon="previous" title="Précédent"></button>
+                    <button class="big" data-music="toggle" id="music-toggle" data-icon="play" title="Lecture"></button>
+                    <button data-music="next" data-icon="next" title="Suivant"></button>
+                </div>
+            </section>
+
+            <section class="card notes">
+                <header class="card-head"><span data-icon="note"></span>Notes rapides<small id="notes-count"></small></header>
+                <form class="note-add" id="note-form">
+                    <span data-icon="plus"></span>
+                    <input id="note-input" placeholder="Ajouter une note…" autocomplete="off" maxlength="140">
+                </form>
+                <ul class="note-list" id="note-list"></ul>
+            </section>
+        </aside>
+
+        <footer class="barre">
+            <div class="dock" id="dock"></div>
+            <button class="ask" id="ask">
+                <span class="ask-orb"><span class="logo-eye"></span><span class="logo-eye"></span></span>
+                <span class="ask-text">Demander à Robbie…</span>
+                <kbd>Super</kbd>
+                <span class="ask-wave"><i></i><i></i><i></i><i></i><i></i></span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Lanceur d'applis -->
+    <div class="overlay" id="lanceur" hidden>
+        <div class="launcher">
+            <div class="search"><span data-icon="search"></span><input id="lanceur-recherche" placeholder="Rechercher une appli" autocomplete="off"></div>
+            <div class="chips" id="lanceur-familles"></div>
+            <div class="app-grid" id="lanceur-grille"></div>
+        </div>
+    </div>
+
+    <!-- Palette : demander à Robbie, chercher, calculer, agir -->
+    <div class="overlay" id="palette" hidden>
+        <div class="palette">
+            <div class="search big">
+                <span class="ask-orb"><span class="logo-eye"></span><span class="logo-eye"></span></span>
+                <input id="palette-recherche" placeholder="Demande, cherche, calcule…" autocomplete="off">
+                <kbd>Échap</kbd>
+            </div>
+            <div class="results" id="palette-resultats"></div>
+            <footer class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> choisir</span><span><kbd>Entrée</kbd> valider</span><span>« note : … » ajoute une note</span></footer>
+        </div>
+    </div>
+
+    <!-- Réglages rapides -->
+    <div class="overlay side" id="reglages" hidden>
+        <div class="quick">
+            <h2>Réglages rapides</h2>
+            <div class="quick-row">
+                <button class="quick-icon" id="mute" data-icon="volume" title="Couper le son"></button>
+                <input type="range" id="volume" min="0" max="100" value="50">
+                <b id="volume-valeur">--</b>
+            </div>
+            <div class="quick-tiles">
+                <button class="tile" id="ne-pas-deranger"><span data-icon="moon"></span><b>Ne pas déranger</b><small>Désactivé</small></button>
+                <button class="tile" id="costume"><span data-icon="sparkles"></span><b>Costumes de Robbie</b><small>Désactivés</small></button>
+            </div>
+            <h3>Couleur de Robbie</h3>
+            <div class="swatches" id="couleurs"></div>
+            <h3>Ville de la météo</h3>
+            <form class="city" id="ville-form"><input id="ville" placeholder="Carpentras" autocomplete="off"><button>Changer</button></form>
+            <p class="quick-note" id="ville-info"></p>
+        </div>
+    </div>
+
+    <!-- Éteindre -->
+    <div class="overlay" id="alimentation" hidden>
+        <div class="power-menu">
+            <h2>À bientôt ?</h2>
+            <div class="power-actions">
+                <button data-power="suspend"><span data-icon="moon"></span>Veille</button>
+                <button data-power="reboot"><span data-icon="restart"></span>Redémarrer</button>
+                <button data-power="poweroff" class="danger"><span data-icon="power"></span>Éteindre</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toasts" id="toasts"></div>
 
     <script src="../robbie/visage/face.js"></script>
-    <script src="./demo.js"></script>
+    <script src="./js/icones.js"></script>
+    <script src="./js/outils.js"></script>
+    <script src="./js/ciel.js"></script>
+    <script src="./js/robbie.js"></script>
+    <script src="./js/accueil.js"></script>
+    <script src="./js/widgets.js"></script>
+    <script src="./js/lanceur.js"></script>
+    <script src="./js/palette.js"></script>
+    <script src="./js/reglages.js"></script>
+    <script src="./js/bureau.js"></script>
 </body>
 </html>

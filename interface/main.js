@@ -1,17 +1,62 @@
 // Robbie OS : l'interface, lancée en plein écran au démarrage de la machine
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
+const fs = require('node:fs');
+const os = require('node:os');
+const systeme = require('./services/systeme');
+const applis = require('./services/applis');
+const meteo = require('./services/meteo');
+const son = require('./services/son');
+const notes = require('./services/notes');
+const { power } = require('./services/alimentation');
 
-app.whenReady().then(() => {
-    const win = new BrowserWindow({
+// Nom de l'appli pour Wayland (règles de fenêtre de labwc)
+app.setName('robbie-os');
+
+let win = null;
+
+function createWindow() {
+    win = new BrowserWindow({
         fullscreen: true,
         frame: false,
-        backgroundColor: '#030609',
+        backgroundColor: '#02040a',
         icon: path.join(__dirname, '..', 'robbie', 'assets', 'robbie.png'),
-        webPreferences: { contextIsolation: true, sandbox: true }
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true,
+            sandbox: true
+        }
     });
 
-    win.loadFile(path.join(__dirname, 'index.html'));
-});
+    // Sans carte graphique (machine virtuelle, vieux PC), l'interface passe en mode léger
+    const gpu = app.getGPUFeatureStatus().gpu_compositing || '';
+    const light = !gpu.startsWith('enabled');
+    console.log(`Carte graphique : ${gpu || 'inconnue'}${light ? ' (mode léger)' : ''}`);
 
+    win.loadFile(path.join(__dirname, 'index.html'), { query: light ? { leger: '1' } : {} });
+}
+
+// Raccourci clavier global : labwc envoie SIGUSR2 (touche Super), on ouvre la palette.
+// Le numéro du processus est noté pour que labwc sache à qui l'envoyer.
+const PID_FILE = path.join(os.homedir(), '.cache', 'robbie-os.pid');
+fs.mkdirSync(path.dirname(PID_FILE), { recursive: true });
+fs.writeFileSync(PID_FILE, String(process.pid));
+process.on('SIGUSR2', () => win?.webContents.send('shortcut', 'palette'));
+
+ipcMain.handle('system', () => systeme.snapshot());
+ipcMain.handle('apps', () => applis.list());
+ipcMain.handle('launch', (_event, id) => applis.launch(id));
+ipcMain.handle('weather', () => meteo.current(notes.getSettings().place));
+ipcMain.handle('volume', () => son.volume());
+ipcMain.handle('set-volume', (_event, level) => son.setVolume(level));
+ipcMain.handle('toggle-mute', () => son.toggleMute());
+ipcMain.handle('music', () => son.music());
+ipcMain.handle('music-command', (_event, command) => son.musicCommand(command));
+ipcMain.handle('notes', () => notes.getNotes());
+ipcMain.handle('set-notes', (_event, list) => notes.setNotes(list));
+ipcMain.handle('settings', () => notes.getSettings());
+ipcMain.handle('set-settings', (_event, changes) => notes.setSettings(changes));
+ipcMain.handle('power', (_event, action) => power(action));
+
+app.whenReady().then(createWindow);
 app.on('window-all-closed', () => app.quit());
