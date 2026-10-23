@@ -15,10 +15,12 @@ app.setName('robbie-os');
 
 let win = null;
 
+// Hors de Linux (aperçu sur Windows pendant le développement) : une simple fenêtre
+const preview = process.platform !== 'linux';
+
 function createWindow() {
     win = new BrowserWindow({
-        fullscreen: true,
-        frame: false,
+        ...(preview ? { width: 1600, height: 900, autoHideMenuBar: true, title: 'Robbie OS – aperçu' } : { fullscreen: true, frame: false }),
         backgroundColor: '#02040a',
         icon: path.join(__dirname, '..', 'robbie', 'assets', 'robbie.png'),
         webPreferences: {
@@ -38,10 +40,12 @@ function createWindow() {
 
 // Raccourci clavier global : labwc envoie SIGUSR2 (touche Super), on ouvre la palette.
 // Le numéro du processus est noté pour que labwc sache à qui l'envoyer.
-const PID_FILE = path.join(os.homedir(), '.cache', 'robbie-os.pid');
-fs.mkdirSync(path.dirname(PID_FILE), { recursive: true });
-fs.writeFileSync(PID_FILE, String(process.pid));
-process.on('SIGUSR2', () => win?.webContents.send('shortcut', 'palette'));
+if (!preview) {
+    const PID_FILE = path.join(os.homedir(), '.cache', 'robbie-os.pid');
+    fs.mkdirSync(path.dirname(PID_FILE), { recursive: true });
+    fs.writeFileSync(PID_FILE, String(process.pid));
+    process.on('SIGUSR2', () => win?.webContents.send('shortcut', 'palette'));
+}
 
 ipcMain.handle('system', () => systeme.snapshot());
 ipcMain.handle('apps', () => applis.list());

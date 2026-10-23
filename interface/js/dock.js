@@ -63,9 +63,13 @@
     async function build() {
         const apps = await window.os.apps();
 
-        tiles = await Promise.all(ITEMS.map(async item => {
+        const middle = ITEMS.findIndex(item => item.kind === 'robbie');
+
+        tiles = await Promise.all(ITEMS.map(async (item, index) => {
             const el = document.createElement('button');
             el.className = `tuile${item.kind === 'robbie' ? ' robbie' : ''}`;
+            // Ordre d'apparition au démarrage : du centre vers les bords
+            el.style.setProperty('--i', Math.abs(index - middle));
             el.setAttribute('aria-label', item.name);
             if (item.tint) el.style.setProperty('--teinte', item.tint);
 
@@ -76,10 +80,18 @@
                 el.append(visage);
             } else {
                 el.innerHTML = GLYPHS[item.glyph];
-                if (item.kind === 'app' && !apps.some(a => a.id === item.id)) el.style.opacity = '0.4';
+                if (item.kind === 'app' && apps.length && !apps.some(a => a.id === item.id)) el.style.opacity = '0.4';
             }
 
-            el.addEventListener('click', () => activate(item));
+            el.addEventListener('click', () => {
+                el.classList.remove('rebond');
+                void el.offsetWidth;
+                if (item.kind !== 'robbie') el.classList.add('rebond');
+                activate(item);
+            });
+            el.addEventListener('animationend', event => {
+                if (event.animationName === 'rebond') el.classList.remove('rebond');
+            });
             el.addEventListener('mouseenter', () => showLabel(el, item.name));
             el.addEventListener('mouseleave', () => label.classList.remove('visible'));
             dock.append(el);
@@ -122,7 +134,9 @@
             const opacity = 0.95 - i * 0.11;
             for (const side of [-1, 1]) {
                 const x = cx + side * dx;
-                dots.push(`<span style="left:${x}px; top:${arcY(x, cx) + below - 10}px; width:${size}px; height:${size}px; opacity:${opacity}"></span>`);
+                // Les points s'allument puis scintillent l'un après l'autre, vers l'extérieur
+                const delay = 1.6 + i * 0.12;
+                dots.push(`<span style="left:${x}px; top:${arcY(x, cx) + below - 10}px; width:${size}px; height:${size}px; opacity:${opacity}; animation-delay:${delay}s, ${delay}s"></span>`);
             }
         }
         document.getElementById('dock-points').innerHTML = dots.join('');
@@ -206,4 +220,10 @@
 
     window.addEventListener('resize', layout);
     build();
+
+    // Fin de la séquence de démarrage : les animations habituelles prennent le relais
+    setTimeout(() => {
+        document.body.classList.remove('demarrage');
+        face.setExpression('happy', 1800);
+    }, 3500);
 })();
