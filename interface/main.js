@@ -19,6 +19,7 @@ const actions = require('./services/actions');
 const parametres = require('./services/parametres');
 const verrouillage = require('./services/verrouillage');
 const comptes = require('./services/comptes');
+const theme = require('./services/theme');
 const { spawn } = require('node:child_process');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
@@ -185,6 +186,7 @@ ipcMain.on('deconnexion', () => {
     spawn('labwc', ['--exit'], { detached: true, stdio: 'ignore' }).unref();
 });
 ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
+ipcMain.on('theme', (_event, name) => !preview && theme.apply(String(name)));
 
 // Notifications des applis
 let notifications = null;

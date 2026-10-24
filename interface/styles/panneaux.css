@@ -34,7 +34,7 @@
     gap: 10px;
 }
 
-.panneau-vide { margin: 6px 0; text-align: center; color: rgba(226, 234, 248, 0.5); font-size: 12.5px; }
+.panneau-vide { margin: 6px 0; text-align: center; color: rgba(var(--texte-rgb), 0.5); font-size: 12.5px; }
 
 .petit-bouton {
     padding: 4px 10px;
@@ -42,10 +42,10 @@
     font: 600 10px var(--police);
     letter-spacing: 0.08em;
     color: var(--texte-doux);
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(var(--voile), 0.06);
 }
 
-.petit-bouton:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.petit-bouton:hover { background: rgba(var(--voile), 0.12); color: var(--texte-fort); }
 
 /* Champ d'ajout (notes, contacts, agenda) */
 .champ-ajout {
@@ -54,7 +54,7 @@
     gap: 8px;
     padding: 5px 5px 5px 12px;
     border-radius: 12px;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(var(--creux-rgb), calc(0.25 * var(--creux-force)));
     border: 1px solid var(--bord);
 }
 
@@ -71,7 +71,7 @@
     color-scheme: dark;
 }
 
-.champ-ajout input::placeholder { color: rgba(226, 234, 248, 0.45); }
+.champ-ajout input::placeholder { color: rgba(var(--texte-rgb), 0.45); }
 .champ-ajout input[type='time'] { flex: none; width: 76px; }
 
 .champ-ajout button {
@@ -98,11 +98,11 @@
     border-radius: 10px;
 }
 
-.liste li:hover { background: rgba(255, 255, 255, 0.05); }
+.liste li:hover { background: rgba(var(--voile), 0.05); }
 .liste-texte { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.liste li.faite .liste-texte { color: rgba(226, 234, 248, 0.45); text-decoration: line-through; }
+.liste li.faite .liste-texte { color: rgba(var(--texte-rgb), 0.45); text-decoration: line-through; }
 
-.liste-supprimer { color: rgba(226, 234, 248, 0.45); opacity: 0; transition: opacity 0.15s; }
+.liste-supprimer { color: rgba(var(--texte-rgb), 0.45); opacity: 0; transition: opacity 0.15s; }
 .liste li:hover .liste-supprimer { opacity: 1; }
 .liste-supprimer:hover { color: #ff8a8a; }
 .liste-supprimer .icon { width: 15px; height: 15px; }
@@ -114,10 +114,10 @@
     display: grid;
     place-items: center;
     border-radius: 6px;
-    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    border: 1.5px solid rgba(var(--voile), 0.3);
 }
 
-.case:hover { border-color: rgb(var(--accent)); }
+.case:hover { border-color: var(--accent-texte); }
 .faite .case { background: rgba(var(--accent), 0.85); border-color: transparent; color: #04121c; }
 .case .icon { width: 12px; height: 12px; stroke-width: 3; }
 
@@ -128,7 +128,7 @@
     display: grid;
     place-items: center;
     border-radius: 9px;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(var(--voile), 0.07);
     font: 600 12px var(--police);
 }
 
@@ -142,7 +142,7 @@
     height: 22px;
     flex: none;
     border-radius: 11px;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(var(--voile), 0.15);
     position: relative;
     transition: background 0.2s;
     cursor: pointer;
@@ -164,7 +164,7 @@
 .interrupteur input:checked::after { transform: translateX(16px); }
 
 /* Barre latérale : bouton du panneau ouvert */
-.lat-bouton.actif { background: rgba(var(--accent), 0.16); color: #fff; }
+.lat-bouton.actif { background: rgba(var(--accent), 0.16); color: var(--texte-fort); }
 
 /* ---- Notifications ---- */
 .notif-pile {
@@ -184,7 +184,7 @@
     gap: 12px;
     padding: 12px 12px 12px 14px;
     border-radius: 16px;
-    background: rgba(12, 20, 38, 0.86);
+    background: rgba(var(--verre-rgb), calc(0.86 * var(--verre-force)));
     border: 1px solid var(--bord);
     backdrop-filter: blur(24px);
     box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.8);
@@ -204,25 +204,25 @@
 .notif-texte { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .notif-texte b { font-weight: 600; }
 .notif-texte span:not(.notif-app) { color: var(--texte-doux); overflow-wrap: anywhere; }
-.notif-app { font: 500 9.5px var(--police); letter-spacing: 0.1em; text-transform: uppercase; color: rgba(226, 234, 248, 0.5); }
+.notif-app { font: 500 9.5px var(--police); letter-spacing: 0.1em; text-transform: uppercase; color: rgba(var(--texte-rgb), 0.5); }
 
 .notif-boutons { display: flex; gap: 6px; margin-top: 6px; }
-.notif-boutons button { padding: 5px 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); font-size: 12px; }
+.notif-boutons button { padding: 5px 10px; border-radius: 8px; background: rgba(var(--voile), 0.1); font-size: 12px; }
 .notif-boutons button:hover { background: rgba(var(--accent), 0.3); }
 
-.notif-fermer { align-self: flex-start; color: rgba(226, 234, 248, 0.5); }
+.notif-fermer { align-self: flex-start; color: rgba(var(--texte-rgb), 0.5); }
 .notif-fermer .icon { width: 14px; height: 14px; }
 
-.notif-ligne { display: flex; gap: 12px; padding: 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.04); }
+.notif-ligne { display: flex; gap: 12px; padding: 10px; border-radius: 12px; background: rgba(var(--voile), 0.04); }
 
 /* ---- Agenda ---- */
 .agenda-mois { display: flex; align-items: center; justify-content: space-between; }
 .agenda-mois b { font: 600 11px var(--police); letter-spacing: 0.12em; text-transform: uppercase; }
 .agenda-mois button { width: 30px; height: 30px; border-radius: 9px; font-size: 18px; color: var(--texte-doux); }
-.agenda-mois button:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.agenda-mois button:hover { background: rgba(var(--voile), 0.08); color: var(--texte-fort); }
 
 .agenda-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; text-align: center; }
-.agenda-grille i { font: normal 600 9.5px var(--police); color: rgba(226, 234, 248, 0.45); padding: 4px 0; }
+.agenda-grille i { font: normal 600 9.5px var(--police); color: rgba(var(--texte-rgb), 0.45); padding: 4px 0; }
 
 .agenda-grille button {
     position: relative;
@@ -232,8 +232,8 @@
     color: var(--texte-doux);
 }
 
-.agenda-grille button:hover { background: rgba(255, 255, 255, 0.07); }
-.agenda-grille .aujourdhui { color: rgb(var(--accent)); font-weight: 700; }
+.agenda-grille button:hover { background: rgba(var(--voile), 0.07); }
+.agenda-grille .aujourdhui { color: var(--accent-texte); font-weight: 700; }
 .agenda-grille .choisi { background: rgba(var(--accent), 0.85); color: #04121c; font-weight: 700; }
 
 .agenda-grille .occupe::after {
@@ -251,7 +251,7 @@
 .agenda-grille .choisi.occupe::after { background: #04121c; }
 
 .agenda-jour { margin: 4px 0 0; font: 600 13px 'Inter', sans-serif; }
-.agenda-heure { width: 42px; flex: none; color: rgb(var(--accent)); font-variant-numeric: tabular-nums; }
+.agenda-heure { width: 42px; flex: none; color: var(--accent-texte); font-variant-numeric: tabular-nums; }
 
 /* ---- Coin et réglages rapides ---- */
 .coin-bouton {
@@ -263,7 +263,7 @@
     transition: background 0.15s;
 }
 
-.coin-bouton:hover { background: rgba(255, 255, 255, 0.08); }
+.coin-bouton:hover { background: rgba(var(--voile), 0.08); }
 
 .rapide-ligne { display: flex; align-items: center; gap: 12px; }
 .rapide-ligne b { width: 42px; text-align: right; font-weight: 500; font-size: 12.5px; color: var(--texte-doux); }
@@ -275,7 +275,7 @@
     display: grid;
     place-items: center;
     border-radius: 11px;
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(var(--voile), 0.07);
 }
 
 .rapide-icone .icon { width: 18px; height: 18px; }
@@ -285,7 +285,7 @@
     height: 5px;
     appearance: none;
     border-radius: 5px;
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(var(--voile), 0.14);
 }
 
 .rapide-ligne input[type='range']::-webkit-slider-thumb {
@@ -303,10 +303,10 @@
     gap: 10px;
     padding: 10px 12px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(var(--voile), 0.05);
 }
 
-.rapide-reseau .icon { width: 18px; height: 18px; color: rgb(var(--accent)); }
+.rapide-reseau .icon { width: 18px; height: 18px; color: var(--accent-texte); }
 
 .rapide-wifi { display: flex; flex-direction: column; gap: 2px; }
 
@@ -319,14 +319,14 @@
     text-align: left;
 }
 
-.wifi-reseau:hover { background: rgba(255, 255, 255, 0.06); }
-.wifi-reseau.actif { color: rgb(var(--accent)); }
-.wifi-reseau small { color: rgba(226, 234, 248, 0.45); font-size: 11px; }
+.wifi-reseau:hover { background: rgba(var(--voile), 0.06); }
+.wifi-reseau.actif { color: var(--accent-texte); }
+.wifi-reseau small { color: rgba(var(--texte-rgb), 0.45); font-size: 11px; }
 
 .wifi-force {
     width: 16px;
     height: 12px;
     flex: none;
-    background: linear-gradient(90deg, currentColor var(--force), rgba(255, 255, 255, 0.15) var(--force));
+    background: linear-gradient(90deg, currentColor var(--force), rgba(var(--voile), 0.15) var(--force));
     clip-path: polygon(0 100%, 100% 100%, 100% 0);
 }

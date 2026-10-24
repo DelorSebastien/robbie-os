@@ -13,6 +13,17 @@
     --texte-doux: rgba(226, 234, 248, 0.78);
     --verre: rgba(10, 16, 32, 0.38);
     --bord: rgba(255, 255, 255, 0.09);
+    /* Couleurs du thème (sombre ici ; le thème clair les redéfinit, voir theme-clair.css) :
+       --voile : survols et traits fins, --texte-rgb : textes atténués, --verre-rgb : panneaux,
+       --creux-rgb : champs de saisie ; --*-force : multiplie leur opacité */
+    --voile: 255, 255, 255;
+    --texte-rgb: 226, 234, 248;
+    --texte-fort: #ffffff;
+    --verre-rgb: 10, 16, 32;
+    --verre-force: 1;
+    --creux-rgb: 0, 0, 0;
+    --creux-force: 1;
+    --accent-texte: rgb(94, 231, 255);
     --police: 'Orbitron', 'Inter', 'Noto Sans', system-ui, sans-serif;
     --doux: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -93,8 +104,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     display: grid;
     place-items: center;
     pointer-events: auto;
-    background: rgba(8, 14, 28, 0.42);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(var(--verre-rgb), calc(0.42 * var(--verre-force)));
+    border: 1px solid rgba(var(--voile), 0.08);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 18px -8px rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(16px);
     transform-origin: 50% 100%;
@@ -154,7 +165,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     z-index: 10;
     padding: 5px 10px;
     border-radius: 8px;
-    background: rgba(10, 16, 32, 0.72);
+    background: rgba(var(--verre-rgb), calc(0.72 * var(--verre-force)));
     border: 1px solid var(--bord);
     backdrop-filter: blur(20px);
     font-size: 10.5px;
@@ -174,7 +185,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .tuile.robbie {
     --s: 66px;
     border-radius: 19px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(var(--voile), 0.12);
     background: #02060d;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px -8px rgba(0, 0, 0, 0.7);
     -webkit-box-reflect: below 10px linear-gradient(transparent 55%, rgba(255, 255, 255, 0.16));
@@ -252,7 +263,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 .lat-bouton .icon { width: 20px; height: 20px; stroke-width: 1.5; }
-.lat-bouton:hover { background: rgba(255, 255, 255, 0.07); color: #fff; }
+.lat-bouton:hover { background: rgba(var(--voile), 0.07); color: var(--texte-fort); }
 
 .pastille {
     position: absolute;
@@ -264,7 +275,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     background: rgb(var(--accent));
 }
 
-.lat-sep { width: 22px; height: 1px; margin: 4px 0; background: rgba(255, 255, 255, 0.12); }
+.lat-sep { width: 22px; height: 1px; margin: 4px 0; background: rgba(var(--voile), 0.12); }
 
 .contacts { display: flex; flex-direction: column; gap: 10px; }
 
@@ -279,12 +290,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     font-size: 13px;
     font-weight: 600;
     color: rgba(230, 238, 250, 0.85);
-    background: rgba(255, 255, 255, 0.06) center / cover;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(var(--voile), 0.06) center / cover;
+    border: 1px solid rgba(var(--voile), 0.1);
     transition: border-color 0.2s;
 }
 
-.contact:hover { border-color: rgba(255, 255, 255, 0.28); }
+.contact:hover { border-color: rgba(var(--voile), 0.28); }
 
 .contact .statut {
     position: absolute;
@@ -303,12 +314,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     border-radius: 50%;
     display: grid;
     place-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(var(--voile), 0.2);
     color: rgba(230, 238, 250, 0.85);
 }
 
 .lat-ajout .icon { width: 16px; height: 16px; }
-.lat-ajout:hover { background: rgba(255, 255, 255, 0.07); }
+.lat-ajout:hover { background: rgba(var(--voile), 0.07); }
 
 /* ---- Coin : réseau, son, heure ---- */
 .coin {
@@ -347,7 +358,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     gap: 9px;
     padding: 8px 14px;
     border-radius: 10px;
-    background: rgba(10, 16, 32, 0.72);
+    background: rgba(var(--verre-rgb), calc(0.72 * var(--verre-force)));
     border: 1px solid var(--bord);
     backdrop-filter: blur(20px);
     font-size: 11.5px;
@@ -356,7 +367,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     transition: opacity 0.4s, transform 0.4s;
 }
 
-.toast .icon { width: 16px; height: 16px; color: rgb(var(--accent)); }
+.toast .icon { width: 16px; height: 16px; color: var(--accent-texte); }
 .toast.out { opacity: 0; transform: translateY(6px); }
 
 @keyframes toast-entree {
@@ -432,7 +443,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     display: flex;
     flex-direction: column;
     border-radius: 20px;
-    background: rgba(10, 16, 32, 0.62);
+    background: rgba(var(--verre-rgb), calc(0.62 * var(--verre-force)));
     border: 1px solid var(--bord);
     backdrop-filter: blur(30px) saturate(140%);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 30px 60px -20px rgba(0, 0, 0, 0.7);
@@ -456,7 +467,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .rp-titre { font-weight: 700; }
 
 .rp-etat {
-    color: rgb(var(--accent));
+    color: var(--accent-texte);
     font-weight: 500;
 }
 
@@ -477,7 +488,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     color: var(--texte-doux);
 }
 
-.rp-fermer:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.rp-fermer:hover { background: rgba(var(--voile), 0.08); color: var(--texte-fort); }
 .rp-fermer .icon { width: 15px; height: 15px; }
 
 /* La conversation reste en Inter : plus lisible qu'Orbitron pour des phrases */
@@ -501,7 +512,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     align-self: flex-end;
     padding: 8px 13px;
     border-radius: 14px 14px 4px 14px;
-    background: rgba(255, 255, 255, 0.09);
+    background: rgba(var(--voile), 0.09);
 }
 
 .rp-message.robbie {
@@ -550,7 +561,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 .rp-oui { background: rgba(255, 107, 107, 0.2); border-color: rgba(255, 107, 107, 0.5) !important; }
-.rp-non { background: rgba(255, 255, 255, 0.06); }
+.rp-non { background: rgba(var(--voile), 0.06); }
 
 .rp-saisie {
     display: flex;
@@ -559,7 +570,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     margin: 0 12px 12px;
     padding: 6px 6px 6px 14px;
     border-radius: 14px;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(var(--creux-rgb), calc(0.25 * var(--creux-force)));
     border: 1px solid var(--bord);
     transition: border-color 0.2s;
 }
@@ -576,7 +587,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     font: 14px 'Inter', 'Noto Sans', sans-serif;
 }
 
-.rp-saisie input::placeholder { color: rgba(226, 234, 248, 0.45); }
+.rp-saisie input::placeholder { color: rgba(var(--texte-rgb), 0.45); }
 
 .rp-saisie button {
     width: 34px;
@@ -601,7 +612,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     display: flex;
     flex-direction: column;
     border-radius: 20px;
-    background: rgba(10, 16, 32, 0.66);
+    background: rgba(var(--verre-rgb), calc(0.66 * var(--verre-force)));
     border: 1px solid var(--bord);
     backdrop-filter: blur(30px) saturate(140%);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 30px 60px -20px rgba(0, 0, 0, 0.7);
@@ -644,14 +655,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     color: var(--texte-doux);
 }
 
-.panneau-fermer:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+.panneau-fermer:hover { background: rgba(var(--voile), 0.08); color: var(--texte-fort); }
 .panneau-fermer .icon { width: 15px; height: 15px; }
 
 .panneau-astuce {
     margin: 0;
     padding: 8px 20px 14px;
     font: 11.5px 'Inter', sans-serif;
-    color: rgba(226, 234, 248, 0.45);
+    color: rgba(var(--texte-rgb), 0.45);
 }
 
 /* ---- Toutes les applis ---- */
@@ -662,9 +673,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     margin: 0 16px 10px;
     padding: 10px 14px;
     border-radius: 14px;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(var(--creux-rgb), calc(0.25 * var(--creux-force)));
     border: 1px solid var(--bord);
-    color: rgba(226, 234, 248, 0.5);
+    color: rgba(var(--texte-rgb), 0.5);
 }
 
 .lanceur-recherche:focus-within { border-color: rgba(var(--accent), 0.5); }
@@ -701,7 +712,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     transition: background 0.15s, border-color 0.15s;
 }
 
-.lanceur-appli:hover, .lanceur-appli.choisie { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.1); }
+.lanceur-appli:hover, .lanceur-appli.choisie { background: rgba(var(--voile), 0.07); border-color: rgba(var(--voile), 0.1); }
 .lanceur-appli.choisie { border-color: rgba(var(--accent), 0.45); }
 
 .lanceur-icone { width: 48px; height: 48px; display: grid; place-items: center; }
@@ -713,7 +724,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     display: grid;
     place-items: center;
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(var(--voile), 0.08);
     font-size: 18px;
     font-weight: 600;
 }
@@ -763,7 +774,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     padding: 5px;
     border-radius: 12px;
     background: #0f1a30;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(var(--voile), 0.1);
     box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.8);
     transform: translate(-50%, -100%);
     font: 13px 'Inter', 'Noto Sans', sans-serif;
