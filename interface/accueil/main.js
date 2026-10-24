@@ -51,13 +51,16 @@ app.whenReady().then(() => {
     win = new BrowserWindow({
         fullscreen: true,
         frame: false,
-        backgroundColor: '#02060d',
+        // (montrée seulement une fois dessinée, sur la couleur de l'écran de démarrage)
+        show: false,
+        backgroundColor: '#03060e',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
             sandbox: true
         }
     });
+    win.once('ready-to-show', () => win.show());
     win.loadFile(path.join(__dirname, 'index.html'));
 });
 

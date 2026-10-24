@@ -300,6 +300,15 @@ cat > /etc/systemd/system/greetd.service.d/robbie-os.conf <<'EOF'
 Conflicts=getty@tty1.service
 After=getty@tty1.service
 EOF
+# Pas de console entre l'écran de démarrage et l'écran de connexion : à la fin du démarrage,
+# l'animation garde sa dernière image à l'écran (--retain-splash) au lieu de revenir au texte,
+# jusqu'à ce que l'écran de connexion la remplace par la même image, puis apparaisse en fondu
+mkdir -p /etc/systemd/system/plymouth-quit.service.d
+cat > /etc/systemd/system/plymouth-quit.service.d/robbie-os.conf <<'EOF'
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/plymouth quit --retain-splash
+EOF
 systemctl disable getty@tty1.service >/dev/null 2>&1 || true
 
 # L'écran de connexion peut éteindre ou redémarrer l'ordinateur
