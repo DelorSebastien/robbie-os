@@ -1,0 +1,74 @@
+diff -ru orig/thunar/thunar-shortcuts-model.c thunar-4.20.2/thunar/thunar-shortcuts-model.c
+--- orig/thunar/thunar-shortcuts-model.c	2026-10-24 10:40:59.080447601 +0200
++++ thunar-4.20.2/thunar/thunar-shortcuts-model.c	2026-10-24 10:41:18.944421448 +0200
+@@ -1154,6 +1154,13 @@
+         }
+     }
+ 
++  /* Robbie OS: the bookmarks get their own section, below home, desktop and trash
++   * (hidden automatically while there are no bookmarks, like the other headers) */
++  shortcut = g_slice_new0 (ThunarShortcut);
++  shortcut->group = THUNAR_SHORTCUT_GROUP_PLACES_BOOKMARKS_HEADER;
++  shortcut->name = g_strdup ("Signets");
++  thunar_shortcuts_model_add_shortcut (model, shortcut);
++
+   /* determine the URI to the Gtk+ bookmarks file */
+   model->bookmarks_file = thunar_g_file_new_for_bookmarks ();
+ 
+@@ -1237,15 +1244,25 @@
+ 
+ 
+ static gint
++thunar_shortcuts_model_group_rank (ThunarShortcutGroup group)
++{
++  if (group == THUNAR_SHORTCUT_GROUP_PLACES_BOOKMARKS_HEADER)
++    return THUNAR_SHORTCUT_GROUP_PLACES_BOOKMARKS - 1;
++  return group;
++}
++
++
++
++static gint
+ thunar_shortcuts_model_sort_func (gconstpointer shortcut_a,
+                                   gconstpointer shortcut_b)
+ {
+   const ThunarShortcut *a = shortcut_a;
+   const ThunarShortcut *b = shortcut_b;
+ 
+-  /* sort groups */
++  /* sort groups (Robbie OS: the bookmarks header goes right before the bookmarks) */
+   if (a->group != b->group)
+-    return a->group - b->group;
++    return thunar_shortcuts_model_group_rank (a->group) - thunar_shortcuts_model_group_rank (b->group);
+ 
+   /* use sort order */
+   if (a->sort_id != b->sort_id)
+diff -ru orig/thunar/thunar-shortcuts-model.h thunar-4.20.2/thunar/thunar-shortcuts-model.h
+--- orig/thunar/thunar-shortcuts-model.h	2026-10-24 10:40:59.088447590 +0200
++++ thunar-4.20.2/thunar/thunar-shortcuts-model.h	2026-10-24 10:41:18.944421448 +0200
+@@ -61,6 +61,7 @@
+                                        | THUNAR_SHORTCUT_GROUP_DEVICES_VOLUMES \
+                                        | THUNAR_SHORTCUT_GROUP_DEVICES_MOUNTS)
+ #define THUNAR_SHORTCUT_GROUP_PLACES (THUNAR_SHORTCUT_GROUP_PLACES_HEADER \
++                                      | THUNAR_SHORTCUT_GROUP_PLACES_BOOKMARKS_HEADER \
+                                       | THUNAR_SHORTCUT_GROUP_PLACES_DEFAULT \
+                                       | THUNAR_SHORTCUT_GROUP_PLACES_TRASH \
+                                       | THUNAR_SHORTCUT_GROUP_PLACES_BOOKMARKS \
+@@ -71,6 +72,7 @@
+                                        | THUNAR_SHORTCUT_GROUP_NETWORK_MOUNTS)
+ #define THUNAR_SHORTCUT_GROUP_HEADER (THUNAR_SHORTCUT_GROUP_DEVICES_HEADER \
+                                       | THUNAR_SHORTCUT_GROUP_PLACES_HEADER \
++                                      | THUNAR_SHORTCUT_GROUP_PLACES_BOOKMARKS_HEADER \
+                                       | THUNAR_SHORTCUT_GROUP_NETWORK_HEADER)
+ 
+ enum _ThunarShortcutGroup
+@@ -93,6 +95,9 @@
+   THUNAR_SHORTCUT_GROUP_NETWORK_HEADER = (1 << 10),  /* network header */
+   THUNAR_SHORTCUT_GROUP_NETWORK_DEFAULT = (1 << 11), /* browse network */
+   THUNAR_SHORTCUT_GROUP_NETWORK_MOUNTS = (1 << 12),  /* remote ThunarDevices */
++
++  /* Robbie OS: header of the bookmarks section (sorted right before the bookmarks) */
++  THUNAR_SHORTCUT_GROUP_PLACES_BOOKMARKS_HEADER = (1 << 13),
+ };
+ 
+ 
