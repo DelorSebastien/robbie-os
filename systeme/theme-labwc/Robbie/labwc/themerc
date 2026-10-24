@@ -35,7 +35,27 @@ menu.separator.color: #1c2842
 menu.title.bg.color: #0c1424
 menu.title.text.color: #ffffff
 
-osd.bg.color: #0a1020d0
-osd.border.color: #1c2842
+# Alt+Tab et indications à l'écran : panneau de verre, bord cyan, élément choisi encadré
+osd.bg.color: #0a1224e6
+osd.border.color: #5ee7ff66
+osd.border.width: 1
 osd.label.text.color: #eef3fb
+osd.window-switcher.width: 560
+osd.window-switcher.padding: 10
+osd.window-switcher.item.padding.x: 14
+osd.window-switcher.item.padding.y: 8
 osd.window-switcher.item.active.border.width: 2
+osd.window-switcher.preview.border.width: 2
+osd.window-switcher.preview.border.color: #5ee7ff,#5ee7ff,#5ee7ff
+
+# Fenêtre glissée contre un bord : aperçu en verre cyan de la place qu'elle va prendre
+snapping.overlay.edge.bg.enabled: yes
+snapping.overlay.edge.border.enabled: yes
+snapping.overlay.edge.bg.color: #5ee7ff2e
+snapping.overlay.edge.border.width: 2
+snapping.overlay.edge.border.color: #5ee7ff,#5ee7ff,#5ee7ff
+snapping.overlay.region.bg.enabled: yes
+snapping.overlay.region.border.enabled: yes
+snapping.overlay.region.bg.color: #5ee7ff2e
+snapping.overlay.region.border.width: 2
+snapping.overlay.region.border.color: #5ee7ff,#5ee7ff,#5ee7ff

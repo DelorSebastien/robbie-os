@@ -265,14 +265,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     border-radius: var(--r-grand);
 }
 
-.laterale-trait {
-    width: 22px;
-    height: 2px;
-    margin-bottom: 6px;
-    border-radius: 2px;
-    background: rgb(var(--accent));
-    box-shadow: 0 0 6px rgba(var(--accent), 0.7);
-}
+/* Bureaux virtuels : quatre points, l'actif s'allonge en trait cyan lumineux */
+.bureaux { display: flex; gap: 4px; margin-bottom: 6px; }
+.bureau { width: 5px; height: 5px; border-radius: 3px; background: rgba(var(--voile), 0.28); transition: width 0.25s var(--doux), background 0.2s; }
+.bureau:hover { background: rgba(var(--voile), 0.55); }
+.bureau.actif { width: 12px; background: rgb(var(--accent)); box-shadow: 0 0 6px rgba(var(--accent), 0.7); }
 
 .lat-bouton {
     position: relative;

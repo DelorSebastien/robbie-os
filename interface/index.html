@@ -26,7 +26,8 @@
 
     <!-- Barre latérale : notifications, contacts, raccourcis -->
     <aside class="laterale" aria-label="Barre latérale">
-        <span class="laterale-trait"></span>
+        <!-- Bureaux virtuels : un point par bureau, l'actif est allumé (Super + 1…4) -->
+        <div class="bureaux" id="bureaux" role="group" aria-label="Bureaux virtuels"></div>
         <button class="lat-bouton" data-panneau data-action="notifications" data-icon="bell" aria-label="Notifications" title="Notifications (Super+N)"><span class="pastille" hidden></span></button>
         <button class="lat-bouton" data-panneau data-action="contacts" data-icon="users" aria-label="Contacts" title="Contacts"></button>
         <div class="contacts" id="contacts"></div>
@@ -113,6 +114,7 @@
     <script src="./js/fond.js"></script>
     <script src="./js/theme.js"></script>
     <script src="./js/disposition.js"></script>
+    <script src="./js/bureaux.js"></script>
     <script src="./js/ambiance.js"></script>
     <script src="./js/compte.js"></script>
     <script src="./js/panneaux.js"></script>

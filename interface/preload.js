@@ -52,7 +52,8 @@ contextBridge.exposeInMainWorld('os', {
     reloadIdle: () => ipcRenderer.send('inactivite-recharger'),
     setPanelShown: open => ipcRenderer.send('panneau', open),
     setTheme: name => ipcRenderer.send('theme', name),
-    setSidebarSide: side => ipcRenderer.send('barre', side)
+    setSidebarSide: side => ipcRenderer.send('barre', side),
+    goToDesktop: number => ipcRenderer.send('bureau', number)
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état

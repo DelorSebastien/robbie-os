@@ -94,7 +94,7 @@ if (!preview) {
         fs.writeFileSync(COMMAND_FILE, '');
         // (le verrouillage se fait ici : il doit marcher même si la page ne répond plus)
         if (name === 'verrouiller') verrouillage.lock();
-        else if (/^[a-z-]+$/.test(name)) win?.webContents.send('shortcut', name);
+        else if (/^[a-z0-9-]+$/.test(name)) win?.webContents.send('shortcut', name);
     });
 }
 
@@ -189,6 +189,13 @@ ipcMain.on('deconnexion', () => {
 ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
 ipcMain.on('theme', (_event, name) => !preview && theme.apply(String(name)));
 ipcMain.on('barre', (_event, side) => !preview && disposition.applySidebar(String(side)));
+
+// Bureaux virtuels : labwc change de bureau sur ses touches réservées XF86Launch1…4 (voir rc.xml)
+ipcMain.on('bureau', (_event, number) => {
+    const n = Number(number);
+    if (preview || !Number.isInteger(n) || n < 1 || n > 4) return;
+    spawn('wtype', ['-k', `XF86Launch${n}`], { stdio: 'ignore' }).on('error', () => {});
+});
 
 // Notifications des applis
 let notifications = null;
