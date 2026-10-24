@@ -308,7 +308,7 @@
 
     // ---- Système ----
     async function renderSystem() {
-        const info = await window.os.systemInfo();
+        const [info, updates] = await Promise.all([window.os.systemInfo(), window.os.updates()]);
         const hours = Math.floor(info.uptime / 3600);
         const minutes = Math.floor((info.uptime % 3600) / 60);
 
@@ -322,6 +322,14 @@
                 ${info.disk ? `<dt>Disque</dt><dd>${bytes(info.disk.free)} libres sur ${bytes(info.disk.total)}</dd>` : ''}
                 <dt>Allumé depuis</dt><dd>${hours ? `${hours} h ` : ''}${minutes} min</dd>
             </dl>`)
+            + block('Mises à jour', `
+            <div class="reglage-ligne">
+                <span>${updates.running ? `Installation en cours · ${updates.running.progression}%`
+                    : updates.count ? `${updates.count} mise${updates.count > 1 ? 's' : ''} à jour disponible${updates.count > 1 ? 's' : ''}`
+                    : 'Robbie OS est à jour'}</span>
+                <button class="bouton" data-mises-a-jour>${updates.count && !updates.running ? 'Installer…' : 'Voir'}</button>
+            </div>
+            <p class="reglage-aide">Robbie OS vérifie deux fois par jour et te prévient par une notification. Les correctifs de sécurité s’installent tout seuls.</p>`)
             + block('Verrouillage automatique', `
             <div class="reglage-ligne">
                 <span>Verrouiller après</span>
@@ -337,6 +345,11 @@
                 <button class="bouton" data-power="reboot">Redémarrer</button>
                 <button class="bouton danger" data-power="poweroff">Éteindre</button>
             </div>`);
+
+        content.querySelector('[data-mises-a-jour]').addEventListener('click', () => {
+            window.panneaux.close();
+            window.os.openUpdates();
+        });
 
         content.querySelector('[data-verrou]').addEventListener('change', async event => {
             await change({ lockMinutes: Number(event.target.value) });

@@ -106,7 +106,7 @@
             }
             html += '</div>';
         } else if (!state.running) {
-            html += emptyHtml('check', 'Rien à installer', 'Robbie OS vérifie chaque jour. Une notification te prévient quand il y a du nouveau.');
+            html += emptyHtml('check', 'Rien à installer', 'Robbie OS vérifie deux fois par jour. Une notification te prévient quand il y a du nouveau.');
         }
 
         container.innerHTML = html;

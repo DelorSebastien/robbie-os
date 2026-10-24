@@ -17,6 +17,8 @@ function appIconByName(name) {
 
 function createNotifications({ onNotify, onClose }) {
     let nextId = 1;
+    // Notifications de Robbie OS lui-même (mises à jour…) : leurs boutons reviennent ici
+    const local = new Map();
 
     class Notifications extends Interface {
         GetCapabilities() {
@@ -93,12 +95,34 @@ function createNotifications({ onNotify, onClose }) {
     return {
         // L'utilisateur a cliqué sur la notification (action "default") ou sur un de ses boutons
         invoke(id, key = 'default') {
+            if (local.has(id)) {
+                const onAction = local.get(id);
+                local.delete(id);
+                return onAction(key);
+            }
             service.ActionInvoked(id, key);
             service.NotificationClosed(id, 2);
         },
         // Fermée par l'utilisateur
         dismiss(id) {
+            if (local.has(id)) {
+                const onAction = local.get(id);
+                local.delete(id);
+                return onAction('fermer');
+            }
             service.NotificationClosed(id, 2);
+        },
+        // Une notification de Robbie OS : `replaces` remplace une notification déjà affichée,
+        // `onAction` reçoit le bouton choisi (ou « default » pour un clic, « fermer » pour la croix)
+        post({ replaces, app = 'Robbie OS', icon = null, summary, body = '', actions = [], urgent = false }, onAction = () => {}) {
+            const id = replaces || nextId++;
+            local.set(id, onAction);
+            onNotify({ id, app, icon, summary, body, actions, urgent, timeout: -1, time: Date.now() });
+            return id;
+        },
+        close(id) {
+            local.delete(id);
+            onClose(id);
         }
     };
 }

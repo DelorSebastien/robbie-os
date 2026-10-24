@@ -24,6 +24,8 @@ const disposition = require('./services/disposition');
 const recherche = require('./services/recherche');
 const pressePapiers = require('./services/presse-papiers');
 const packs = require('./services/packs');
+const misesAJour = require('./services/mises-a-jour');
+const avisMisesAJour = require('./services/avis-mises-a-jour');
 const { spawn } = require('node:child_process');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
@@ -262,6 +264,10 @@ let notifications = null;
 ipcMain.on('notification-action', (_event, id, key) => notifications?.invoke(id, key));
 ipcMain.on('notification-fermer', (_event, id) => notifications?.dismiss(id));
 
+// Mises à jour (Réglages › Système) : ce qui attend, et la Logithèque pour les installer
+ipcMain.handle('mises-a-jour', () => misesAJour.read());
+ipcMain.on('ouvrir-mises-a-jour', () => avisMisesAJour.openUpdates());
+
 app.whenReady().then(() => {
     protocol.handle('fond', request => {
         const file = new URL(request.url).searchParams.get('chemin') || '';
@@ -280,6 +286,8 @@ app.whenReady().then(() => {
             onNotify: notification => send('notification', notification),
             onClose: id => send('notification-close', id)
         });
+        // (les administrateurs sont prévenus des mises à jour : eux seuls peuvent les installer)
+        comptes.me().then(me => me.role === 'admin' && avisMisesAJour.watch(notifications));
     }
 });
 app.on('window-all-closed', () => app.quit());
