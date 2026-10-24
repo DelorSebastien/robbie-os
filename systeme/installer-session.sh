@@ -180,16 +180,16 @@ cat > "$CONFIG/labwc/rc.xml" <<'EOF'
          l'interface est prévenue pour allumer le bon point (XF86Launch1…4 : ses clics à elle) -->
     <keybind key="W-1"><action name="GoToDesktop" to="1" /><action name="Execute" command="sh -c 'echo bureau-1 > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="XF86Launch1"><action name="GoToDesktop" to="1" /><action name="Execute" command="sh -c 'echo bureau-1 > $HOME/.cache/robbie-os.commande'" /></keybind>
-    <keybind key="W-S-1"><action name="SendToDesktop" to="1" follow="yes" /><action name="Execute" command="sh -c 'echo bureau-1 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-S-1"><action name="SendToDesktop" to="1" follow="yes" /><action name="Execute" command="sh -c 'echo envoi-1 > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="W-2"><action name="GoToDesktop" to="2" /><action name="Execute" command="sh -c 'echo bureau-2 > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="XF86Launch2"><action name="GoToDesktop" to="2" /><action name="Execute" command="sh -c 'echo bureau-2 > $HOME/.cache/robbie-os.commande'" /></keybind>
-    <keybind key="W-S-2"><action name="SendToDesktop" to="2" follow="yes" /><action name="Execute" command="sh -c 'echo bureau-2 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-S-2"><action name="SendToDesktop" to="2" follow="yes" /><action name="Execute" command="sh -c 'echo envoi-2 > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="W-3"><action name="GoToDesktop" to="3" /><action name="Execute" command="sh -c 'echo bureau-3 > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="XF86Launch3"><action name="GoToDesktop" to="3" /><action name="Execute" command="sh -c 'echo bureau-3 > $HOME/.cache/robbie-os.commande'" /></keybind>
-    <keybind key="W-S-3"><action name="SendToDesktop" to="3" follow="yes" /><action name="Execute" command="sh -c 'echo bureau-3 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-S-3"><action name="SendToDesktop" to="3" follow="yes" /><action name="Execute" command="sh -c 'echo envoi-3 > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="W-4"><action name="GoToDesktop" to="4" /><action name="Execute" command="sh -c 'echo bureau-4 > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="XF86Launch4"><action name="GoToDesktop" to="4" /><action name="Execute" command="sh -c 'echo bureau-4 > $HOME/.cache/robbie-os.commande'" /></keybind>
-    <keybind key="W-S-4"><action name="SendToDesktop" to="4" follow="yes" /><action name="Execute" command="sh -c 'echo bureau-4 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-S-4"><action name="SendToDesktop" to="4" follow="yes" /><action name="Execute" command="sh -c 'echo envoi-4 > $HOME/.cache/robbie-os.commande'" /></keybind>
     <!-- Touches invisibles envoyées par l'interface (wtype) : le bureau passe devant les fenêtres
          le temps qu'un de ses panneaux est ouvert, puis repasse dessous -->
     <keybind key="XF86Launch8">

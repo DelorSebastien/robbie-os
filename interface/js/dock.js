@@ -15,7 +15,7 @@
         terminal: line('argent', 'M4 5h16v14H4zM8 10l3 2.5L8 15M13 15h4'),
         code: line('bleu', 'M9 7l-5 5 5 5M15 7l5 5-5 5M13.5 5l-3 14'),
         image: line('violet', 'M4 5h16v14H4zM4 16l4.5-4.5 3.5 3.5 2.5-2.5L20 18M15.5 9.5h.01'),
-        gear: line('argent', 'M10.4 2.5h3.2l.5 2.6a7.5 7.5 0 0 1 1.9 1.1l2.5-.9 1.6 2.8-2 1.7a7.6 7.6 0 0 1 0 2.2l2 1.7-1.6 2.8-2.5-.9a7.5 7.5 0 0 1-1.9 1.1l-.5 2.6h-3.2l-.5-2.6a7.5 7.5 0 0 1-1.9-1.1l-2.5.9-1.6-2.8 2-1.7a7.6 7.6 0 0 1 0-2.2l-2-1.7 1.6-2.8 2.5.9a7.5 7.5 0 0 1 1.9-1.1zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z'),
+        gear: line('argent', 'M10.11 4.95L10.5 2.52A9.6 9.6 0 0 1 13.5 2.52L13.89 4.95A7.3 7.3 0 0 1 15.65 5.68L17.64 4.23A9.6 9.6 0 0 1 19.77 6.36L18.32 8.35A7.3 7.3 0 0 1 19.05 10.11L21.48 10.5A9.6 9.6 0 0 1 21.48 13.5L19.05 13.89A7.3 7.3 0 0 1 18.32 15.65L19.77 17.64A9.6 9.6 0 0 1 17.64 19.77L15.65 18.32A7.3 7.3 0 0 1 13.89 19.05L13.5 21.48A9.6 9.6 0 0 1 10.5 21.48L10.11 19.05A7.3 7.3 0 0 1 8.35 18.32L6.36 19.77A9.6 9.6 0 0 1 4.23 17.64L5.68 15.65A7.3 7.3 0 0 1 4.95 13.89L2.52 13.5A9.6 9.6 0 0 1 2.52 10.5L4.95 10.11A7.3 7.3 0 0 1 5.68 8.35L4.23 6.36A9.6 9.6 0 0 1 6.36 4.23L8.35 5.68A7.3 7.3 0 0 1 10.11 4.95zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z'),
         trash: line('argent', 'M5 7h14M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6'),
         grid: line('cyan', 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'),
         bag: line('cyan', 'M5 8h14l-1.2 12H6.2zM9 8V6.5a3 3 0 0 1 6 0V8M9.5 12.5v2M14.5 12.5v2')
@@ -379,5 +379,9 @@
         return { name: known?.name || app.name, glyph: known ? GLYPHS[known.glyph] : null };
     };
 
-    window.dock = { pinned: () => pinned, setPinned, look, setAccent };
+    // (nom lisible d'une appli d'après l'identifiant de ses fenêtres, pour les bureaux)
+    const appName = windowId => Object.entries(KNOWN).find(([id]) => id === windowId)?.[1].name
+        || apps.find(app => app.windowId === windowId || app.id === windowId)?.name || windowId;
+
+    window.dock = { pinned: () => pinned, setPinned, look, setAccent, appName };
 })();

@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('os', {
     onShortcut: callback => ipcRenderer.on('shortcut', (_event, name) => callback(name)),
     windows: () => ipcRenderer.invoke('fenetres'),
     focusWindow: appId => ipcRenderer.invoke('fenetre-focus', appId),
+    activeWindow: () => ipcRenderer.invoke('fenetre-active'),
     onWindows: callback => ipcRenderer.on('fenetres', (_event, list) => callback(list)),
     onNotification: callback => ipcRenderer.on('notification', (_event, notification) => callback(notification)),
     onNotificationClose: callback => ipcRenderer.on('notification-close', (_event, id) => callback(id)),
