@@ -51,7 +51,7 @@
             const item = POWER.find(entry => entry.id === button.dataset.alim);
             if (item.confirm && !button.classList.contains('confirmer')) {
                 button.classList.add('confirmer');
-                button.querySelector('.alim-texte').textContent = 'Confirmer00a0?';
+                button.querySelector('.alim-texte').textContent = 'Confirmer ?';
                 setTimeout(() => {
                     button.classList.remove('confirmer');
                     button.querySelector('.alim-texte').textContent = item.label;
