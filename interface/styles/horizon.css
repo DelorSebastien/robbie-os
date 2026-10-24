@@ -41,6 +41,17 @@ html, body {
     user-select: none;
 }
 
+/* Un élément caché l'est vraiment, même si son style lui donne un display (panneaux fermés :
+   sinon, transparents, ils restaient posés à l'écran et prenaient les clics à leur place) */
+[hidden] { display: none !important; }
+
+/* Ascenseurs fins et discrets, dans le ton du thème */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { border-radius: 8px; background: rgba(var(--voile), 0.16); border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background-color: rgba(var(--voile), 0.3); }
+::-webkit-scrollbar-button { display: none; }
+
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .icon { width: 1.25em; height: 1.25em; flex: none; }
 
@@ -621,6 +632,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 .panneau.ouvert { opacity: 1; }
+/* (pendant le fondu de fermeture, le panneau ne prend déjà plus les clics) */
+.panneau:not(.ouvert), .robbie-panneau:not(.ouvert) { pointer-events: none; }
 
 /* Panneaux au-dessus du dock (toutes les applis) */
 .panneau-central {
