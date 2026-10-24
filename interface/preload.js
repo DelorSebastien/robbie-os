@@ -62,7 +62,11 @@ contextBridge.exposeInMainWorld('os', {
     onClipboard: callback => ipcRenderer.on('presse-papiers', (_event, list) => callback(list)),
     setFocusMode: on => ipcRenderer.send('concentration', on),
     looseDownloads: () => ipcRenderer.invoke('telechargements-en-vrac'),
-    organizeDownloads: () => ipcRenderer.invoke('ranger-telechargements')
+    organizeDownloads: () => ipcRenderer.invoke('ranger-telechargements'),
+    packs: () => ipcRenderer.invoke('packs'),
+    importPack: () => ipcRenderer.invoke('pack-importer'),
+    choosePack: (kind, id, variant) => ipcRenderer.invoke('pack-choisir', kind, id, variant),
+    onIconsChanged: callback => ipcRenderer.on('icones-changees', () => callback())
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état

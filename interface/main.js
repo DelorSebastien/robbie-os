@@ -1,5 +1,5 @@
 // Robbie OS : l'interface, lancée en plein écran au démarrage de la machine
-const { app, BrowserWindow, ipcMain, protocol, net } = require('electron');
+const { app, BrowserWindow, ipcMain, protocol, net, dialog } = require('electron');
 const { pathToFileURL } = require('node:url');
 const path = require('node:path');
 const fs = require('node:fs');
@@ -23,6 +23,7 @@ const theme = require('./services/theme');
 const disposition = require('./services/disposition');
 const recherche = require('./services/recherche');
 const pressePapiers = require('./services/presse-papiers');
+const packs = require('./services/packs');
 const { spawn } = require('node:child_process');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
@@ -191,7 +192,46 @@ ipcMain.on('deconnexion', () => {
     spawn('labwc', ['--exit'], { detached: true, stdio: 'ignore' }).unref();
 });
 ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
-ipcMain.on('theme', (_event, name) => !preview && theme.apply(String(name)));
+// Thème clair ou sombre : fenêtres, barres de titre, terminal, et le pack d'icônes qui va avec
+let currentTheme = 'sombre';
+function applyIconPack() {
+    const settings = notes.getSettings();
+    const id = (currentTheme === 'clair' && settings.iconThemeClair) || settings.iconTheme;
+    if (!packs.exists(id)) return;
+    applis.setIconTheme(id);
+    if (!preview) packs.applyIcons(id);
+    win?.webContents.send('icones-changees');
+}
+ipcMain.on('theme', (_event, name) => {
+    currentTheme = String(name) === 'clair' ? 'clair' : 'sombre';
+    if (!preview) theme.apply(currentTheme);
+    applyIconPack();
+});
+
+// Packs d'icônes et de curseurs : liste, import d'une archive, choix
+ipcMain.handle('packs', () => ({ icons: packs.iconThemes(), cursors: packs.cursorThemes() }));
+ipcMain.handle('pack-importer', async () => {
+    const result = await dialog.showOpenDialog(win, {
+        title: 'Importer un pack d’icônes ou de curseurs',
+        buttonLabel: 'Importer',
+        defaultPath: path.join(os.homedir(), 'Téléchargements'),
+        properties: ['openFile'],
+        filters: [{ name: 'Archives', extensions: ['zip', 'gz', 'tgz', 'xz', 'bz2', 'tar'] }]
+    });
+    if (result.canceled || !result.filePaths.length) return null;
+    return packs.importArchive(result.filePaths[0]);
+});
+ipcMain.handle('pack-choisir', (_event, kind, id, variant) => {
+    if (kind === 'curseurs') {
+        if (!packs.applyCursor(String(id))) return false;
+        notes.setSettings({ cursorTheme: String(id) });
+        return true;
+    }
+    if (!packs.exists(String(id)) && !(variant === 'clair' && id === '')) return false;
+    notes.setSettings(variant === 'clair' ? { iconThemeClair: String(id) } : { iconTheme: String(id) });
+    applyIconPack();
+    return true;
+});
 ipcMain.on('disposition', (_event, side, fullScreen) => !preview && disposition.applyLayout(String(side), Boolean(fullScreen)));
 
 // Historique du presse-papiers (Super+V)

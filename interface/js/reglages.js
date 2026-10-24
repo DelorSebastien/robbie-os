@@ -54,7 +54,7 @@
     const wallpaperUrl = file => `fond://image?chemin=${encodeURIComponent(file)}`;
 
     async function renderAppearance() {
-        const wallpapers = await window.os.wallpapers();
+        const [wallpapers, packs] = await Promise.all([window.os.wallpapers(), window.os.packs()]);
         const current = settings.wallpaper || 'jour';
         // Vignette du fond au fil du jour : une tranche de chaque moment de la journée
         const slices = window.soleil.PHOTOS.map((name, i, all) =>
@@ -96,6 +96,29 @@
             <div class="pastilles">${Object.entries(EYE_COLORS).map(([key, rgb]) => `
                 <button class="pastille-couleur${key === settings.eyeColor ? ' actif' : ''}" data-couleur="${key}" style="--c: ${rgb}" aria-label="${EYE_NAMES[key]}" title="${EYE_NAMES[key]}"></button>`).join('')}
             </div>`)
+            + block('Icônes', `
+            <div class="packs">${packs.icons.map(pack => `
+                <button class="pack-choix${pack.id === settings.iconTheme ? ' actif' : ''}" data-icones="${escape(pack.id)}" title="${escape(pack.name)}">
+                    <span class="pack-apercu">${pack.preview.map(src => `<img src="${src}" alt="">`).join('')}</span>
+                    <span class="pack-nom">${escape(pack.name)}</span>
+                </button>`).join('')}
+            </div>
+            <div class="reglage-ligne">
+                <span>En thème clair</span>
+                <select data-icones-clair aria-label="Pack d’icônes en thème clair">
+                    <option value="">Le même pack</option>${packs.icons.map(pack => `
+                    <option value="${escape(pack.id)}" ${pack.id === settings.iconThemeClair ? 'selected' : ''}>${escape(pack.name)}</option>`).join('')}
+                </select>
+            </div>`)
+            + block('Curseur', `
+            <div class="reglage-ligne">
+                <select data-curseur aria-label="Curseur de la souris">${packs.cursors.map(pack => `
+                    <option value="${escape(pack.id)}" ${pack.id === settings.cursorTheme ? 'selected' : ''}>${escape(pack.name)}</option>`).join('')}
+                </select>
+            </div>
+            <p class="reglage-aide">Le pointeur du bureau change à la prochaine connexion, celui des applis tout de suite.</p>
+            <div class="reglage-ligne"><button class="bouton" data-importer-pack data-icon="download">Importer un pack d’icônes ou de curseurs…</button></div>
+            <p class="reglage-aide">Une archive téléchargée (.zip, .tar.gz, .tar.xz) : sur gnome-look.org par exemple.</p>`)
             + block('Costumes', `
             <label class="interrupteur"><input type="checkbox" data-costumes ${settings.skin === 'auto' ? 'checked' : ''}>
                 <span>Costumes selon les fêtes (citrouille à Halloween…)</span></label>`);
@@ -143,6 +166,26 @@
             face.setExpression('happy', 1200);
             renderAppearance();
         }));
+
+        content.querySelectorAll('[data-icones]').forEach(button => button.addEventListener('click', async () => {
+            await window.os.choosePack('icones', button.dataset.icones, 'sombre');
+            settings = await window.os.settings();
+            renderAppearance().then(() => window.icons.fill(content));
+        }));
+        content.querySelector('[data-icones-clair]').addEventListener('change', async event => {
+            await window.os.choosePack('icones', event.target.value, 'clair');
+            settings = await window.os.settings();
+        });
+        content.querySelector('[data-curseur]').addEventListener('change', async event => {
+            await window.os.choosePack('curseurs', event.target.value);
+            settings = await window.os.settings();
+        });
+        content.querySelector('[data-importer-pack]').addEventListener('click', async () => {
+            const result = await window.os.importPack();
+            if (!result) return;
+            window.ui.toast(result.installed.length ? `Pack importé : ${result.installed.join(', ')}` : result.error, result.installed.length ? 'check' : 'x');
+            renderAppearance().then(() => window.icons.fill(content));
+        });
 
         content.querySelector('[data-costumes]').addEventListener('change', async event => {
             const skin = event.target.checked ? 'auto' : 'none';

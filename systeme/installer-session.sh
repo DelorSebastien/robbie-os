@@ -204,6 +204,9 @@ setup_labwc() {
     if grep -q '"barre": *"gauche"' "$HOME/.config/robbie-os/reglages.json" 2>/dev/null; then
         sed -i 's|left="10" right="78"|left="78" right="10"|' "$LABWC_DIR/rc.xml"
     fi
+    # (curseur choisi dans les Réglages : pour le pointeur du bureau aussi)
+    cursor=$(sed -n 's/.*"cursorTheme": *"\([A-Za-z0-9_.+-]*\)".*/\1/p' "$HOME/.config/robbie-os/reglages.json" 2>/dev/null)
+    [ -n "$cursor" ] && sed -i "s|^XCURSOR_THEME=.*|XCURSOR_THEME=$cursor|" "$LABWC_DIR/environment"
     # (fenêtres agrandies en plein écran : pas de place réservée au dock)
     if grep -q '"pleinEcran": *true' "$HOME/.config/robbie-os/reglages.json" 2>/dev/null; then
         sed -i 's|bottom="120"|bottom="10"|' "$LABWC_DIR/rc.xml"

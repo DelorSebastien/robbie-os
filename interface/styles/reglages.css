@@ -96,12 +96,17 @@
 }
 
 .bouton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     padding: 8px 14px;
     border-radius: var(--r-petit);
     background: rgba(var(--voile), 0.08);
     border: 1px solid var(--bord);
     font: 500 13px 'Inter', sans-serif;
 }
+
+.bouton .icon { width: 16px; height: 16px; }
 
 .bouton:hover { background: rgba(var(--accent), 0.2); border-color: rgba(var(--accent), 0.4); }
 .bouton.danger:hover { background: rgba(255, 107, 107, 0.2); border-color: rgba(255, 107, 107, 0.5); }
@@ -285,3 +290,12 @@
 
 .admin-demande p { margin: 0; font-size: 13px; }
 .admin-demande .petit-bouton { align-self: flex-start; }
+
+/* Packs d'icônes : une carte par pack, quatre de ses icônes en aperçu */
+.packs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.pack-choix { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 8px 10px; border-radius: var(--r-moyen); border: 2px solid transparent; background: rgba(var(--voile), 0.04); }
+.pack-choix:hover { background: rgba(var(--voile), 0.08); }
+.pack-choix.actif { border-color: var(--accent-texte); }
+.pack-apercu { display: flex; gap: 6px; }
+.pack-apercu img { width: 28px; height: 28px; object-fit: contain; }
+.pack-nom { font: 12.5px 'Inter', sans-serif; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

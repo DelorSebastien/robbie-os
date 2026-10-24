@@ -52,6 +52,14 @@ function parseDesktop(text) {
 }
 
 const iconCache = new Map();
+let iconTheme = null;
+
+// Pack d'icônes changé : les icônes déjà lues sont oubliées
+function setIconTheme(id) {
+    iconTheme = id;
+    iconCache.clear();
+    cache = null;
+}
 
 // Icône en data URL (la page n'a pas le droit de lire les fichiers du système)
 function iconData(name) {
@@ -62,7 +70,9 @@ function iconData(name) {
     if (path.isAbsolute(name) && fs.existsSync(name)) {
         file = name;
     } else {
-        for (const folder of ICON_FOLDERS) {
+        // (le pack d'icônes choisi dans les Réglages d'abord, puis ceux du système)
+        file = (iconTheme && require('./packs').findIcon(iconTheme, name)) || null;
+        for (const folder of file ? [] : ICON_FOLDERS) {
             const found = ['.svg', '.png'].map(ext => path.join(folder, name + ext)).find(fs.existsSync);
             if (found) {
                 file = found;
@@ -153,4 +163,4 @@ function openLocation(location) {
     return true;
 }
 
-module.exports = { list, launch, iconData, openLocation };
+module.exports = { list, launch, iconData, openLocation, setIconTheme };
