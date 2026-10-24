@@ -22,6 +22,28 @@ done
 chown -R root:root "$ROBBIE_DIR"
 chmod -R a+rX "$ROBBIE_DIR"
 
+# ---- Sur quelle machine tourne Robbie OS (lu au démarrage de la session et de l'accueil) ----
+# Vrai PC : tout normal. VirtualBox : sa carte graphique simulée ne sait pas faire de 3D, l'interface
+# est dessinée par le processeur (ROBBIE_SANS_GPU). VMware : sa carte graphique prête la vraie 3D
+# de l'ordinateur, on s'en sert. Dans une machine virtuelle, le cerveau de Robbie (Ollama) est
+# sur l'ordinateur hôte : VirtualBox le montre en 10.0.2.2, VMware à l'adresse .1 de son réseau.
+mkdir -p /usr/local/lib/robbie-os
+cat > /usr/local/lib/robbie-os/machine <<'EOF'
+case "$(systemd-detect-virt 2>/dev/null)" in
+    oracle)
+        export ROBBIE_SANS_GPU=1
+        export ROBBIE_OLLAMA=http://10.0.2.2:11434
+        ;;
+    vmware)
+        gateway=$(ip route show default 2>/dev/null | awk '/^default via/ { print $3; exit }')
+        [ -n "$gateway" ] && export ROBBIE_OLLAMA="http://${gateway%.*}.1:11434"
+        ;;
+esac
+# (adresse choisie à la main, prioritaire : une ligne http://… dans ce fichier)
+[ -s /etc/robbie-os/ollama ] && export ROBBIE_OLLAMA="$(head -n 1 /etc/robbie-os/ollama)"
+EOF
+chmod 644 /usr/local/lib/robbie-os/machine
+
 # ---- Outil de gestion des comptes (lancé par sudo depuis les Réglages) ----
 install -D -m 755 "$ROBBIE_DIR/systeme/outils/comptes" /usr/local/lib/robbie-os/comptes
 getent group robbie-enfant >/dev/null || groupadd robbie-enfant
@@ -137,14 +159,10 @@ cat > "$CONFIG/labwc/rc.xml" <<'EOF'
 EOF
 
 # Au démarrage de la session : l'interface de Robbie OS
-# (machine virtuelle : le cerveau de Robbie est sur l'ordinateur hôte, et l'interface est
-#  dessinée par le processeur, la carte graphique simulée de VirtualBox ne convenant pas à Chromium)
+# (machine virtuelle : le cerveau de Robbie est sur l'ordinateur hôte ; voir robbie-os-machine)
 cat > "$CONFIG/labwc/autostart" <<EOF
 amixer -q sset 'Mic Boost (+20dB)' on 2>/dev/null
-if systemd-detect-virt -q; then
-    export ROBBIE_OLLAMA=http://10.0.2.2:11434
-    export ROBBIE_SANS_GPU=1
-fi
+. /usr/local/lib/robbie-os/machine
 mkdir -p "\$HOME/.cache"
 $ROBBIE_DIR/node_modules/.bin/electron $ROBBIE_DIR > "\$HOME/.cache/robbie-os-interface.log" 2>&1 &
 EOF
@@ -237,7 +255,7 @@ cat > /usr/local/bin/robbie-os-accueil <<EOF
 export XKB_DEFAULT_LAYOUT=fr
 export XCURSOR_THEME=Bibata-Modern-Classic
 export XCURSOR_SIZE=24
-systemd-detect-virt -q && export ROBBIE_SANS_GPU=1
+. /usr/local/lib/robbie-os/machine
 APP="$ROBBIE_DIR/node_modules/.bin/electron $ROBBIE_DIR --accueil"
 cage -s -d -- \$APP || WLR_RENDERER=pixman exec cage -s -d -- \$APP
 EOF
