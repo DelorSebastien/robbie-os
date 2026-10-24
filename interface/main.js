@@ -21,6 +21,7 @@ const verrouillage = require('./services/verrouillage');
 const comptes = require('./services/comptes');
 const theme = require('./services/theme');
 const disposition = require('./services/disposition');
+const recherche = require('./services/recherche');
 const { spawn } = require('node:child_process');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
@@ -189,6 +190,10 @@ ipcMain.on('deconnexion', () => {
 ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
 ipcMain.on('theme', (_event, name) => !preview && theme.apply(String(name)));
 ipcMain.on('barre', (_event, side) => !preview && disposition.applySidebar(String(side)));
+
+// Recherche globale : fichiers du dossier personnel
+ipcMain.handle('chercher-fichiers', (_event, query) => recherche.search(String(query)));
+ipcMain.handle('ouvrir-fichier', (_event, file) => recherche.open(String(file)));
 
 // Bureaux virtuels : labwc change de bureau sur ses touches réservées XF86Launch1…4 (voir rc.xml)
 ipcMain.on('bureau', (_event, number) => {

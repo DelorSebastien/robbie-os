@@ -172,5 +172,11 @@
     setStatus('pret');
     addMessage('robbie', 'Salut ! Écris-moi ici, ou dis « Robbie » pour me parler.');
 
-    window.robbiePanel = { open, close, toggle };
+    // (une question venue d'ailleurs, la recherche globale par exemple)
+    const ask = text => {
+        open();
+        api.ask(String(text));
+    };
+
+    window.robbiePanel = { open, close, toggle, ask };
 })();

@@ -53,7 +53,9 @@ contextBridge.exposeInMainWorld('os', {
     setPanelShown: open => ipcRenderer.send('panneau', open),
     setTheme: name => ipcRenderer.send('theme', name),
     setSidebarSide: side => ipcRenderer.send('barre', side),
-    goToDesktop: number => ipcRenderer.send('bureau', number)
+    goToDesktop: number => ipcRenderer.send('bureau', number),
+    searchFiles: query => ipcRenderer.invoke('chercher-fichiers', query),
+    openFile: file => ipcRenderer.invoke('ouvrir-fichier', file)
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état

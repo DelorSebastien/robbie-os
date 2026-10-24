@@ -386,3 +386,68 @@
 @keyframes glisse-gauche {
     from { opacity: 0; transform: translateX(-30px); }
 }
+
+/* ---- Recherche globale (Super+Espace) : une barre au centre, les résultats dessous ---- */
+.panneau-recherche {
+    left: 50%;
+    top: 16vh;
+    width: min(640px, 86vw);
+    max-height: 64vh;
+    padding: 8px;
+    transform: translate(-50%, -10px) scale(0.98);
+}
+
+.panneau-recherche.ouvert { transform: translate(-50%, 0); }
+
+.recherche-champ {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    color: var(--texte-doux);
+}
+
+.recherche-champ .icon { width: 20px; height: 20px; }
+.recherche-champ input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--texte); font: 17px 'Inter', 'Noto Sans', sans-serif; }
+.recherche-champ input::placeholder { color: rgba(var(--texte-rgb), 0.45); }
+.recherche-champ kbd { font: 10px var(--police); letter-spacing: 0.08em; padding: 4px 8px; border-radius: var(--r-petit); background: rgba(var(--voile), 0.07); color: var(--texte-doux); }
+
+.recherche-resultats { overflow-y: auto; min-height: 0; }
+.avec-resultats .recherche-resultats { border-top: 1px solid var(--bord); margin-top: 4px; padding: 6px 0 2px; }
+
+.recherche-groupe { margin: 8px 12px 4px; font: 600 9.5px var(--police); letter-spacing: 0.16em; text-transform: uppercase; color: var(--texte-doux); }
+
+.recherche-ligne {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 12px;
+    border-radius: var(--r-petit);
+    text-align: left;
+    font-family: 'Inter', 'Noto Sans', sans-serif;
+}
+
+.recherche-ligne:hover { background: rgba(var(--voile), 0.06); }
+.recherche-ligne.choisie { background: rgba(var(--accent), 0.16); box-shadow: inset 3px 0 0 rgb(var(--accent)); }
+
+/* (la même pastille de verre que le dock, en petit) */
+.recherche-icone {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(var(--verre-rgb), calc(0.42 * var(--verre-force)));
+    border: 1px solid rgba(var(--voile), 0.14);
+    color: var(--texte);
+}
+
+.recherche-icone .icon { width: 16px; height: 16px; }
+.recherche-icone .picto { width: 52%; height: 52%; overflow: visible; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.recherche-icone img { width: 60%; height: 60%; object-fit: contain; }
+
+.recherche-texte { display: flex; flex-direction: column; min-width: 0; }
+.recherche-texte b { font-weight: 500; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recherche-texte small { font-size: 11.5px; color: var(--texte-doux); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
