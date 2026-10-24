@@ -52,16 +52,17 @@ done
 
 # Thème « Robbie » : barre de titre (labwc) et fenêtres GTK.
 # Les fenêtres GTK reprennent Orchis-Dark, repeint avec le verre translucide du bureau :
-# les fonds deviennent du bleu nuit transparent, comme le dock et la barre latérale.
+# les fonds deviennent du bleu nuit presque opaque (le fond d'écran transparaît à peine :
+# plus transparent, on lirait le texte d'une fenêtre à travers celle de devant).
 rm -rf /usr/share/themes/Robbie
 cp -r "$ROBBIE_DIR/systeme/theme-labwc/Robbie" /usr/share/themes/
 for version in gtk-3.0 gtk-4.0; do
     # Version compacte d'Orchis : marges et boutons plus petits, interface épurée
     cp -r "/usr/share/themes/Orchis-Dark-Compact/$version" "/usr/share/themes/Robbie/$version"
     find "/usr/share/themes/Robbie/$version" -name '*.css' -exec sed -i \
-        -e 's/#212121/rgba(10, 18, 36, 0.5)/gI' \
-        -e 's/#242424/rgba(10, 18, 36, 0.55)/gI' \
-        -e 's/#2C2C2C/rgba(10, 18, 36, 0.28)/gI' \
+        -e 's/#212121/rgba(10, 18, 36, 0.86)/gI' \
+        -e 's/#242424/rgba(10, 18, 36, 0.88)/gI' \
+        -e 's/#2C2C2C/rgba(10, 18, 36, 0.3)/gI' \
         -e 's/#3C3C3C/rgba(255, 255, 255, 0.08)/gI' \
         -e 's/#404040/rgba(255, 255, 255, 0.12)/gI' \
         -e 's/#3281EA/#1e9cc4/gI' {} +
