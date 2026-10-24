@@ -84,6 +84,54 @@ mkdir -p /etc/xdg
     done
 } > /etc/xdg/mimeapps.list
 
+# ---- Logithèque : applis de Flathub (pour tous les comptes) et de Debian, mises à jour ----
+apt-get install -y --no-install-recommends flatpak appstream unattended-upgrades
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+install -m 644 "$ROBBIE_DIR/applis/logitheque/robbie-logitheque.desktop" /usr/share/applications/
+update-desktop-database -q /usr/share/applications 2>/dev/null || true
+# Outil des logiciels (installer, désinstaller, vérifier et installer les mises à jour) :
+# les administrateurs vérifient et mettent à jour sans retaper leur mot de passe
+# (installer ou retirer un paquet de Debian le demande toujours)
+install -D -m 755 "$ROBBIE_DIR/systeme/outils/logiciels" /usr/local/lib/robbie-os/logiciels
+cat > /etc/sudoers.d/robbie-os-logiciels <<'EOF'
+%sudo ALL=(root) NOPASSWD: /usr/local/lib/robbie-os/logiciels verifier, /usr/local/lib/robbie-os/logiciels mettre-a-jour
+EOF
+chmod 440 /etc/sudoers.d/robbie-os-logiciels
+visudo -cq -f /etc/sudoers.d/robbie-os-logiciels || rm -f /etc/sudoers.d/robbie-os-logiciels
+# Vérification des mises à jour peu après le démarrage, puis deux fois par jour
+cat > /etc/systemd/system/robbie-os-mises-a-jour.service <<'EOF'
+[Unit]
+Description=Robbie OS : vérification des mises à jour
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/robbie-os/logiciels verifier
+Nice=10
+IOSchedulingClass=idle
+EOF
+cat > /etc/systemd/system/robbie-os-mises-a-jour.timer <<'EOF'
+[Unit]
+Description=Robbie OS : vérification des mises à jour, deux fois par jour
+
+[Timer]
+OnBootSec=4min
+OnUnitActiveSec=12h
+RandomizedDelaySec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+systemctl daemon-reload
+systemctl enable --now robbie-os-mises-a-jour.timer >/dev/null 2>&1
+# Les correctifs de sécurité de Debian s'installent tout seuls, chaque jour
+cat > /etc/apt/apt.conf.d/20auto-upgrades <<'EOF'
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+EOF
+
 # ---- Configuration de labwc commune à tous les comptes ----
 mkdir -p "$CONFIG/labwc"
 
@@ -92,6 +140,7 @@ XKB_DEFAULT_LAYOUT=fr
 WLR_NO_HARDWARE_CURSORS=1
 XCURSOR_THEME=Bibata-Modern-Classic
 XCURSOR_SIZE=24
+XDG_DATA_DIRS=/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
 EOF
 
 # Raccourcis : Super seule = Robbie, Super+A applis, Super+N notifications, Super+I réglages,
