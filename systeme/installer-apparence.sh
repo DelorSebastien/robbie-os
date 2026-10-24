@@ -105,9 +105,8 @@ popover.background, tooltip.background {
     background-color: #0f1a30;
 }
 
-/* Robbie OS : panneau de gauche de l'explorateur (Nemo) : lignes aérées, survol voilé,
-   sélection en bande cyan translucide. (Pas de coins arrondis ni de trait : GTK dessine le fond
-   colonne par colonne, et Nemo a plusieurs colonnes par ligne : chaque morceau serait arrondi) */
+/* Robbie OS : panneau de gauche de l'explorateur (Nemo), comme le menu des Réglages :
+   lignes aérées aux coins arrondis, survol voilé, sélection en pilule cyan avec un trait lumineux */
 .nemo-window .nemo-places-sidebar {
     background-color: rgba(5, 10, 22, 0.35);
     padding: 6px 4px;
@@ -115,6 +114,7 @@ popover.background, tooltip.background {
 
 .nemo-window treeview.places-treeview {
     padding: 4px 4px;
+    border-radius: 10px;
 }
 
 /* (seul le panneau porte le fond : les lignes au repos sont transparentes) */
@@ -128,7 +128,8 @@ popover.background, tooltip.background {
 
 .nemo-window treeview.places-treeview:selected,
 .nemo-window treeview.places-treeview:selected:focus {
-    background-color: rgba(94, 231, 255, 0.18);
+    background-color: rgba(94, 231, 255, 0.16);
+    box-shadow: inset 3px 0 0 #5ee7ff;
     color: #ffffff;
 }
 EOF
