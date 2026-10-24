@@ -21,7 +21,7 @@ apt-get install -y --no-install-recommends \
     `# Voix : Python` \
     python3 python3-venv python3-pip libportaudio2 \
     `# Bureau : fenêtres ouvertes, verrouillage, démarrage, notifications, réseau, luminosité` \
-    wlrctl gtklock swayidle plymouth plymouth-themes libnotify-bin network-manager brightnessctl xdg-user-dirs imagemagick \
+    wlrctl gtklock gtklock-userinfo-module gtklock-playerctl-module swayidle plymouth plymouth-themes libnotify-bin network-manager brightnessctl xdg-user-dirs imagemagick \
     `# Outils` \
     ca-certificates curl git dbus-user-session
 
