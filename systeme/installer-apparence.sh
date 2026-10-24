@@ -156,6 +156,8 @@ cat > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/thunar.xml <<'EOF'
   <property name="shortcuts-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
   <property name="tree-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
   <property name="misc-small-toolbar-icons" type="bool" value="true"/>
+  <!-- Titre de fenêtre : seulement le nom du dossier, sans « - Thunar » -->
+  <property name="misc-window-title-style" type="string" value="THUNAR_WINDOW_TITLE_STYLE_FOLDER_NAME_WITHOUT_THUNAR_SUFFIX"/>
 </channel>
 EOF
 
