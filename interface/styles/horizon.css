@@ -257,8 +257,8 @@ body:not(.leger):not(.demarrage) .tuile:not(:hover) { animation: gresille 5s inf
 .etiquette small { display: block; margin-top: 3px; font: 500 9.5px 'Inter', sans-serif; letter-spacing: 0.14em; color: rgba(var(--accent), 0.95); }
 .etiquette.visible { opacity: 1; }
 
-/* Robbie : sa propre capsule, détachée au-dessus de la barre latérale ; son visage animé
-   dans un écran sombre au liseré lumineux */
+/* Robbie : sa propre capsule, détachée au-dessus de la barre latérale, son visage animé dedans
+   (le verre et le liseré sont ceux de la barre, plus bas) */
 .robbie-tete {
     position: fixed;
     right: 10px;
@@ -268,12 +268,9 @@ body:not(.leger):not(.demarrage) .tuile:not(:hover) { animation: gresille 5s inf
     height: 54px;
     border-radius: 20px 20px 14px 14px;
     overflow: hidden;
-    background: #02060d;
-    border: 1px solid rgba(var(--accent), 0.45);
-    box-shadow: 0 0 22px rgba(var(--accent), 0.4), inset 0 0 14px rgba(var(--accent), 0.12);
     transition: box-shadow 0.25s, transform 0.25s var(--doux);
 }
-.robbie-tete:hover { transform: scale(1.05); box-shadow: 0 0 28px rgba(var(--accent), 0.65), inset 0 0 16px rgba(var(--accent), 0.2); }
+.robbie-tete:hover { transform: scale(1.05); }
 .robbie-tete .visage { position: absolute; inset: 0; }
 
 .robbie-tete #face {
@@ -308,18 +305,14 @@ body:not(.leger):not(.demarrage) .tuile:not(:hover) { animation: gresille 5s inf
     border-radius: var(--r-grand);
 }
 
-/* La barre et le coin de l'heure ont le même fond que la capsule de Robbie : écran sombre,
-   liseré et halo de la couleur d'accent (dans les deux thèmes, comme la capsule) */
-.laterale, .coin {
-    background: #02060d;
-    border: 1px solid rgba(var(--accent), 0.45);
-    box-shadow: 0 0 22px rgba(var(--accent), 0.4), inset 0 0 14px rgba(var(--accent), 0.12);
-    backdrop-filter: none;
-    color: #eef3fb;
+/* La capsule de Robbie, la barre et le coin de l'heure : le même verre, avec un liseré et un
+   léger halo de la couleur d'accent */
+.laterale, .coin, .robbie-tete {
+    background: var(--verre);
+    border: 1px solid rgba(var(--accent), 0.4);
+    backdrop-filter: blur(30px) saturate(140%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 0 18px rgba(var(--accent), 0.22), 0 18px 40px -18px rgba(0, 0, 0, 0.55);
 }
-.laterale .lat-bouton, .laterale .contact, .coin .icon { color: rgba(226, 234, 248, 0.8); }
-.laterale .lat-bouton:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
-.laterale .lat-sep { background: rgba(255, 255, 255, 0.12); }
 
 /* Bureaux virtuels : quatre mini-écrans de verre, les fenêtres en blocs aux couleurs des applis ;
    le bureau actif a un liseré cyan lumineux */
