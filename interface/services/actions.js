@@ -51,7 +51,7 @@ function userFolder(name) {
 // Appli la plus proche du nom demandé (« firefox », « le navigateur », « fichiers »…)
 const SYNONYMS = {
     navigateur: 'firefox', internet: 'firefox', web: 'firefox',
-    fichiers: 'nemo', explorateur: 'nemo', dossiers: 'nemo',
+    fichiers: 'thunar', explorateur: 'thunar', dossiers: 'thunar',
     terminal: 'foot', console: 'foot',
     editeur: 'mousepad', 'bloc-notes': 'mousepad', texte: 'mousepad',
     images: 'ristretto', photos: 'ristretto'

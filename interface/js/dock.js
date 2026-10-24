@@ -38,7 +38,7 @@
 
     // Apparence soignée pour les applis connues ; les autres prennent l'icône de leur thème
     const KNOWN = {
-        nemo: { icon: 'folder', glyph: 'folder', name: 'Fichiers', tint: '80, 170, 255' },
+        thunar: { icon: 'folder', glyph: 'folder', name: 'Fichiers', tint: '80, 170, 255' },
         'firefox-esr': { icon: 'firefox-esr', glyph: 'globe', name: 'Navigateur', tint: '255, 130, 60' },
         foot: { icon: 'utilities-terminal', glyph: 'terminal', name: 'Terminal', tint: '190, 205, 230' },
         'org.xfce.mousepad': { icon: 'accessories-text-editor', glyph: 'code', name: 'Éditeur de texte', tint: '60, 130, 255' },

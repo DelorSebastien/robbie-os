@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
     eyeColor: 'cyan',
     skin: 'none',
     doNotDisturb: false,
-    pinned: ['nemo', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'org.xfce.ristretto'],
+    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'org.xfce.ristretto'],
     // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
     wallpaper: null,
     voice: 'fr_FR-siwis-medium',
@@ -36,12 +36,6 @@ const DEFAULT_SETTINGS = {
     voiceThreshold: 150,
     lockMinutes: 0
 };
-
-// L'explorateur Thunar a été remplacé par Nemo : il garde sa place dans le dock
-function withNemo(settings) {
-    if (Array.isArray(settings.pinned)) settings.pinned = settings.pinned.map(id => (id === 'thunar' ? 'nemo' : id));
-    return settings;
-}
 
 module.exports = {
     getNotes: () => load('notes', []),
@@ -51,6 +45,6 @@ module.exports = {
     setAgenda: agenda => save('agenda', agenda && typeof agenda === 'object' ? agenda : {}),
     getContacts: () => load('contacts', []),
     setContacts: contacts => save('contacts', Array.isArray(contacts) ? contacts.slice(0, 30) : []),
-    getSettings: () => withNemo({ ...DEFAULT_SETTINGS, ...load('reglages', {}) }),
+    getSettings: () => ({ ...DEFAULT_SETTINGS, ...load('reglages', {}) }),
     setSettings: changes => save('reglages', { ...DEFAULT_SETTINGS, ...load('reglages', {}), ...changes })
 };

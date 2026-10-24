@@ -34,28 +34,8 @@ cursor-theme='$CURSOR'
 cursor-size=24
 color-scheme='prefer-dark'
 font-name='Inter 10'
-
-# Explorateur de fichiers (Nemo) épuré : sans barre de menus ni barre d'état (touche Alt pour
-# les menus), et tous les signets (Documents, Images…) dans leur propre section « Signets »
-[org/nemo/window-state]
-start-with-menu-bar=false
-start-with-status-bar=false
-sidebar-bookmark-breakpoint=0
-sidebar-width=240
-
-[org/nemo/desktop]
-show-desktop-icons=false
-
-[org/cinnamon/desktop/default-applications/terminal]
-exec='foot'
 EOF
 dconf update
-
-# Les dossiers s'ouvrent dans Nemo
-mkdir -p /etc/xdg
-printf '[Default Applications]
-inode/directory=nemo.desktop
-' > /etc/xdg/mimeapps.list
 
 for version in 3.0 4.0; do
     mkdir -p "/etc/gtk-$version"
@@ -105,29 +85,26 @@ popover.background, tooltip.background {
     background-color: #0f1a30;
 }
 
-/* Robbie OS : panneau de gauche de l'explorateur (Nemo), comme le menu des Réglages :
+/* Robbie OS : panneau de gauche de l'explorateur (Thunar), comme le menu des Réglages :
    lignes aérées aux coins arrondis, survol voilé, sélection en pilule cyan avec un trait lumineux */
-.nemo-window .nemo-places-sidebar {
+.thunar .shortcuts-pane {
     background-color: rgba(5, 10, 22, 0.35);
     padding: 6px 4px;
 }
 
-.nemo-window treeview.places-treeview {
+.thunar .shortcuts-pane treeview.view {
     padding: 4px 4px;
     border-radius: 10px;
+    /* (moins de retrait à gauche : les noms longs tiennent dans le panneau) */
+    -GtkTreeView-expander-size: 4;
 }
 
-/* (seul le panneau porte le fond : les lignes au repos sont transparentes) */
-.nemo-window treeview.places-treeview:not(:hover):not(:selected) {
-    background-color: transparent;
-}
-
-.nemo-window treeview.places-treeview:hover {
+.thunar .shortcuts-pane treeview.view:hover {
     background-color: rgba(255, 255, 255, 0.06);
 }
 
-.nemo-window treeview.places-treeview:selected,
-.nemo-window treeview.places-treeview:selected:focus {
+.thunar .shortcuts-pane treeview.view:selected,
+.thunar .shortcuts-pane treeview.view:selected:focus {
     background-color: rgba(94, 231, 255, 0.16);
     box-shadow: inset 3px 0 0 #5ee7ff;
     color: #ffffff;
@@ -161,5 +138,25 @@ EOF
 
 # Écran de verrouillage en français (gtklock n'a pas de traduction française : on fournit la nôtre)
 msgfmt -o /usr/share/locale/fr/LC_MESSAGES/gtklock.mo "$ROBBIE_DIR/systeme/traductions/gtklock-fr.po"
+
+# Thunar (fichiers) épuré par défaut : sans barre de menus (touche Alt pour l'afficher),
+# icônes moyennes, petites icônes dans la colonne et la barre d'outils, sans barre d'état
+mkdir -p /etc/xdg/xfce4/xfconf/xfce-perchannel-xml
+cat > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/thunar.xml <<'EOF'
+<?xml version="1.1" encoding="UTF-8"?>
+<channel name="thunar" version="1.0">
+  <property name="last-view" type="string" value="ThunarIconView"/>
+  <property name="last-icon-view-zoom-level" type="string" value="THUNAR_ZOOM_LEVEL_75_PERCENT"/>
+  <property name="last-menubar-visible" type="bool" value="false"/>
+  <property name="last-statusbar-visible" type="bool" value="false"/>
+  <property name="last-window-maximized" type="bool" value="false"/>
+  <property name="last-window-width" type="int" value="980"/>
+  <property name="last-window-height" type="int" value="560"/>
+  <property name="last-separator-position" type="int" value="200"/>
+  <property name="shortcuts-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
+  <property name="tree-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
+  <property name="misc-small-toolbar-icons" type="bool" value="true"/>
+</channel>
+EOF
 
 echo "Apparence de Robbie OS installée"
