@@ -241,7 +241,8 @@
         const state = stateOf(item);
         label.innerHTML = `[ ${escape(item.name)} ]${state ? `<small>${escape(state)}</small>` : ''}`;
         label.style.left = `${box.left + box.width / 2}px`;
-        label.style.top = `${box.top - 12}px`;
+        // (assez haut pour ne pas toucher l'hologramme, qui monte au survol)
+        label.style.top = `${box.top - 26}px`;
         label.classList.add('visible');
     }
 
