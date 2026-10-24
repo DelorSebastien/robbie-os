@@ -81,13 +81,18 @@ async function change(args, password, input = '') {
         // (sudo -k : on vérifie le mot de passe à chaque fois, sans se souvenir d'avant)
         const child = spawn('sudo', ['-k', '-S', '-p', '', TOOL, ...args.map(String)], { stdio: ['pipe', 'pipe', 'pipe'] });
         let errors = '';
+        let output = '';
+        child.stdout.on('data', data => {
+            output += data;
+        });
         child.stderr.on('data', data => {
             errors += data;
         });
         child.on('error', error => resolve({ ok: false, error: error.message }));
         child.on('close', code => {
             const message = errors.replace(/\[sudo\][^\n]*\n?/g, '').trim();
-            if (code === 0) return resolve({ ok: true });
+            // (« plus-tard » : un compte ouvert change d'identifiant au prochain démarrage)
+            if (code === 0) return resolve({ ok: true, later: output.includes('plus-tard') });
             if (/incorrect|Sorry, try again|essayez de nouveau|n'est pas dans le fichier sudoers|not in the sudoers/i.test(errors)) {
                 return resolve({ ok: false, error: 'Mot de passe administrateur incorrect' });
             }
@@ -95,6 +100,30 @@ async function change(args, password, input = '') {
         });
         child.stdin.write(`${password}\n${input}`);
         child.stdin.end();
+    });
+}
+
+// Modifier son propre compte, sans être administrateur : `current` = son mot de passe actuel,
+// vérifié par l'outil ; `input` = la suite de l'entrée (le nouveau mot de passe)
+const MINE = ['motdepasse', 'nom', 'identifiant'];
+function changeMine(args, current, input = '') {
+    if (!MINE.includes(args[0])) return Promise.resolve({ ok: false, error: 'Modification inconnue' });
+    return new Promise(resolve => {
+        const child = spawn('sudo', ['-n', TOOL, 'moi', ...args.map(String)], { stdio: ['pipe', 'pipe', 'pipe'] });
+        let output = '';
+        let errors = '';
+        child.stdout.on('data', data => {
+            output += data;
+        });
+        child.stderr.on('data', data => {
+            errors += data;
+        });
+        child.on('error', error => resolve({ ok: false, error: error.message }));
+        child.on('close', code => {
+            if (code === 0) return resolve({ ok: true, later: output.includes('plus-tard') });
+            resolve({ ok: false, error: errors.replace(/\[sudo\][^\n]*\n?/g, '').trim() || 'Modification impossible' });
+        });
+        child.stdin.end(`${current}\n${input}`);
     });
 }
 
@@ -111,4 +140,4 @@ function withinHours(rules, date = new Date()) {
     return start <= end ? minutes >= start && minutes < end : minutes >= start || minutes < end;
 }
 
-module.exports = { list, me, change, childRules, withinHours };
+module.exports = { list, me, change, changeMine, childRules, withinHours };
