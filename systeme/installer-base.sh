@@ -21,7 +21,7 @@ apt-get install -y --no-install-recommends \
     `# Voix : Python` \
     python3 python3-venv python3-pip libportaudio2 \
     `# Bureau : fenêtres ouvertes, verrouillage, démarrage, notifications, réseau, luminosité` \
-    wlrctl gtklock gtklock-userinfo-module gtklock-playerctl-module swayidle plymouth plymouth-themes libnotify-bin network-manager brightnessctl xdg-user-dirs imagemagick \
+    open-vm-tools wlrctl gtklock gtklock-userinfo-module gtklock-playerctl-module swayidle plymouth plymouth-themes libnotify-bin network-manager brightnessctl xdg-user-dirs imagemagick \
     `# Outils` \
     ca-certificates curl git dbus-user-session
 
@@ -31,3 +31,13 @@ usermod -aG video,audio,input,render "$USER_NAME"
 systemctl enable --now seatd
 
 echo "Base de Robbie OS installée"
+
+# Réseau : toutes les cartes sont gérées par NetworkManager, quel que soit leur nom (il change
+# entre un vrai PC, VirtualBox et VMware) ; seule la boucle locale reste dans interfaces
+cat > /etc/network/interfaces <<'NET'
+source /etc/network/interfaces.d/*
+
+# Boucle locale ; les cartes réseau sont gérées par NetworkManager (quel que soit leur nom)
+auto lo
+iface lo inet loopback
+NET
