@@ -497,13 +497,14 @@
                     await step(['nom', name]);
                     done.push('nom');
                 }
-                if (password) {
-                    await step(['motdepasse'], `${password}\n`);
-                    done.push('mot de passe');
-                }
                 if (login && login !== me.user) {
                     await step(['identifiant', login]);
                     done.push('identifiant');
+                }
+                // (le mot de passe en dernier : les étapes d'avant vérifient encore l'ancien)
+                if (password) {
+                    await step(['motdepasse'], `${password}\n`);
+                    done.push('mot de passe');
                 }
             } catch (error) {
                 toast(error.message, 'x');
