@@ -202,7 +202,11 @@ setup_labwc() {
     mkdir -p "$LABWC_DIR"
     cp /etc/robbie-os/labwc/* "$LABWC_DIR/"
     if grep -q '"barre": *"gauche"' "$HOME/.config/robbie-os/reglages.json" 2>/dev/null; then
-        sed -i 's|<margin top="10" bottom="120" left="10" right="78" />|<margin top="10" bottom="120" left="78" right="10" />|' "$LABWC_DIR/rc.xml"
+        sed -i 's|left="10" right="78"|left="78" right="10"|' "$LABWC_DIR/rc.xml"
+    fi
+    # (fenêtres agrandies en plein écran : pas de place réservée au dock)
+    if grep -q '"pleinEcran": *true' "$HOME/.config/robbie-os/reglages.json" 2>/dev/null; then
+        sed -i 's|bottom="120"|bottom="10"|' "$LABWC_DIR/rc.xml"
     fi
 }
 

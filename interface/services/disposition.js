@@ -1,24 +1,27 @@
-// Barre latérale à gauche ou à droite : labwc réserve sa place (les fenêtres agrandies ne passent
-// pas dessous) dans la copie de sa configuration propre à la personne (voir installer-session.sh)
+// Place réservée par labwc autour des fenêtres agrandies : la barre latérale (à gauche ou à droite)
+// et le dock (sauf si les fenêtres agrandies prennent tout l'écran), dans la copie de sa
+// configuration propre à la personne (voir installer-session.sh)
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { execFile } = require('node:child_process');
 
 const RC = path.join(os.homedir(), '.config', 'robbie-os', 'labwc', 'rc.xml');
-const MARGINS = {
-    droite: '<margin top="10" bottom="120" left="10" right="78" />',
-    gauche: '<margin top="10" bottom="120" left="78" right="10" />'
+const margins = (side, fullScreen) => {
+    const bottom = fullScreen ? 10 : 120;
+    return side === 'gauche'
+        ? `<margin top="10" bottom="${bottom}" left="78" right="10" />`
+        : `<margin top="10" bottom="${bottom}" left="10" right="78" />`;
 };
 
-function applySidebar(side) {
+function applyLayout(side, fullScreen) {
     let xml;
     try {
         xml = fs.readFileSync(RC, 'utf8');
     } catch {
         return;
     }
-    const updated = xml.replace(/<margin [^>]*\/>/, MARGINS[side] || MARGINS.droite);
+    const updated = xml.replace(/<margin [^>]*\/>/, margins(side, fullScreen));
     if (updated === xml) return;
     fs.writeFileSync(RC, updated);
     // labwc (celui de ce compte) relit sa configuration quand il reçoit SIGHUP ; mais il ne
@@ -41,4 +44,4 @@ function refreshOutputs() {
     });
 }
 
-module.exports = { applySidebar };
+module.exports = { applyLayout };

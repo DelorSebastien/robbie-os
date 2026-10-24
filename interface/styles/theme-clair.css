@@ -13,7 +13,7 @@
     --verre-force: 1.25;
     --creux-rgb: 10, 18, 36;
     --creux-force: 0.25;
-    --accent-texte: #0e8fb3;
+    --accent-texte: rgb(var(--accent-fonce));
 }
 
 /* Coin : ses icônes en bleu nuit, comme celles de la barre latérale */

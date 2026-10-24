@@ -23,7 +23,8 @@
     --verre-force: 1;
     --creux-rgb: 0, 0, 0;
     --creux-force: 1;
-    --accent-texte: rgb(94, 231, 255);
+    --accent-fonce: 52, 127, 140;
+    --accent-texte: rgb(var(--accent));
     /* Arrondis : trois tailles pour tout le système (panneaux et capsules, cartes et champs,
        boutons et lignes) ; les pastilles sont rondes */
     --r-grand: 20px;
@@ -94,6 +95,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     height: 190px;
     z-index: 5;
     pointer-events: none;
+    /* (taille du dock choisie dans les Réglages) */
+    transform: scale(var(--dock-echelle, 1));
+    transform-origin: 50% 100%;
+    transition: transform 0.3s var(--doux);
 }
 
 .dock-arc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }

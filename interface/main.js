@@ -189,7 +189,7 @@ ipcMain.on('deconnexion', () => {
 });
 ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
 ipcMain.on('theme', (_event, name) => !preview && theme.apply(String(name)));
-ipcMain.on('barre', (_event, side) => !preview && disposition.applySidebar(String(side)));
+ipcMain.on('disposition', (_event, side, fullScreen) => !preview && disposition.applyLayout(String(side), Boolean(fullScreen)));
 
 // Recherche globale : fichiers du dossier personnel
 ipcMain.handle('chercher-fichiers', (_event, query) => recherche.search(String(query)));

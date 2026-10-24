@@ -52,7 +52,7 @@ contextBridge.exposeInMainWorld('os', {
     reloadIdle: () => ipcRenderer.send('inactivite-recharger'),
     setPanelShown: open => ipcRenderer.send('panneau', open),
     setTheme: name => ipcRenderer.send('theme', name),
-    setSidebarSide: side => ipcRenderer.send('barre', side),
+    setLayout: (side, fullScreen) => ipcRenderer.send('disposition', side, fullScreen),
     goToDesktop: number => ipcRenderer.send('bureau', number),
     searchFiles: query => ipcRenderer.invoke('chercher-fichiers', query),
     openFile: file => ipcRenderer.invoke('ouvrir-fichier', file)

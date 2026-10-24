@@ -33,6 +33,8 @@ const DEFAULT_SETTINGS = {
     wallpaper: null,
     theme: 'sombre',
     barre: 'droite',
+    dockTaille: 'moyen',
+    pleinEcran: false,
     voice: 'fr_FR-siwis-medium',
     robotVoice: true,
     voiceThreshold: 150,

@@ -74,6 +74,12 @@
                     <span class="theme-apercu barre-apercu ${id}"><i></i></span>${label}
                 </button>`).join('')}
             </div>`)
+            + block('Dock', `
+            <div class="segments" role="group" aria-label="Taille du dock">${[['petit', 'Petit'], ['moyen', 'Moyen'], ['grand', 'Grand']].map(([id, label]) => `
+                <button class="${id === (settings.dockTaille || 'moyen') ? 'actif' : ''}" data-dock="${id}">${label}</button>`).join('')}
+            </div>
+            <label class="interrupteur"><input type="checkbox" data-plein-ecran ${settings.pleinEcran ? 'checked' : ''}>
+                <span>Les fenêtres agrandies prennent tout l'écran (elles passent devant le dock)</span></label>`)
             + block('Fond d\'écran', `
             <div class="fonds">
                 <button class="fond-choix jour${current === 'jour' ? ' actif' : ''}" data-fond="jour" title="Au fil du jour">
@@ -86,7 +92,7 @@
             ${current === 'jour' ? '<div class="reglage-ligne"><button class="bouton" data-defiler>Voir défiler la journée</button></div>' : ''}
             <p class="reglage-aide">« Au fil du jour » suit le soleil de ta ville (celle de la météo), de l'aurore à la nuit.
                 Ajoute tes images dans le dossier Images (ou Images › Fonds d'écran) pour les retrouver ici.</p>`)
-            + block('Couleur des yeux de Robbie', `
+            + block('Couleur d’accent', `
             <div class="pastilles">${Object.entries(EYE_COLORS).map(([key, rgb]) => `
                 <button class="pastille-couleur${key === settings.eyeColor ? ' actif' : ''}" data-couleur="${key}" style="--c: ${rgb}" aria-label="${EYE_NAMES[key]}" title="${EYE_NAMES[key]}"></button>`).join('')}
             </div>`)
@@ -103,9 +109,20 @@
 
         content.querySelectorAll('[data-barre]').forEach(button => button.addEventListener('click', async () => {
             await change({ barre: button.dataset.barre });
-            window.disposition.set(settings.barre);
+            window.disposition.set({ barre: settings.barre });
             renderAppearance().then(() => window.icons.fill(content));
         }));
+
+        content.querySelectorAll('[data-dock]').forEach(button => button.addEventListener('click', async () => {
+            await change({ dockTaille: button.dataset.dock });
+            window.disposition.set({ dockTaille: settings.dockTaille });
+            renderAppearance().then(() => window.icons.fill(content));
+        }));
+
+        content.querySelector('[data-plein-ecran]').addEventListener('change', async event => {
+            await change({ pleinEcran: event.target.checked });
+            window.disposition.set({ pleinEcran: settings.pleinEcran });
+        });
 
         content.querySelectorAll('[data-theme]').forEach(button => button.addEventListener('click', async () => {
             await change({ theme: button.dataset.theme });
@@ -122,6 +139,7 @@
         content.querySelectorAll('[data-couleur]').forEach(button => button.addEventListener('click', async () => {
             await change({ eyeColor: button.dataset.couleur });
             face.setEyeColor(button.dataset.couleur);
+            window.dock.setAccent(button.dataset.couleur);
             face.setExpression('happy', 1200);
             renderAppearance();
         }));
