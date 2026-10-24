@@ -17,7 +17,9 @@
 }
 
 /* Coin : ses icônes en bleu nuit, comme celles de la barre latérale */
-.clair .coin .icon { color: rgba(10, 18, 36, 0.78); }
+/* (le coin de l’heure garde son fond sombre, comme la capsule de Robbie : son texte reste clair) */
+.clair .coin .coin-horloge span { color: rgba(226, 234, 248, 0.66); }
+.clair .coin .coin-sep { background: rgba(255, 255, 255, 0.14); }
 
 /* Dock : les dégradés clairs (argent, cyan) deviennent plus soutenus sur le verre blanc */
 .clair #d-argent stop:first-child { stop-color: #6b7a96; }
@@ -35,7 +37,7 @@
 .clair .tuile .icon { color: #26324a; }
 
 /* Barre latérale : icônes bleu nuit */
-.clair .lat-bouton, .clair .contact { color: rgba(10, 18, 36, 0.78); }
+/* (la barre latérale garde son fond sombre, comme la capsule de Robbie : ses icônes restent claires) */
 
 /* Pastille « blanc » des yeux de Robbie : un liseré pour qu'elle ne disparaisse pas sur le blanc */
 .clair .pastille-couleur { outline: 1px solid rgba(10, 18, 36, 0.15); }
