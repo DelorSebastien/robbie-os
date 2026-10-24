@@ -1,8 +1,9 @@
-// Dock incurvé : les icônes suivent un arc lumineux, Robbie (son vrai visage animé) au centre,
-// et le dock grossit sous la souris comme sur macOS. Il montre les applis épinglées et les
-// applis ouvertes (un point dessous) ; un clic ramène leur fenêtre, même réduite.
+// Dock hologramme : un fil de lumière posé sur le lac projette les applis en hologrammes,
+// à intervalles réguliers, Robbie (son vrai visage animé) à la place du milieu. Il montre les
+// applis épinglées et les applis ouvertes (nœud et cône plus vifs) ; un clic ramène leur
+// fenêtre, même réduite. Au survol, un affichage tête haute donne le nom et l'état.
 (() => {
-    const { toast } = window.ui;
+    const { toast, escape } = window.ui;
     const face = window.face;
 
     // Icônes du dock : le même trait que celles de la barre latérale et du coin, teinté d'un
@@ -43,13 +44,10 @@
     label.className = 'etiquette';
     document.body.append(label);
 
-    // Forme de l'arc : les icônes du bord sont plus hautes que celles du centre
-    const SPACING = 66;
-    const ROBBIE_GAP = 12;
-    const BASE = 106;
-    const CURVE = 0.00024;
-
-    const arcY = (x, cx) => BASE - CURVE * (x - cx) ** 2;
+    // Le fil émetteur (hauteur dans la zone du dock) et l'écart régulier entre les hologrammes
+    const SPACING = 92;
+    const LINE = 158;
+    const TILE_Y = LINE - 66;
 
     let apps = [];
     let pinned = [];
@@ -144,9 +142,15 @@
             el.addEventListener('animationend', event => {
                 if (event.animationName === 'rebond') el.classList.remove('rebond');
             });
-            el.addEventListener('mouseenter', () => showLabel(el, item.name));
-            el.addEventListener('mouseleave', () => label.classList.remove('visible'));
-            return { el, item, x: 0, y: 0, size: item.kind === 'robbie' ? 68 : 54 };
+            el.addEventListener('mouseenter', () => {
+                showLabel(el, item);
+                tiles.find(tile => tile.el === el)?.cone?.classList.add('survol');
+            });
+            el.addEventListener('mouseleave', () => {
+                label.classList.remove('visible');
+                tiles.find(tile => tile.el === el)?.cone?.classList.remove('survol');
+            });
+            return { el, item, x: 0, y: 0 };
         }));
 
         tiles.forEach(tile => dock.append(tile.el));
@@ -155,9 +159,14 @@
         layout();
     }
 
-    // Point sous les applis qui ont une fenêtre ouverte
+    // Nœud et cône plus vifs sous les applis qui ont une fenêtre ouverte
     function markOpen() {
-        tiles.forEach(tile => tile.el.classList.toggle('ouverte', tile.item.kind === 'app' && isOpen(tile.item.app)));
+        tiles.forEach(tile => {
+            const open = tile.item.kind === 'app' && isOpen(tile.item.app);
+            tile.el.classList.toggle('ouverte', open);
+            tile.noeud?.classList.toggle('ouverte', open);
+            tile.cone?.classList.toggle('ouverte', open);
+        });
     }
 
     function layout() {
@@ -166,51 +175,59 @@
         const cx = width / 2;
         const middle = items.findIndex(item => item.kind === 'robbie');
 
-        // Position de chaque tuile le long de l'arc
+        // Un hologramme par place, toutes à la même distance ; Robbie au milieu
         tiles.forEach((tile, index) => {
-            const offset = index - middle;
-            const extra = Math.sign(offset) * ROBBIE_GAP;
-            tile.x = cx + offset * SPACING + extra;
-            tile.y = tile.item.kind === 'robbie' ? arcY(cx, cx) - 8 : arcY(tile.x, cx);
+            tile.x = cx + (index - middle) * SPACING;
+            tile.y = TILE_Y;
             tile.el.style.left = `${tile.x}px`;
             tile.el.style.top = `${tile.y}px`;
         });
 
-        // L'arc passe juste sous les icônes et se prolonge de chaque côté
+        // Le fil émetteur dépasse de chaque côté (un soupçon de courbe : sans hauteur, son
+        // dégradé ne s'afficherait pas)
         const outerTile = Math.max(...tiles.map(tile => Math.abs(tile.x - cx)));
-        const half = outerTile + 260;
-        const below = 34;
-        const y0 = arcY(cx - half, cx) + below;
-        const control = 2 * (arcY(cx, cx) + below) - y0;
-        const d = `M${cx - half} ${y0} Q${cx} ${control} ${cx + half} ${y0}`;
+        const half = outerTile + 150;
+        const d = `M${cx - half} ${LINE} Q${cx} ${LINE + 1} ${cx + half} ${LINE}`;
         document.querySelectorAll('#dock-arc path').forEach(path => path.setAttribute('d', d));
 
-        // Points qui prolongent l'arc, de plus en plus petits et pâles
-        const outer = outerTile + 52;
+        // Points qui prolongent le fil, de plus en plus petits et pâles
         const dots = [];
-        for (let i = 0; i < 7; i++) {
-            const dx = outer + i * 30;
-            const size = 4.4 - i * 0.4;
-            const opacity = 0.9 - i * 0.11;
+        for (let i = 0; i < 5; i++) {
+            const dx = half + 14 + i * 22;
+            const size = 3.6 - i * 0.5;
             for (const side of [-1, 1]) {
-                const x = cx + side * dx;
                 const delay = 1.6 + i * 0.12;
-                dots.push(`<span style="left:${x}px; top:${arcY(x, cx) + below - 10}px; width:${size}px; height:${size}px; opacity:${opacity}; animation-delay:${delay}s, ${delay}s"></span>`);
+                dots.push(`<span style="left:${cx + side * dx}px; top:${LINE}px; width:${size}px; height:${size}px; opacity:${0.8 - i * 0.14}; animation-delay:${delay}s, ${delay}s"></span>`);
             }
         }
         document.getElementById('dock-points').innerHTML = dots.join('');
 
-        // Sous chaque icône, un point de lumière sur l'arc : elles ont l'air posées dessus
-        zone.querySelectorAll('.appui').forEach(spot => spot.remove());
-        tiles.filter(tile => tile.item.kind !== 'robbie').forEach(tile => {
-            const spot = document.createElement('span');
-            spot.className = 'appui';
-            spot.style.left = `${tile.x}px`;
-            spot.style.top = `${arcY(tile.x, cx) + below}px`;
-            zone.append(spot);
-        });
+        // Lueur du fil dans le lac
+        let reflet = zone.querySelector('.fil-reflet');
+        if (!reflet) {
+            reflet = document.createElement('span');
+            reflet.className = 'fil-reflet';
+            zone.append(reflet);
+        }
+        Object.assign(reflet.style, { left: `${cx - half}px`, width: `${half * 2}px`, top: `${LINE + 1}px` });
 
-        // Lumière posée sur l'arc sous Robbie, et son faisceau dans l'eau
+        // Sous chaque appli : son nœud sur le fil et son cône de lumière (derrière l'hologramme)
+        zone.querySelectorAll('.noeud, .cone').forEach(el => el.remove());
+        tiles.filter(tile => tile.item.kind !== 'robbie').forEach(tile => {
+            tile.cone = document.createElement('span');
+            tile.cone.className = 'cone';
+            tile.cone.style.left = `${tile.x}px`;
+            tile.cone.style.top = `${LINE - 112}px`;
+            tile.noeud = document.createElement('span');
+            tile.noeud.className = 'noeud';
+            tile.noeud.style.left = `${tile.x}px`;
+            tile.noeud.style.top = `${LINE}px`;
+            dock.before(tile.cone);
+            zone.append(tile.noeud);
+        });
+        markOpen();
+
+        // Lumière du fil sous Robbie, et son faisceau dans l'eau
         const robbie = tiles[middle];
         let glow = zone.querySelector('.robbie-lueur');
         if (!glow) {
@@ -220,34 +237,25 @@
             beam.className = 'robbie-faisceau';
             zone.append(glow, beam);
         }
-        const glowY = arcY(cx, cx) + below;
         glow.style.left = `${robbie.x}px`;
-        glow.style.top = `${glowY}px`;
-        Object.assign(zone.querySelector('.robbie-faisceau').style, { left: `${robbie.x}px`, top: `${glowY}px` });
+        glow.style.top = `${LINE}px`;
+        Object.assign(zone.querySelector('.robbie-faisceau').style, { left: `${robbie.x}px`, top: `${LINE}px` });
     }
 
-    // Agrandissement sous la souris (comme le dock de macOS)
-    function magnify(mouseX) {
-        tiles.forEach(tile => {
-            const distance = mouseX == null ? Infinity : Math.abs(mouseX - tile.x);
-            const scale = 1 + 0.18 * Math.max(0, 1 - distance / 130);
-            tile.el.style.transform = scale === 1 ? '' : `translateY(${-(scale - 1) * tile.size * 0.45}px) scale(${scale})`;
-        });
+    // État affiché sous le nom : fenêtres ouvertes d'une appli, rôle des autres hologrammes
+    function stateOf(item) {
+        if (item.kind === 'app') {
+            const count = windows.filter(w => w.appId.toLowerCase() === item.app.windowId || w.appId.toLowerCase() === item.app.id.toLowerCase()).length;
+            return count ? `${count} fenêtre${count > 1 ? 's' : ''} ouverte${count > 1 ? 's' : ''}` : 'prête';
+        }
+        return { robbie: 'ton assistant', settings: 'système', trash: 'fichiers supprimés', launcher: 'toutes tes applis' }[item.kind] || '';
     }
 
-    document.addEventListener('mousemove', event => {
-        // (dock agrandi ou réduit dans les Réglages : la souris est ramenée à sa taille d'origine)
-        const scale = window.disposition?.scale() || 1;
-        const cx = window.innerWidth / 2;
-        const x = cx + (event.clientX - cx) / scale;
-        const span = tiles.length ? Math.max(...tiles.map(tile => Math.abs(tile.x - cx))) + 60 : 420;
-        const inDock = event.clientY > window.innerHeight - 190 * scale && Math.abs(x - cx) < span;
-        magnify(inDock ? x : null);
-    });
-
-    function showLabel(el, text) {
+    // Affichage tête haute : [ NOM ] et son état
+    function showLabel(el, item) {
         const box = el.getBoundingClientRect();
-        label.textContent = text;
+        const state = stateOf(item);
+        label.innerHTML = `[ ${escape(item.name)} ]${state ? `<small>${escape(state)}</small>` : ''}`;
         label.style.left = `${box.left + box.width / 2}px`;
         label.style.top = `${box.top - 12}px`;
         label.classList.add('visible');
