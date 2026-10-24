@@ -109,7 +109,24 @@ stop_leftovers() {
     done
 }
 
+# Dossiers personnels en français (Documents, Images, Vidéos, Musique, Téléchargements),
+# et en favoris dans l'explorateur de fichiers la première fois
+setup_folders() {
+    LANG=fr_FR.UTF-8 xdg-user-dirs-update
+    # (dossier anglais vide laissé par Firefox avant que Téléchargements existe)
+    [ "$(xdg-user-dir DOWNLOAD)" != "$HOME/Downloads" ] && rmdir "$HOME/Downloads" 2>/dev/null
+    bookmarks="$HOME/.config/gtk-3.0/bookmarks"
+    [ -s "$bookmarks" ] && return
+    mkdir -p "$(dirname "$bookmarks")"
+    for name in DOCUMENTS PICTURES VIDEOS MUSIC DOWNLOAD; do
+        folder="$(xdg-user-dir "$name")"
+        [ "$folder" != "$HOME" ] && [ -d "$folder" ] || continue
+        python3 -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).as_uri())' "$folder"
+    done > "$bookmarks"
+}
+
 clean_guest
+setup_folders
 labwc -C /etc/robbie-os/labwc > "$HOME/.cache/robbie-os-session.log" 2>&1 \
     || WLR_RENDERER=pixman labwc -C /etc/robbie-os/labwc >> "$HOME/.cache/robbie-os-session.log" 2>&1
 stop_leftovers
