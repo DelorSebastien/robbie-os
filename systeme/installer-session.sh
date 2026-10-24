@@ -168,9 +168,16 @@ setup_labwc() {
     fi
 }
 
+# Invite de commande de Robbie OS dans le terminal (comptes créés avant qu'elle existe)
+setup_shell() {
+    grep -q 'robbie-os/invite.sh' "$HOME/.bashrc" 2>/dev/null \
+        || printf '\n# Invite de commande de Robbie OS\n[ -f /etc/robbie-os/invite.sh ] && . /etc/robbie-os/invite.sh\n' >> "$HOME/.bashrc"
+}
+
 clean_guest
 setup_folders
 setup_labwc
+setup_shell
 labwc -C "$LABWC_DIR" > "$HOME/.cache/robbie-os-session.log" 2>&1 \
     || WLR_RENDERER=pixman labwc -C "$LABWC_DIR" >> "$HOME/.cache/robbie-os-session.log" 2>&1
 stop_leftovers

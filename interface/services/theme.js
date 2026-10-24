@@ -35,8 +35,30 @@ function apply(name) {
     } catch (error) {
         console.error('Thème de la barre de titre :', error.message);
     }
+    applyTerminal(theme);
     // labwc (celui de ce compte) relit sa configuration et son thème quand il reçoit SIGHUP
     execFile('pkill', ['-HUP', '-x', '-U', String(os.userInfo().uid), 'labwc'], () => {});
+}
+
+// Terminal (foot) : en clair, un petit réglage du compte reprend la version claire ; en sombre,
+// on l'enlève et foot prend la configuration du système. (Les terminaux déjà ouverts gardent
+// leurs couleurs ; un réglage foot écrit par la personne elle-même n'est jamais touché.)
+const FOOT = path.join(os.homedir(), '.config', 'foot', 'foot.ini');
+const FOOT_MARK = '# Réglage de Robbie OS (thème clair)';
+
+function applyTerminal(theme) {
+    try {
+        const ours = !fs.existsSync(FOOT) || fs.readFileSync(FOOT, 'utf8').startsWith(FOOT_MARK);
+        if (!ours) return;
+        if (theme === 'clair') {
+            fs.mkdirSync(path.dirname(FOOT), { recursive: true });
+            fs.writeFileSync(FOOT, `${FOOT_MARK}\ninclude=/etc/xdg/foot/robbie-clair.ini\n`);
+        } else {
+            fs.rmSync(FOOT, { force: true });
+        }
+    } catch (error) {
+        console.error('Thème du terminal :', error.message);
+    }
 }
 
 module.exports = { apply };

@@ -15,7 +15,17 @@ apt-get install -y --no-install-recommends orchis-gtk-theme bibata-cursor-theme 
 # Police de Robbie OS (Orbitron, licence OFL) pour tout le système
 mkdir -p /usr/share/fonts/truetype/robbie-os
 cp "$ROBBIE_DIR/assets/polices/Orbitron.ttf" "$ROBBIE_DIR/assets/polices/Orbitron-OFL.txt" /usr/share/fonts/truetype/robbie-os/
+# (symboles du terminal : bouts arrondis des pastilles, icônes ; licence MIT)
+cp "$ROBBIE_DIR/assets/polices/SymbolsNerdFont-Regular.ttf" "$ROBBIE_DIR/assets/polices/SymbolsNerdFont-LICENSE.txt" /usr/share/fonts/truetype/robbie-os/
 fc-cache -f /usr/share/fonts/truetype/robbie-os
+
+# Terminal (foot) : verre Robbie, JetBrains Mono, couleurs de Robbie OS (sombre ; le clair est
+# choisi par l'interface selon le thème) ; invite de commande en pastilles pour tous les comptes
+mkdir -p /etc/xdg/foot /etc/robbie-os
+install -m 644 "$ROBBIE_DIR/systeme/terminal/foot.ini" /etc/xdg/foot/foot.ini
+install -m 644 "$ROBBIE_DIR/systeme/terminal/foot-clair.ini" /etc/xdg/foot/robbie-clair.ini
+install -m 644 "$ROBBIE_DIR/systeme/terminal/invite.sh" /etc/robbie-os/invite.sh
+grep -q 'robbie-os/invite.sh' /etc/skel/.bashrc || printf '\n# Invite de commande de Robbie OS\n[ -f /etc/robbie-os/invite.sh ] && . /etc/robbie-os/invite.sh\n' >> /etc/skel/.bashrc
 
 # Thème d'icônes, extrait sous Linux pour garder ses liens (une icône sert sous plusieurs noms)
 rm -rf "/usr/share/icons/$ICONS"

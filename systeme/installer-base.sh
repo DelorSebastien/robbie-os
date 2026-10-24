@@ -11,7 +11,7 @@ apt-get update
 apt-get install -y --no-install-recommends \
     `# Affichage : labwc (compositeur Wayland) et de quoi l'aider` \
     labwc seatd xwayland foot swaybg wlr-randr wtype wl-clipboard grim \
-    mesa-utils libgl1-mesa-dri fonts-noto-core fonts-noto-color-emoji fonts-inter \
+    mesa-utils libgl1-mesa-dri fonts-noto-core fonts-noto-color-emoji fonts-inter fonts-jetbrains-mono \
     `# Premières applis : navigateur, fichiers, texte, images` \
     firefox-esr firefox-esr-l10n-fr thunar gvfs xdg-utils mousepad adwaita-icon-theme papirus-icon-theme \
     `# Son et micro` \
