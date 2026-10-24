@@ -84,6 +84,31 @@ menu, .menu, .context-menu, .background.popup > menu, .background.csd > menu, co
 popover.background, tooltip.background {
     background-color: #0f1a30;
 }
+
+/* Robbie OS : panneau de gauche de l'explorateur (Thunar), comme le menu des Réglages :
+   lignes aérées aux coins arrondis, survol voilé, sélection en pilule cyan avec un trait lumineux */
+.thunar .shortcuts-pane {
+    background-color: rgba(5, 10, 22, 0.35);
+    padding: 6px 4px;
+}
+
+.thunar .shortcuts-pane treeview.view {
+    padding: 4px 4px;
+    border-radius: 10px;
+    /* (moins de retrait à gauche : les noms longs tiennent dans le panneau) */
+    -GtkTreeView-expander-size: 4;
+}
+
+.thunar .shortcuts-pane treeview.view:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.thunar .shortcuts-pane treeview.view:selected,
+.thunar .shortcuts-pane treeview.view:selected:focus {
+    background-color: rgba(94, 231, 255, 0.16);
+    box-shadow: inset 3px 0 0 #5ee7ff;
+    color: #ffffff;
+}
 EOF
 
 cat > /tmp/robbie-menus-gtk4.css <<'EOF'
@@ -127,7 +152,7 @@ cat > /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/thunar.xml <<'EOF'
   <property name="last-window-maximized" type="bool" value="false"/>
   <property name="last-window-width" type="int" value="980"/>
   <property name="last-window-height" type="int" value="560"/>
-  <property name="last-separator-position" type="int" value="170"/>
+  <property name="last-separator-position" type="int" value="200"/>
   <property name="shortcuts-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
   <property name="tree-icon-size" type="string" value="THUNAR_ICON_SIZE_16"/>
   <property name="misc-small-toolbar-icons" type="bool" value="true"/>
