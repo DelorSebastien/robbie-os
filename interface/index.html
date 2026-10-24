@@ -35,6 +35,7 @@
         <button class="lat-bouton" data-panneau data-action="notes" data-icon="file" aria-label="Notes" title="Notes"></button>
         <button class="lat-bouton" data-panneau data-action="agenda" data-icon="calendar" aria-label="Agenda" title="Agenda"></button>
         <button class="lat-bouton" data-action="capture" data-icon="capture" aria-label="Capture d'écran" title="Capture d'écran"></button>
+        <button class="lat-bouton" data-panneau data-action="presse-papiers" data-icon="clipboard" aria-label="Presse-papiers" title="Presse-papiers (Super+V)"></button>
         <button class="lat-bouton" data-panneau data-action="reglages" data-icon="gear" aria-label="Réglages" title="Réglages (Super+I)"></button>
         <span class="lat-sep lat-bas"></span>
         <button class="lat-bouton" data-panneau data-action="lanceur" data-icon="plus" aria-label="Toutes les applis" title="Toutes les applis (Super+A)"></button>
@@ -69,6 +70,7 @@
             <span data-icon="wifi" id="coin-reseau"></span>
             <span data-icon="volume" id="coin-son"></span>
         </button>
+        <button class="coin-bouton coin-concentration" id="coin-concentration" data-panneau aria-label="Mode concentration" hidden><span data-icon="focus"></span><b id="coin-minuteur">25:00</b></button>
         <span class="coin-sep"></span>
         <button class="coin-bouton coin-horloge" id="coin-heure" data-panneau aria-label="Agenda"><time id="heure">--:--</time><span id="coin-date"></span></button>
     </div>
@@ -126,5 +128,7 @@
     <script src="./js/coin.js"></script>
     <script src="./js/robbie-panneau.js"></script>
     <script src="./js/recherche.js"></script>
+    <script src="./js/presse-papiers.js"></script>
+    <script src="./js/concentration.js"></script>
 </body>
 </html>

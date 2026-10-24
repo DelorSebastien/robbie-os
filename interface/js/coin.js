@@ -63,7 +63,13 @@
             <label class="interrupteur">
                 <input type="checkbox" data-dnd ${settings.doNotDisturb ? 'checked' : ''}>
                 <span>Ne pas déranger</span>
-            </label>`;
+            </label>
+            <div class="rapide-focus">
+                <span data-icon="focus"></span><span>Concentration</span>
+                <div class="segments">${window.concentration.active()
+                    ? '<button data-focus="stop" class="actif">Arrêter</button>'
+                    : '<button data-focus="25">25 min</button><button data-focus="50">50 min</button>'}</div>
+            </div>`;
         window.icons.fill(panel.body);
 
         const slider = panel.body.querySelector('[data-volume]');
@@ -89,8 +95,14 @@
         });
 
         panel.body.querySelector('[data-dnd]').addEventListener('change', event => {
-            window.os.setSettings({ doNotDisturb: event.target.checked });
+            window.notificationsCenter.setDoNotDisturb(event.target.checked);
         });
+
+        panel.body.querySelectorAll('[data-focus]').forEach(button => button.addEventListener('click', () => {
+            window.panneaux.close();
+            if (button.dataset.focus === 'stop') window.concentration.stop();
+            else window.concentration.start(Number(button.dataset.focus));
+        }));
 
         if (network.wifi) renderWifi(panel.body.querySelector('[data-wifi]'));
     }

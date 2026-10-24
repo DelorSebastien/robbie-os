@@ -451,3 +451,26 @@
 .recherche-texte { display: flex; flex-direction: column; min-width: 0; }
 .recherche-texte b { font-weight: 500; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .recherche-texte small { font-size: 11.5px; color: var(--texte-doux); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Choix en segments (taille du dock…) : la même pilule cyan que le reste */
+.segments { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(var(--voile), 0.06); border: 1px solid var(--bord); align-self: flex-start; }
+.segments button { padding: 6px 16px; border-radius: 999px; font: 500 13px 'Inter', sans-serif; color: var(--texte-doux); }
+.segments button:hover { color: var(--texte); }
+.segments button.actif { background: rgba(var(--accent), 0.18); box-shadow: inset 0 0 0 1px rgba(var(--accent), 0.55); color: var(--texte); }
+
+/* ---- Presse-papiers ---- */
+.presse-liste li { padding: 0; }
+.presse-ligne { width: 100%; display: flex; flex-direction: column; gap: 3px; padding: 9px 10px; border-radius: var(--r-petit); text-align: left; font: 13px/1.35 'Inter', 'Noto Sans', sans-serif; }
+.presse-ligne:hover { background: rgba(var(--accent), 0.12); }
+.presse-texte { white-space: pre-wrap; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.presse-ligne small { font-size: 11px; color: var(--texte-doux); }
+.presse-effacer { align-self: flex-start; margin-top: 4px; }
+
+/* ---- Mode concentration : minuteur dans le coin, réglage rapide ---- */
+.coin-concentration { gap: 6px; color: var(--accent-texte); }
+.coin-concentration b { font: 600 13px var(--police); letter-spacing: 0.06em; font-variant-numeric: tabular-nums; }
+.coin-concentration .icon { color: var(--accent-texte) !important; width: 17px; height: 17px; }
+.rapide-focus { display: flex; align-items: center; gap: 10px; font-size: 13.5px; padding: 2px; }
+.rapide-focus > span:nth-child(2) { flex: 1; }
+.rapide-focus .icon { width: 18px; height: 18px; color: var(--texte-doux); }
+.rapide-focus .segments button { padding: 5px 12px; font-size: 12px; }

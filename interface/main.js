@@ -22,6 +22,7 @@ const comptes = require('./services/comptes');
 const theme = require('./services/theme');
 const disposition = require('./services/disposition');
 const recherche = require('./services/recherche');
+const pressePapiers = require('./services/presse-papiers');
 const { spawn } = require('node:child_process');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
@@ -191,6 +192,14 @@ ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
 ipcMain.on('theme', (_event, name) => !preview && theme.apply(String(name)));
 ipcMain.on('disposition', (_event, side, fullScreen) => !preview && disposition.applyLayout(String(side), Boolean(fullScreen)));
 
+// Historique du presse-papiers (Super+V)
+ipcMain.handle('presse-papiers', () => pressePapiers.list());
+ipcMain.handle('presse-papiers-copier', (_event, text) => pressePapiers.copy(String(text)));
+ipcMain.handle('presse-papiers-effacer', () => pressePapiers.clear());
+
+// Mode concentration : Robbie se tait et n'écoute plus jusqu'à la fin de la séance
+ipcMain.on('concentration', (_event, on) => robbie?.setFocus(Boolean(on)));
+
 // Recherche globale : fichiers du dossier personnel
 ipcMain.handle('chercher-fichiers', (_event, query) => recherche.search(String(query)));
 ipcMain.handle('ouvrir-fichier', (_event, file) => recherche.open(String(file)));
@@ -220,6 +229,7 @@ app.whenReady().then(() => {
     if (!preview) {
         fenetres.watch(list => send('fenetres', list));
         verrouillage.watchIdle();
+        pressePapiers.watch(list => send('presse-papiers', list));
         notifications = createNotifications({
             onNotify: notification => send('notification', notification),
             onClose: id => send('notification-close', id)
@@ -228,6 +238,7 @@ app.whenReady().then(() => {
 });
 app.on('window-all-closed', () => app.quit());
 app.on('before-quit', () => {
+    pressePapiers.stop();
     robbie?.stop();
     verrouillage.stop();
 });
@@ -235,6 +246,7 @@ app.on('before-quit', () => {
 // Fin de session (déconnexion, extinction) : Robbie s'arrête proprement, avec son oreille et sa voix
 for (const signal of ['SIGTERM', 'SIGHUP', 'SIGINT']) {
     process.on(signal, () => {
+        pressePapiers.stop();
         robbie?.stop();
         verrouillage.stop();
         app.quit();

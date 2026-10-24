@@ -285,9 +285,3 @@
 
 .admin-demande p { margin: 0; font-size: 13px; }
 .admin-demande .petit-bouton { align-self: flex-start; }
-
-/* Choix en segments (taille du dock…) : la même pilule cyan que le reste */
-.segments { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(var(--voile), 0.06); border: 1px solid var(--bord); align-self: flex-start; }
-.segments button { padding: 6px 16px; border-radius: 999px; font: 500 13px 'Inter', sans-serif; color: var(--texte-doux); }
-.segments button:hover { color: var(--texte); }
-.segments button.actif { background: rgba(var(--accent), 0.18); box-shadow: inset 0 0 0 1px rgba(var(--accent), 0.55); color: var(--texte); }

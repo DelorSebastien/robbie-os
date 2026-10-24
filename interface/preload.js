@@ -55,7 +55,12 @@ contextBridge.exposeInMainWorld('os', {
     setLayout: (side, fullScreen) => ipcRenderer.send('disposition', side, fullScreen),
     goToDesktop: number => ipcRenderer.send('bureau', number),
     searchFiles: query => ipcRenderer.invoke('chercher-fichiers', query),
-    openFile: file => ipcRenderer.invoke('ouvrir-fichier', file)
+    openFile: file => ipcRenderer.invoke('ouvrir-fichier', file),
+    clipboardHistory: () => ipcRenderer.invoke('presse-papiers'),
+    clipboardCopy: text => ipcRenderer.invoke('presse-papiers-copier', text),
+    clipboardClear: () => ipcRenderer.invoke('presse-papiers-effacer'),
+    onClipboard: callback => ipcRenderer.on('presse-papiers', (_event, list) => callback(list)),
+    setFocusMode: on => ipcRenderer.send('concentration', on)
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état
