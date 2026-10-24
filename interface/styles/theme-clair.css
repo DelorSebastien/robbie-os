@@ -33,7 +33,6 @@
 
 /* Dock : pictos bleu nuit sur les tuiles de verre blanc ; Robbie garde son écran noir */
 .clair .tuile .icon { color: #26324a; }
-.clair .tuile.robbie { color: #eef3fb; }
 
 /* Barre latérale : icônes bleu nuit */
 .clair .lat-bouton, .clair .contact { color: rgba(10, 18, 36, 0.78); }

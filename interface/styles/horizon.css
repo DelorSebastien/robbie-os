@@ -229,13 +229,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .tuile .icon { position: relative; z-index: 1; width: 40%; height: 40%; color: rgb(var(--holo-trait, 200, 248, 255)); }
 
 /* Survol : l'hologramme se stabilise, monte et s'éclaire */
-.tuile:not(.robbie):hover { transform: translateY(-8px) scale(1.2); }
-.tuile:not(.robbie):hover::after { background: rgb(var(--accent)); }
-.tuile:not(.robbie):hover .picto { filter: drop-shadow(0 0 5px rgb(var(--accent))) drop-shadow(0 0 16px rgba(var(--accent), 0.9)) brightness(1.2); }
+.tuile:hover { transform: translateY(-8px) scale(1.2); }
+.tuile:hover::after { background: rgb(var(--accent)); }
+.tuile:hover .picto { filter: drop-shadow(0 0 5px rgb(var(--accent))) drop-shadow(0 0 16px rgba(var(--accent), 0.9)) brightness(1.2); }
 .tuile:active { filter: brightness(0.8); }
 
 /* Grésillement de temps en temps (sauf sans carte graphique, pour épargner le processeur) */
-body:not(.leger):not(.demarrage) .tuile:not(.robbie):not(:hover) { animation: gresille 5s infinite; animation-delay: calc(var(--i) * -0.7s); }
+body:not(.leger):not(.demarrage) .tuile:not(:hover) { animation: gresille 5s infinite; animation-delay: calc(var(--i) * -0.7s); }
 @keyframes gresille { 0%, 46%, 49%, 100% { opacity: 1; } 47.5% { opacity: 0.55; } }
 
 /* Affichage tête haute au survol : [ NOM ] et l'état de l'appli */
@@ -257,47 +257,28 @@ body:not(.leger):not(.demarrage) .tuile:not(.robbie):not(:hover) { animation: gr
 .etiquette small { display: block; margin-top: 3px; font: 500 9.5px 'Inter', sans-serif; letter-spacing: 0.14em; color: rgba(var(--accent), 0.95); }
 .etiquette.visible { opacity: 1; }
 
-/* Robbie : son visage dans un écran holographique arrondi */
-.tuile.robbie {
-    --l: calc(70px * var(--holo, 1));
-    --h: calc(62px * var(--holo, 1));
-    border-radius: calc(20px * var(--holo, 1));
-    border: 1px solid rgba(var(--accent), 0.5);
-    background: repeating-linear-gradient(0deg, rgba(var(--accent), 0.1) 0 1px, transparent 1px 4px), rgba(2, 6, 13, 0.55);
-    box-shadow: 0 0 30px rgba(var(--accent), 0.35), inset 0 0 26px rgba(var(--accent), 0.15);
+/* Robbie : la tête de la barre latérale, son visage animé dans un écran sombre au liseré lumineux */
+.robbie-tete {
+    position: relative;
+    flex: none;
+    width: 42px;
+    height: 36px;
+    margin-bottom: 4px;
+    border-radius: 13px;
+    overflow: hidden;
+    background: #02060d;
+    border: 1px solid rgba(var(--accent), 0.45);
+    box-shadow: 0 0 18px rgba(var(--accent), 0.35), inset 0 0 12px rgba(var(--accent), 0.12);
+    transition: box-shadow 0.25s, transform 0.25s var(--doux);
 }
-.tuile.robbie::before, .tuile.robbie::after { display: none; }
-.tuile.robbie:hover { box-shadow: 0 0 40px rgba(var(--accent), 0.55), inset 0 0 30px rgba(var(--accent), 0.25); }
+.robbie-tete:hover { transform: scale(1.06); box-shadow: 0 0 24px rgba(var(--accent), 0.6), inset 0 0 14px rgba(var(--accent), 0.2); }
+.robbie-tete .visage { position: absolute; inset: 0; }
 
-.tuile.robbie .visage { position: absolute; inset: 3px; border-radius: calc(17px * var(--holo, 1)); overflow: hidden; }
-
-.tuile.robbie #face {
+.robbie-tete #face {
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%) scale(calc(0.34 * var(--holo, 1)));
-}
-
-/* Lumière du fil sous Robbie, et son faisceau dans l'eau */
-.robbie-lueur {
-    position: absolute;
-    width: 9px;
-    height: 9px;
-    margin: -4.5px 0 0 -4.5px;
-    border-radius: 50%;
-    background: #fff;
-    box-shadow: 0 0 8px 3px rgba(var(--accent), 0.9), 0 0 24px 6px rgba(var(--accent), 0.45);
-    pointer-events: none;
-}
-
-.robbie-faisceau {
-    position: absolute;
-    width: 3px;
-    height: 50px;
-    margin-left: -1.5px;
-    background: linear-gradient(to bottom, rgba(var(--accent), 0.7), transparent);
-    filter: blur(1px);
-    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.24);
 }
 
 /* ---- Capsules de verre : barre latérale et coin, exactement le même verre ---- */
@@ -313,7 +294,8 @@ body:not(.leger):not(.demarrage) .tuile:not(.robbie):not(:hover) { animation: gr
     position: fixed;
     right: 10px;
     top: 10px;
-    bottom: 22vh;
+    /* (jusqu'au-dessus du coin de l'heure) */
+    bottom: 76px;
     width: 54px;
     z-index: 4;
     display: flex;
@@ -494,7 +476,6 @@ body:not(.leger):not(.demarrage) .tuile:not(.robbie):not(:hover) { animation: gr
 .demarrage .dock-arc { animation: arc-ouverture 1.4s var(--doux) 0.5s backwards; }
 .demarrage .dock-points span { animation: fondu-simple 0.6s ease-out backwards; }
 .demarrage .tuile { animation: apparition 0.7s var(--doux) backwards; animation-delay: calc(0.7s + var(--i) * 0.06s); }
-.demarrage .tuile.robbie { animation: apparition 0.8s var(--doux) 0.3s backwards; }
 .demarrage .laterale { animation: glisse 0.9s var(--doux) 1s backwards; }
 .demarrage .coin { animation: fondu-simple 0.8s ease-out 1.2s backwards; }
 
@@ -520,10 +501,11 @@ body:not(.leger):not(.demarrage) .tuile:not(.robbie):not(:hover) { animation: gr
 }
 
 /* ===================== Panneau de Robbie ===================== */
+/* Il s'ouvre à côté de la barre latérale, sous la tête de Robbie */
 .robbie-panneau {
     position: fixed;
-    left: 50%;
-    bottom: 150px;
+    right: 76px;
+    top: 10px;
     z-index: 15;
     width: min(560px, 70vw);
     max-height: min(460px, 56vh);
@@ -534,13 +516,13 @@ body:not(.leger):not(.demarrage) .tuile:not(.robbie):not(:hover) { animation: gr
     border: 1px solid var(--bord);
     backdrop-filter: blur(30px) saturate(140%);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 30px 60px -20px rgba(0, 0, 0, 0.7);
-    transform: translate(-50%, 16px) scale(0.97);
-    transform-origin: 50% 100%;
+    transform: translateX(14px) scale(0.97);
+    transform-origin: 100% 0;
     opacity: 0;
     transition: opacity 0.22s, transform 0.3s var(--doux);
 }
 
-.robbie-panneau.ouvert { opacity: 1; transform: translate(-50%, 0); }
+.robbie-panneau.ouvert { opacity: 1; transform: none; }
 
 .rp-tete {
     display: flex;

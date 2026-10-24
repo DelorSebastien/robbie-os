@@ -377,6 +377,8 @@
 /* ---- Barre latérale à gauche (Réglages › Apparence) : la barre et ses panneaux changent de côté ---- */
 .barre-gauche .laterale { right: auto; left: 10px; }
 .barre-gauche .panneau-cote, .barre-gauche .panneau-alim, .barre-gauche .notif-pile { right: auto; left: 76px; }
+.barre-gauche .robbie-panneau { right: auto; left: 76px; transform: translateX(-14px) scale(0.97); transform-origin: 0 0; }
+.barre-gauche .robbie-panneau.ouvert { transform: none; }
 .barre-gauche .panneau-cote, .barre-gauche .panneau-alim { transform: translateX(-14px); }
 .barre-gauche .panneau-cote.ouvert, .barre-gauche .panneau-alim.ouvert { transform: none; }
 .barre-gauche .notif-carte { transform: translateX(-24px); }
