@@ -162,6 +162,8 @@ ipcMain.handle('wifi-connecter', (_event, ssid, password) => reseau.connectWifi(
 ipcMain.handle('luminosite', () => luminosite.get());
 ipcMain.handle('set-luminosite', (_event, percent) => luminosite.set(percent));
 ipcMain.handle('capture', () => actions.execute({ type: 'screenshot' }));
+ipcMain.handle('telechargements-en-vrac', () => actions.looseDownloads());
+ipcMain.handle('ranger-telechargements', () => actions.execute({ type: 'organize_downloads' }));
 
 // Réglages : fonds d'écran, voix, écran, informations, ville de la météo
 ipcMain.handle('fonds', () => parametres.wallpapers());

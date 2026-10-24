@@ -17,6 +17,29 @@ function run(command, args) {
     child.unref();
 }
 
+// Commande pour l'interface (panneaux, minuteur, concentration) : le même fichier que les raccourcis
+function interfaceCommand(name) {
+    fs.writeFileSync(path.join(os.homedir(), '.cache', 'robbie-os.commande'), `${name}\n`);
+}
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+// Fenêtres côte à côte : les deux premières fenêtres ouvertes, l'une à gauche, l'autre à droite
+async function tileWindows() {
+    const windows = await require('./fenetres').list();
+    const apps = [...new Set(windows.map(w => w.appId))].slice(0, 2);
+    if (!apps.length) return false;
+    interfaceCommand('fermer-panneaux');
+    await wait(1500);
+    for (const [index, appId] of apps.entries()) {
+        await require('./fenetres').focus(appId);
+        await wait(250);
+        run('wtype', ['-M', 'logo', '-k', index === 0 ? 'Left' : 'Right', '-m', 'logo']);
+        await wait(250);
+    }
+    return apps.length;
+}
+
 // Dossiers personnels (noms français de Linux : Téléchargements, Documents…)
 const FOLDERS = {
     telechargements: 'DOWNLOAD',
@@ -219,6 +242,35 @@ async function execute(action, account = null) {
                 setTimeout(() => require('./verrouillage').lock(), 1500);
                 return { done: true };
 
+            case 'desktop': {
+                const number = Number(action.number);
+                if (!Number.isInteger(number) || number < 1 || number > 4) return { done: false };
+                setTimeout(() => run('wtype', ['-k', `XF86Launch${number}`]), 1200);
+                return { done: true };
+            }
+
+            case 'tile': {
+                const count = await tileWindows();
+                return count ? { done: true } : { done: false, say: 'Il n’y a aucune fenêtre ouverte à ranger.' };
+            }
+
+            case 'focus': {
+                const minutes = action.minutes === 'stop' ? 'stop' : Math.min(120, Math.max(5, Number(action.minutes) || 25));
+                // (après sa phrase : ensuite il n'écoute plus)
+                setTimeout(() => interfaceCommand(`concentration-${minutes}`), 2500);
+                return { done: true };
+            }
+
+            case 'timer': {
+                const minutes = Math.min(180, Math.max(1, Math.round(Number(action.minutes) || 5)));
+                interfaceCommand(`minuteur-${minutes}`);
+                return { done: true };
+            }
+
+            case 'clipboard':
+                interfaceCommand('presse-papiers');
+                return { done: true };
+
             case 'power':
                 // Jamais sans confirmation : c'est le panneau qui demandera
                 if (!['suspend', 'reboot', 'poweroff'].includes(action.command)) return { done: false };
@@ -239,4 +291,14 @@ function confirm(action) {
     return false;
 }
 
-module.exports = { execute, confirm };
+// Nombre de fichiers en vrac dans Téléchargements (pour que Robbie propose de ranger)
+function looseDownloads() {
+    try {
+        const folder = userFolder('téléchargements');
+        return fs.readdirSync(folder).filter(name => !name.startsWith('.') && fs.statSync(path.join(folder, name)).isFile()).length;
+    } catch {
+        return 0;
+    }
+}
+
+module.exports = { execute, confirm, looseDownloads };
