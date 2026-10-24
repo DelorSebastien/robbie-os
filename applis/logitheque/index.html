@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://dl.flathub.org https://appstream.debian.org; style-src 'self' 'unsafe-inline'">
+    <title>Logithèque</title>
+    <link rel="stylesheet" href="./logitheque.css">
+</head>
+<body>
+    <!-- Barre latérale : recherche, vitrine et catégories, puis ce qui est installé -->
+    <aside class="barre">
+        <h1 class="marque">LOGITHÈQUE</h1>
+        <label class="chercher" data-icon="search">
+            <input id="chercher" type="search" placeholder="Chercher une appli" autocomplete="off" spellcheck="false">
+        </label>
+        <nav class="vues" aria-label="Catégories">
+            <button data-vue="decouvrir" data-icon="sparkles">Découvrir</button>
+            <button data-vue="jeux" data-icon="game">Jeux</button>
+            <button data-vue="creer" data-icon="brush">Créer</button>
+            <button data-vue="travail" data-icon="briefcase">Travail</button>
+            <button data-vue="multimedia" data-icon="play">Musique et vidéo</button>
+            <button data-vue="internet" data-icon="globe">Internet</button>
+            <button data-vue="developpement" data-icon="code">Développement</button>
+            <button data-vue="education" data-icon="book">Éducation</button>
+            <button data-vue="outils" data-icon="sliders">Outils</button>
+        </nav>
+        <nav class="vues bas" aria-label="Sur cet ordinateur">
+            <button data-vue="installees" data-icon="grid">Installées</button>
+            <button data-vue="mises-a-jour" data-icon="refresh">Mises à jour <span class="compteur" id="compteur" hidden></span></button>
+        </nav>
+    </aside>
+
+    <!-- Contenu : la vue choisie -->
+    <main class="contenu" id="contenu"></main>
+
+    <!-- Fiche d'une appli : glisse par-dessus le contenu -->
+    <section class="fiche" id="fiche" hidden></section>
+
+    <!-- Capture en grand -->
+    <div class="capture-grande" id="capture-grande" hidden><img alt=""></div>
+
+    <div class="dialogue-fond" id="dialogue" hidden></div>
+    <div class="message" id="message" hidden></div>
+
+    <script src="../../interface/js/icones.js"></script>
+    <script src="../../interface/js/soleil.js"></script>
+    <script src="./logitheque.js"></script>
+    <script src="./mises-a-jour.js"></script>
+</body>
+</html>

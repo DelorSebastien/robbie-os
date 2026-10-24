@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=Logithèque
+GenericName=Boutique d'applis
+Comment=Trouver, installer et mettre à jour des applis
+Exec=/opt/robbie-os/node_modules/.bin/electron /opt/robbie-os/applis/logitheque
+Icon=/opt/robbie-os/applis/logitheque/logitheque.svg
+Terminal=false
+Categories=System;PackageManager;
+StartupWMClass=robbie-logitheque
+Keywords=applis;logiciels;installer;boutique;store;flathub;mises à jour;
+Actions=mises-a-jour;
+
+[Desktop Action mises-a-jour]
+Name=Mises à jour
+Exec=/opt/robbie-os/node_modules/.bin/electron /opt/robbie-os/applis/logitheque --mises-a-jour

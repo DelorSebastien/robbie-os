@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
     eyeColor: 'cyan',
     skin: 'none',
     doNotDisturb: false,
-    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'robbie-photos'],
+    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'robbie-photos', 'robbie-logitheque'],
     // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
     wallpaper: null,
     theme: 'sombre',
@@ -44,9 +44,15 @@ const DEFAULT_SETTINGS = {
     lockMinutes: 0
 };
 
-// La visionneuse Ristretto a été remplacée par l'appli Photos : elle garde sa place dans le dock
-function withPhotos(settings) {
+// La visionneuse Ristretto a été remplacée par l'appli Photos : elle garde sa place dans le dock.
+// La Logithèque arrive une fois dans le dock des comptes créés avant elle (on peut ensuite l'en retirer)
+function migrate(settings) {
     if (Array.isArray(settings.pinned)) settings.pinned = settings.pinned.map(id => (id === 'org.xfce.ristretto' ? 'robbie-photos' : id));
+    if (!settings.logithequeProposee) {
+        if (Array.isArray(settings.pinned) && !settings.pinned.includes('robbie-logitheque')) settings.pinned = [...settings.pinned, 'robbie-logitheque'];
+        settings.logithequeProposee = true;
+        save('reglages', settings);
+    }
     return settings;
 }
 
@@ -58,6 +64,6 @@ module.exports = {
     setAgenda: agenda => save('agenda', agenda && typeof agenda === 'object' ? agenda : {}),
     getContacts: () => load('contacts', []),
     setContacts: contacts => save('contacts', Array.isArray(contacts) ? contacts.slice(0, 30) : []),
-    getSettings: () => withPhotos({ ...DEFAULT_SETTINGS, ...load('reglages', {}) }),
+    getSettings: () => migrate({ ...DEFAULT_SETTINGS, ...load('reglages', {}) }),
     setSettings: changes => save('reglages', { ...DEFAULT_SETTINGS, ...load('reglages', {}), ...changes })
 };

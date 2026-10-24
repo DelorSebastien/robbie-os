@@ -1,0 +1,6 @@
+{
+  "name": "robbie-logitheque",
+  "description": "Logithèque de Robbie OS : applis de Flathub et de Debian, installées et mises à jour",
+  "private": true,
+  "main": "main.js"
+}

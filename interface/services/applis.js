@@ -8,6 +8,7 @@ const FOLDERS = [
     '/usr/share/applications',
     '/usr/local/share/applications',
     '/var/lib/flatpak/exports/share/applications',
+    path.join(os.homedir(), '.local', 'share', 'flatpak', 'exports', 'share', 'applications'),
     path.join(os.homedir(), '.local', 'share', 'applications')
 ];
 
@@ -20,6 +21,9 @@ const ICON_FOLDERS = [
     ...ICON_THEMES.flatMap(theme => ['64x64', '48x48', 'scalable', '128x128'].flatMap(size =>
         ['apps', 'places'].map(kind => `/usr/share/icons/${theme}/${size}/${kind}`))),
     ...ICON_SIZES.map(size => `/usr/share/icons/hicolor/${size}/apps`),
+    // (icônes des applis de Flathub, pour tous les comptes ou pour soi seul)
+    ...['/var/lib/flatpak', path.join(os.homedir(), '.local', 'share', 'flatpak')].flatMap(base =>
+        ['scalable', '128x128', '256x256', '64x64', '512x512'].map(size => `${base}/exports/share/icons/hicolor/${size}/apps`)),
     '/usr/share/pixmaps'
 ];
 
@@ -73,7 +77,8 @@ function iconData(name) {
         // (le pack d'icônes choisi dans les Réglages d'abord, puis ceux du système)
         file = (iconTheme && require('./packs').findIcon(iconTheme, name)) || null;
         for (const folder of file ? [] : ICON_FOLDERS) {
-            const found = ['.svg', '.png'].map(ext => path.join(folder, name + ext)).find(fs.existsSync);
+            // (certaines applis donnent le nom avec son extension : « jeu.png »)
+            const found = ['.svg', '.png'].map(ext => path.join(folder, name.replace(/[.](png|svg)$/, '') + ext)).find(fs.existsSync);
             if (found) {
                 file = found;
                 break;
@@ -98,8 +103,27 @@ const HIDDEN = new Set([
 ]);
 
 let cache = null;
+const watched = new Set();
+
+// Une appli installée ou désinstallée (Logithèque, apt…) : la liste est relue à la prochaine demande
+function refresh() {
+    cache = null;
+}
+
+// (un dossier qui n'existe pas encore, comme celui de Flathub avant sa première appli,
+// est surveillé dès qu'il apparaît, et la liste est alors relue)
+function watchFolders() {
+    for (const folder of FOLDERS.filter(folder => !watched.has(folder))) {
+        try {
+            fs.watch(folder, refresh);
+            watched.add(folder);
+            refresh();
+        } catch {}
+    }
+}
 
 function list() {
+    if (watched.size < FOLDERS.length) watchFolders();
     if (cache) return cache;
 
     const byId = new Map();
@@ -163,4 +187,4 @@ function openLocation(location) {
     return true;
 }
 
-module.exports = { list, launch, iconData, openLocation, setIconTheme };
+module.exports = { list, refresh, launch, iconData, openLocation, setIconTheme };
