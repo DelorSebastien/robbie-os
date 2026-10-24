@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Icône de Photos : un lac sous le soleil levant, sur une tuile de verre -->
+  <defs>
+    <linearGradient id="ciel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3f7fd8"/>
+      <stop offset="0.55" stop-color="#9db7e8"/>
+      <stop offset="1" stop-color="#f6b27a"/>
+    </linearGradient>
+    <linearGradient id="lac" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a5f9e"/>
+      <stop offset="1" stop-color="#14325c"/>
+    </linearGradient>
+    <radialGradient id="soleil" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff6d8"/>
+      <stop offset="0.45" stop-color="#ffd27a"/>
+      <stop offset="1" stop-color="#ffd27a" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="tuile"><rect x="8" y="8" width="112" height="112" rx="28"/></clipPath>
+  </defs>
+  <g clip-path="url(#tuile)">
+    <rect x="8" y="8" width="112" height="112" fill="url(#ciel)"/>
+    <circle cx="86" cy="58" r="26" fill="url(#soleil)"/>
+    <path d="M8 76 34 50l14 12 18-22 22 24 12-10 20 22v44H8z" fill="#22385e"/>
+    <path d="M52 46l14-6 6 10-8 4zM62 40l4 0" fill="#e8eef9" opacity="0.85"/>
+    <rect x="8" y="80" width="112" height="40" fill="url(#lac)"/>
+    <path d="M70 86h32M76 94h20M80 102h12" stroke="#ffd27a" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+  </g>
+  <rect x="8.5" y="8.5" width="111" height="111" rx="27.5" fill="none" stroke="#ffffff" stroke-opacity="0.35"/>
+</svg>

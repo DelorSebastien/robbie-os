@@ -1,0 +1,6 @@
+{
+  "name": "robbie-photos",
+  "description": "Photos de Robbie OS : photothèque, albums, visionneuse et retouches",
+  "private": true,
+  "main": "main.js"
+}

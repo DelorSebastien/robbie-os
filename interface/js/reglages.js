@@ -400,7 +400,7 @@
             if (ok) {
                 toast(`Compte de ${nameInput.value.trim()} créé`, 'check');
                 // Un enfant commence avec quelques applis autorisées, sans le terminal
-                if (role === 'enfant') await adminChange(['enfant', idInput.value], JSON.stringify({ apps: ['firefox-esr', 'org.xfce.ristretto'], debut: '08:00', fin: '20:00' }));
+                if (role === 'enfant') await adminChange(['enfant', idInput.value], JSON.stringify({ apps: ['firefox-esr', 'robbie-photos'], debut: '08:00', fin: '20:00' }));
                 show('comptes');
             }
         });
@@ -412,7 +412,7 @@
             row.querySelector('[data-rang]').addEventListener('change', async event => {
                 const ok = await adminChange(['rang', user, event.target.value]);
                 if (ok && event.target.value === 'enfant' && !account.rules) {
-                    await adminChange(['enfant', user], JSON.stringify({ apps: ['firefox-esr', 'org.xfce.ristretto'], debut: '08:00', fin: '20:00' }));
+                    await adminChange(['enfant', user], JSON.stringify({ apps: ['firefox-esr', 'robbie-photos'], debut: '08:00', fin: '20:00' }));
                 }
                 toast(ok ? `${account.name} : ${ROLES[event.target.value]}` : 'Rang inchangé', ok ? 'check' : 'x');
                 show('comptes');
