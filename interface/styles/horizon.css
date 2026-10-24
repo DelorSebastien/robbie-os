@@ -21,6 +21,7 @@
     --texte-fort: #ffffff;
     --verre-rgb: 10, 16, 32;
     --verre-force: 1;
+    --capsule: #0e1526;
     --creux-rgb: 0, 0, 0;
     --creux-force: 1;
     --accent-fonce: 52, 127, 140;
@@ -305,9 +306,9 @@ body:not(.leger):not(.demarrage) .tuile:not(:hover) { animation: gresille 5s inf
     border-radius: var(--r-grand);
 }
 
-/* La barre et le coin de l'heure : un verre plus couvrant, pour qu'ils aient le même fond
-   bleu nuit quel que soit le décor derrière (ciel clair ou montagnes sombres) */
-.laterale, .coin { background: rgba(var(--verre-rgb), calc(0.72 * var(--verre-force))); }
+/* La barre et le coin de l'heure : un fond opaque, le même bleu nuit pour les deux quel que soit
+   le décor derrière (ciel clair ou montagnes sombres) */
+.laterale, .coin { background: var(--capsule); backdrop-filter: none; }
 
 /* Robbie : un écran sombre au liseré lumineux */
 .robbie-tete {

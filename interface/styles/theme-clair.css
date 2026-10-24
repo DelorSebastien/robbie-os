@@ -11,6 +11,7 @@
     --texte-fort: #050a16;
     --verre-rgb: 255, 255, 255;
     --verre-force: 1.25;
+    --capsule: #eef2f8;
     --creux-rgb: 10, 18, 36;
     --creux-force: 0.25;
     --accent-texte: rgb(var(--accent-fonce));
