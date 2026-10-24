@@ -474,3 +474,23 @@
 .rapide-focus > span:nth-child(2) { flex: 1; }
 .rapide-focus .icon { width: 18px; height: 18px; color: var(--texte-doux); }
 .rapide-focus .segments button { padding: 5px 12px; font-size: 12px; }
+
+/* ---- Aujourd'hui : widgets (météo, à venir, musique, minuteur) ---- */
+.widget { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--r-moyen); background: rgba(var(--voile), 0.04); border: 1px solid var(--bord); }
+.widget h4 { margin: 0; font: 600 9.5px var(--police); letter-spacing: 0.16em; color: var(--texte-doux); }
+.widget-meteo { flex-direction: row; align-items: center; gap: 14px; }
+.widget-meteo-icone .icon { width: 40px; height: 40px; color: var(--accent-texte); stroke-width: 1.4; }
+.widget-meteo-texte { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.widget-meteo-texte b { font: 600 28px var(--police); line-height: 1; }
+.widget-meteo-texte span { font-size: 13px; }
+.widget-meteo-texte small, .widget-agenda small, .widget-musique small { font-size: 11.5px; color: var(--texte-doux); }
+.widget-agenda { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.widget-agenda li { display: flex; gap: 10px; }
+.widget-agenda .liste-texte { display: flex; flex-direction: column; }
+.widget-musique { display: flex; align-items: center; gap: 10px; }
+.widget-musique-texte { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 13px; }
+.widget-musique-texte b { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.widget-musique-boutons { display: flex; gap: 4px; }
+.widget-minuteur { display: flex; align-items: center; justify-content: space-between; }
+.widget-minuteur b { font: 600 26px var(--police); letter-spacing: 0.06em; color: var(--accent-texte); font-variant-numeric: tabular-nums; }
+.widget .segments button { padding: 5px 11px; font-size: 12px; white-space: nowrap; }
