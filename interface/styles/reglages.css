@@ -31,14 +31,15 @@
     align-items: center;
     gap: 10px;
     padding: 9px 12px;
-    border-radius: 10px;
+    border-radius: var(--r-petit);
     color: var(--texte-doux);
     font: 13.5px 'Inter', 'Noto Sans', sans-serif;
     text-align: left;
 }
 
 .reglages-menu button:hover { background: rgba(var(--voile), 0.06); color: var(--texte-fort); }
-.reglages-menu button.actif { background: rgba(var(--accent), 0.16); color: var(--texte-fort); }
+/* Section ouverte : pilule cyan avec un trait lumineux, comme dans l'explorateur et Photos */
+.reglages-menu button.actif { background: rgba(var(--accent), 0.16); box-shadow: inset 3px 0 0 rgb(var(--accent)); color: var(--texte-fort); }
 .reglages-menu .icon { width: 17px; height: 17px; }
 
 .reglages-contenu {
@@ -70,7 +71,7 @@
 .reglage select {
     min-width: 200px;
     padding: 8px 12px;
-    border-radius: 10px;
+    border-radius: var(--r-petit);
     background: rgba(var(--creux-rgb), calc(0.3 * var(--creux-force)));
     border: 1px solid var(--bord);
     color: var(--texte);
@@ -96,7 +97,7 @@
 
 .bouton {
     padding: 8px 14px;
-    border-radius: 10px;
+    border-radius: var(--r-petit);
     background: rgba(var(--voile), 0.08);
     border: 1px solid var(--bord);
     font: 500 13px 'Inter', sans-serif;
@@ -114,7 +115,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 10px 9px;
-    border-radius: 14px;
+    border-radius: var(--r-moyen);
     border: 2px solid transparent;
     background: rgba(var(--voile), 0.04);
     font: 13px 'Inter', sans-serif;
@@ -128,7 +129,7 @@
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
-    border-radius: 9px;
+    border-radius: var(--r-petit);
     overflow: hidden;
     background: linear-gradient(160deg, #2d6fb8, #f2a65e);
 }
@@ -159,7 +160,7 @@
 
 .fond-choix {
     aspect-ratio: 16 / 10;
-    border-radius: 12px;
+    border-radius: var(--r-petit);
     overflow: hidden;
     border: 2px solid transparent;
     background: rgba(var(--voile), 0.05);
@@ -215,7 +216,7 @@
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
-    border-radius: 12px;
+    border-radius: var(--r-petit);
     background: rgba(var(--voile), 0.04);
     flex-wrap: wrap;
 }
@@ -245,7 +246,7 @@
 
 .compte-nouveau input, .regles-enfant input[type='time'] {
     padding: 8px 12px;
-    border-radius: 10px;
+    border-radius: var(--r-petit);
     background: rgba(var(--creux-rgb), calc(0.3 * var(--creux-force)));
     border: 1px solid var(--bord);
     color: var(--texte);
@@ -263,7 +264,7 @@
     gap: 10px;
     margin-left: 40px;
     padding: 12px 14px;
-    border-radius: 12px;
+    border-radius: var(--r-petit);
     background: rgba(255, 200, 70, 0.05);
     border: 1px solid rgba(255, 200, 70, 0.2);
 }
@@ -277,7 +278,7 @@
     flex-direction: column;
     gap: 8px;
     padding: 14px;
-    border-radius: 14px;
+    border-radius: var(--r-moyen);
     background: rgba(var(--accent), 0.08);
     border: 1px solid rgba(var(--accent), 0.35);
 }

@@ -57,7 +57,7 @@ cat > "$CONFIG/labwc/rc.xml" <<'EOF'
 <labwc_config>
   <theme>
     <name>Robbie</name>
-    <cornerRadius>12</cornerRadius>
+    <cornerRadius>14</cornerRadius>
     <titlebar><layout>close,iconify,max:</layout></titlebar>
     <font place="ActiveWindow"><name>Orbitron</name><size>9</size><weight>Medium</weight></font>
     <font place="InactiveWindow"><name>Orbitron</name><size>9</size><weight>Medium</weight></font>

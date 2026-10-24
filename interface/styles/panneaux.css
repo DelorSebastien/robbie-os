@@ -36,7 +36,7 @@
     align-items: center;
     gap: 8px;
     padding: 12px 4px 10px;
-    border-radius: 14px;
+    border-radius: var(--r-moyen);
     font: 11.5px 'Inter', sans-serif;
     color: var(--texte-doux);
     transition: background 0.15s, color 0.15s;
@@ -81,7 +81,7 @@
 
 .petit-bouton {
     padding: 4px 10px;
-    border-radius: 8px;
+    border-radius: var(--r-petit);
     font: 600 10px var(--police);
     letter-spacing: 0.08em;
     color: var(--texte-doux);
@@ -96,7 +96,7 @@
     align-items: center;
     gap: 8px;
     padding: 5px 5px 5px 12px;
-    border-radius: 12px;
+    border-radius: var(--r-petit);
     background: rgba(var(--creux-rgb), calc(0.25 * var(--creux-force)));
     border: 1px solid var(--bord);
 }
@@ -121,7 +121,7 @@
     width: 30px;
     height: 30px;
     flex: none;
-    border-radius: 9px;
+    border-radius: var(--r-petit);
     display: grid;
     place-items: center;
     background: rgba(var(--accent), 0.85);
@@ -138,7 +138,7 @@
     align-items: center;
     gap: 10px;
     padding: 7px 6px;
-    border-radius: 10px;
+    border-radius: var(--r-petit);
 }
 
 .liste li:hover { background: rgba(var(--voile), 0.05); }
@@ -170,7 +170,7 @@
     flex: none;
     display: grid;
     place-items: center;
-    border-radius: 9px;
+    border-radius: var(--r-petit);
     background: rgba(var(--voile), 0.07);
     font: 600 12px var(--police);
 }
@@ -184,7 +184,7 @@
     width: 38px;
     height: 22px;
     flex: none;
-    border-radius: 11px;
+    border-radius: var(--r-petit);
     background: rgba(var(--voile), 0.15);
     position: relative;
     transition: background 0.2s;
@@ -226,7 +226,7 @@
     display: flex;
     gap: 12px;
     padding: 12px 12px 12px 14px;
-    border-radius: 16px;
+    border-radius: var(--r-moyen);
     background: rgba(var(--verre-rgb), calc(0.86 * var(--verre-force)));
     border: 1px solid var(--bord);
     backdrop-filter: blur(24px);
@@ -242,7 +242,7 @@
 .notif-carte.visible { opacity: 1; transform: none; }
 .notif-carte.urgente { border-color: rgba(255, 107, 107, 0.5); }
 
-.notif-icone { width: 34px; height: 34px; flex: none; border-radius: 10px; object-fit: contain; }
+.notif-icone { width: 34px; height: 34px; flex: none; border-radius: var(--r-petit); object-fit: contain; }
 .notif-icone.vide { background: rgba(var(--accent), 0.2); }
 .notif-texte { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .notif-texte b { font-weight: 600; }
@@ -250,18 +250,18 @@
 .notif-app { font: 500 9.5px var(--police); letter-spacing: 0.1em; text-transform: uppercase; color: rgba(var(--texte-rgb), 0.5); }
 
 .notif-boutons { display: flex; gap: 6px; margin-top: 6px; }
-.notif-boutons button { padding: 5px 10px; border-radius: 8px; background: rgba(var(--voile), 0.1); font-size: 12px; }
+.notif-boutons button { padding: 5px 10px; border-radius: var(--r-petit); background: rgba(var(--voile), 0.1); font-size: 12px; }
 .notif-boutons button:hover { background: rgba(var(--accent), 0.3); }
 
 .notif-fermer { align-self: flex-start; color: rgba(var(--texte-rgb), 0.5); }
 .notif-fermer .icon { width: 14px; height: 14px; }
 
-.notif-ligne { display: flex; gap: 12px; padding: 10px; border-radius: 12px; background: rgba(var(--voile), 0.04); }
+.notif-ligne { display: flex; gap: 12px; padding: 10px; border-radius: var(--r-petit); background: rgba(var(--voile), 0.04); }
 
 /* ---- Agenda ---- */
 .agenda-mois { display: flex; align-items: center; justify-content: space-between; }
 .agenda-mois b { font: 600 11px var(--police); letter-spacing: 0.12em; text-transform: uppercase; }
-.agenda-mois button { width: 30px; height: 30px; border-radius: 9px; font-size: 18px; color: var(--texte-doux); }
+.agenda-mois button { width: 30px; height: 30px; border-radius: var(--r-petit); font-size: 18px; color: var(--texte-doux); }
 .agenda-mois button:hover { background: rgba(var(--voile), 0.08); color: var(--texte-fort); }
 
 .agenda-grille { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; text-align: center; }
@@ -270,7 +270,7 @@
 .agenda-grille button {
     position: relative;
     aspect-ratio: 1;
-    border-radius: 9px;
+    border-radius: var(--r-petit);
     font-size: 12.5px;
     color: var(--texte-doux);
 }
@@ -302,7 +302,7 @@
     align-items: center;
     gap: 14px;
     padding: 5px 8px;
-    border-radius: 10px;
+    border-radius: var(--r-petit);
     transition: background 0.15s;
 }
 
@@ -317,7 +317,7 @@
     flex: none;
     display: grid;
     place-items: center;
-    border-radius: 11px;
+    border-radius: var(--r-petit);
     background: rgba(var(--voile), 0.07);
 }
 
@@ -345,7 +345,7 @@
     align-items: center;
     gap: 10px;
     padding: 10px 12px;
-    border-radius: 12px;
+    border-radius: var(--r-petit);
     background: rgba(var(--voile), 0.05);
 }
 
@@ -358,7 +358,7 @@
     align-items: center;
     gap: 10px;
     padding: 8px 10px;
-    border-radius: 10px;
+    border-radius: var(--r-petit);
     text-align: left;
 }
 
