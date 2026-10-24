@@ -1,12 +1,19 @@
-// Barre latérale à gauche ou à droite de l'écran (Réglages › Apparence) : la classe .barre-gauche
-// déplace la barre et ses panneaux (styles/panneaux.css), labwc réserve la place du bon côté
+// Disposition du bureau (Réglages › Apparence) : barre latérale à gauche ou à droite (la classe
+// .barre-gauche déplace la barre et ses panneaux), taille du dock, et place laissée au dock par
+// les fenêtres agrandies (labwc réserve la place, voir services/disposition.js)
 (() => {
-    function set(side) {
-        const left = side === 'gauche';
+    const SIZES = { petit: 0.85, moyen: 1, grand: 1.15 };
+    let state = { barre: 'droite', dockTaille: 'moyen', pleinEcran: false };
+
+    function set(changes = {}) {
+        state = { ...state, ...changes };
+        const left = state.barre === 'gauche';
         document.documentElement.classList.toggle('barre-gauche', left);
-        window.os.setSidebarSide(left ? 'gauche' : 'droite');
+        document.documentElement.style.setProperty('--dock-echelle', SIZES[state.dockTaille] || 1);
+        window.os.setLayout(left ? 'gauche' : 'droite', state.pleinEcran);
+        window.dispatchEvent(new Event('resize'));
     }
 
-    window.os.settings().then(settings => set(settings.barre));
-    window.disposition = { set };
+    window.os.settings().then(settings => set({ barre: settings.barre, dockTaille: settings.dockTaille, pleinEcran: settings.pleinEcran }));
+    window.disposition = { set, scale: () => SIZES[state.dockTaille] || 1 };
 })();

@@ -120,5 +120,11 @@
     });
 
     updateBadge();
-    window.notificationsCenter = { toggle: () => window.panneaux.toggle('notifications') };
+    // (Ne pas déranger changé ailleurs : réglages rapides, mode concentration)
+    const setDoNotDisturb = value => {
+        doNotDisturb = Boolean(value);
+        window.os.setSettings({ doNotDisturb });
+    };
+
+    window.notificationsCenter = { toggle: () => window.panneaux.toggle('notifications'), setDoNotDisturb };
 })();

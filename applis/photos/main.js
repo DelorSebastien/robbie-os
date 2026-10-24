@@ -85,8 +85,8 @@ ipcMain.handle('importer', async (_event, folders) => {
 const SETTINGS = path.join(os.homedir(), '.config', 'robbie-os', 'reglages.json');
 function readTheme() {
     try {
-        const { theme, place } = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
-        return { theme: theme || 'sombre', place };
+        const { theme, place, eyeColor } = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
+        return { theme: theme || 'sombre', place, accent: eyeColor };
     } catch {
         return { theme: 'sombre' };
     }

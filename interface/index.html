@@ -26,14 +26,17 @@
 
     <!-- Barre latérale : notifications, contacts, raccourcis -->
     <aside class="laterale" aria-label="Barre latérale">
-        <span class="laterale-trait"></span>
+        <!-- Bureaux virtuels : un point par bureau, l'actif est allumé (Super + 1…4) -->
+        <div class="bureaux" id="bureaux" role="group" aria-label="Bureaux virtuels"></div>
         <button class="lat-bouton" data-panneau data-action="notifications" data-icon="bell" aria-label="Notifications" title="Notifications (Super+N)"><span class="pastille" hidden></span></button>
         <button class="lat-bouton" data-panneau data-action="contacts" data-icon="users" aria-label="Contacts" title="Contacts"></button>
         <div class="contacts" id="contacts"></div>
         <span class="lat-sep"></span>
+        <button class="lat-bouton" data-panneau data-action="aujourdhui" data-icon="sun" aria-label="Aujourd'hui" title="Aujourd'hui : météo, rendez-vous, musique, minuteur"></button>
         <button class="lat-bouton" data-panneau data-action="notes" data-icon="file" aria-label="Notes" title="Notes"></button>
         <button class="lat-bouton" data-panneau data-action="agenda" data-icon="calendar" aria-label="Agenda" title="Agenda"></button>
         <button class="lat-bouton" data-action="capture" data-icon="capture" aria-label="Capture d'écran" title="Capture d'écran"></button>
+        <button class="lat-bouton" data-panneau data-action="presse-papiers" data-icon="clipboard" aria-label="Presse-papiers" title="Presse-papiers (Super+V)"></button>
         <button class="lat-bouton" data-panneau data-action="reglages" data-icon="gear" aria-label="Réglages" title="Réglages (Super+I)"></button>
         <span class="lat-sep lat-bas"></span>
         <button class="lat-bouton" data-panneau data-action="lanceur" data-icon="plus" aria-label="Toutes les applis" title="Toutes les applis (Super+A)"></button>
@@ -45,11 +48,11 @@
         <svg class="dock-arc" id="dock-arc" aria-hidden="true">
             <defs>
                 <linearGradient id="arc-degrade" x1="0" x2="1">
-                    <stop offset="0" stop-color="rgb(94, 231, 255)" stop-opacity="0"/>
-                    <stop offset="0.25" stop-color="rgb(94, 231, 255)" stop-opacity="0.55"/>
-                    <stop offset="0.5" stop-color="rgb(150, 240, 255)" stop-opacity="1"/>
-                    <stop offset="0.75" stop-color="rgb(94, 231, 255)" stop-opacity="0.55"/>
-                    <stop offset="1" stop-color="rgb(94, 231, 255)" stop-opacity="0"/>
+                    <stop offset="0" style="stop-color: rgb(var(--accent))" stop-opacity="0"/>
+                    <stop offset="0.25" style="stop-color: rgb(var(--accent))" stop-opacity="0.55"/>
+                    <stop offset="0.5" style="stop-color: rgb(var(--accent))" stop-opacity="1"/>
+                    <stop offset="0.75" style="stop-color: rgb(var(--accent))" stop-opacity="0.55"/>
+                    <stop offset="1" style="stop-color: rgb(var(--accent))" stop-opacity="0"/>
                 </linearGradient>
                 <filter id="arc-flou" x="-10%" y="-200%" width="120%" height="500%"><feGaussianBlur stdDeviation="5"/></filter>
             </defs>
@@ -68,6 +71,7 @@
             <span data-icon="wifi" id="coin-reseau"></span>
             <span data-icon="volume" id="coin-son"></span>
         </button>
+        <button class="coin-bouton coin-concentration" id="coin-concentration" data-panneau aria-label="Mode concentration" hidden><span data-icon="focus"></span><b id="coin-minuteur">25:00</b></button>
         <span class="coin-sep"></span>
         <button class="coin-bouton coin-horloge" id="coin-heure" data-panneau aria-label="Agenda"><time id="heure">--:--</time><span id="coin-date"></span></button>
     </div>
@@ -113,6 +117,7 @@
     <script src="./js/fond.js"></script>
     <script src="./js/theme.js"></script>
     <script src="./js/disposition.js"></script>
+    <script src="./js/bureaux.js"></script>
     <script src="./js/ambiance.js"></script>
     <script src="./js/compte.js"></script>
     <script src="./js/panneaux.js"></script>
@@ -123,5 +128,10 @@
     <script src="./js/reglages.js"></script>
     <script src="./js/coin.js"></script>
     <script src="./js/robbie-panneau.js"></script>
+    <script src="./js/recherche.js"></script>
+    <script src="./js/presse-papiers.js"></script>
+    <script src="./js/concentration.js"></script>
+    <script src="./js/aujourdhui.js"></script>
+    <script src="./js/suggestions.js"></script>
 </body>
 </html>

@@ -62,6 +62,7 @@ cat > "$CONFIG/labwc/rc.xml" <<'EOF'
     <font place="ActiveWindow"><name>Orbitron</name><size>9</size><weight>Medium</weight></font>
     <font place="InactiveWindow"><name>Orbitron</name><size>9</size><weight>Medium</weight></font>
     <font place="MenuItem"><name>Orbitron</name><size>9</size></font>
+    <font place="OnScreenDisplay"><name>Inter</name><size>11</size></font>
   </theme>
   <!-- Place réservée au dock (en bas) et à la barre latérale (à droite) -->
   <margin top="10" bottom="120" left="10" right="78" />
@@ -75,6 +76,27 @@ cat > "$CONFIG/labwc/rc.xml" <<'EOF'
     <keybind key="W-n"><action name="Execute" command="sh -c 'echo notifications > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="W-i"><action name="Execute" command="sh -c 'echo reglages > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="W-l"><action name="Execute" command="sh -c 'echo verrouiller > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-space"><action name="Execute" command="sh -c 'echo recherche > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-v"><action name="Execute" command="sh -c 'echo presse-papiers > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <!-- Fenêtres côte à côte : Super + flèches (et en glissant une fenêtre contre un bord) -->
+    <keybind key="W-Left"><action name="SnapToEdge" direction="left" /></keybind>
+    <keybind key="W-Right"><action name="SnapToEdge" direction="right" /></keybind>
+    <keybind key="W-Up"><action name="ToggleMaximize" /></keybind>
+    <keybind key="W-Down"><action name="Iconify" /></keybind>
+    <!-- Bureaux virtuels : Super + 1…4 pour y aller, Super + Maj + 1…4 pour y envoyer la fenêtre ;
+         l'interface est prévenue pour allumer le bon point (XF86Launch1…4 : ses clics à elle) -->
+    <keybind key="W-1"><action name="GoToDesktop" to="1" /><action name="Execute" command="sh -c 'echo bureau-1 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="XF86Launch1"><action name="GoToDesktop" to="1" /><action name="Execute" command="sh -c 'echo bureau-1 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-S-1"><action name="SendToDesktop" to="1" follow="yes" /><action name="Execute" command="sh -c 'echo bureau-1 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-2"><action name="GoToDesktop" to="2" /><action name="Execute" command="sh -c 'echo bureau-2 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="XF86Launch2"><action name="GoToDesktop" to="2" /><action name="Execute" command="sh -c 'echo bureau-2 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-S-2"><action name="SendToDesktop" to="2" follow="yes" /><action name="Execute" command="sh -c 'echo bureau-2 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-3"><action name="GoToDesktop" to="3" /><action name="Execute" command="sh -c 'echo bureau-3 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="XF86Launch3"><action name="GoToDesktop" to="3" /><action name="Execute" command="sh -c 'echo bureau-3 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-S-3"><action name="SendToDesktop" to="3" follow="yes" /><action name="Execute" command="sh -c 'echo bureau-3 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-4"><action name="GoToDesktop" to="4" /><action name="Execute" command="sh -c 'echo bureau-4 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="XF86Launch4"><action name="GoToDesktop" to="4" /><action name="Execute" command="sh -c 'echo bureau-4 > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <keybind key="W-S-4"><action name="SendToDesktop" to="4" follow="yes" /><action name="Execute" command="sh -c 'echo bureau-4 > $HOME/.cache/robbie-os.commande'" /></keybind>
     <!-- Touches invisibles envoyées par l'interface (wtype) : le bureau passe devant les fenêtres
          le temps qu'un de ses panneaux est ouvert, puis repasse dessous -->
     <keybind key="XF86Launch8">
@@ -93,8 +115,24 @@ cat > "$CONFIG/labwc/rc.xml" <<'EOF'
   <windowRules>
     <windowRule identifier="robbie-os" skipWindowSwitcher="yes">
       <action name="ToggleAlwaysOnBottom" />
+      <!-- (présente sur tous les bureaux virtuels) -->
+      <action name="ToggleOmnipresent" />
     </windowRule>
   </windowRules>
+  <desktops number="4"><popupTime>0</popupTime><prefix>Bureau</prefix></desktops>
+  <!-- Fenêtre glissée contre un bord : aperçu en verre de la place qu'elle va prendre -->
+  <snapping>
+    <range>12</range>
+    <overlay><enabled>yes</enabled><delay><inner>300</inner><outer>300</outer></delay></overlay>
+    <topMaximize>yes</topMaximize>
+  </snapping>
+  <!-- Alt+Tab : le nom de l'appli et le titre de la fenêtre -->
+  <windowSwitcher show="yes" preview="yes" outlines="yes">
+    <fields>
+      <field content="desktop_entry_name" width="30%" />
+      <field content="title" width="70%" />
+    </fields>
+  </windowSwitcher>
 </labwc_config>
 EOF
 
@@ -164,7 +202,14 @@ setup_labwc() {
     mkdir -p "$LABWC_DIR"
     cp /etc/robbie-os/labwc/* "$LABWC_DIR/"
     if grep -q '"barre": *"gauche"' "$HOME/.config/robbie-os/reglages.json" 2>/dev/null; then
-        sed -i 's|<margin top="10" bottom="120" left="10" right="78" />|<margin top="10" bottom="120" left="78" right="10" />|' "$LABWC_DIR/rc.xml"
+        sed -i 's|left="10" right="78"|left="78" right="10"|' "$LABWC_DIR/rc.xml"
+    fi
+    # (curseur choisi dans les Réglages : pour le pointeur du bureau aussi)
+    cursor=$(sed -n 's/.*"cursorTheme": *"\([A-Za-z0-9_.+-]*\)".*/\1/p' "$HOME/.config/robbie-os/reglages.json" 2>/dev/null)
+    [ -n "$cursor" ] && sed -i "s|^XCURSOR_THEME=.*|XCURSOR_THEME=$cursor|" "$LABWC_DIR/environment"
+    # (fenêtres agrandies en plein écran : pas de place réservée au dock)
+    if grep -q '"pleinEcran": *true' "$HOME/.config/robbie-os/reglages.json" 2>/dev/null; then
+        sed -i 's|bottom="120"|bottom="10"|' "$LABWC_DIR/rc.xml"
     fi
 }
 

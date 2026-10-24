@@ -486,6 +486,11 @@
             theme = minutes >= sunrise && minutes < sunset ? 'clair' : 'sombre';
         }
         document.documentElement.classList.toggle('clair', theme === 'clair');
+        // (la couleur d'accent choisie dans les Réglages de Robbie OS)
+        const ACCENTS = { cyan: [94, 231, 255], green: [94, 240, 168], pink: [255, 110, 200], gold: [255, 196, 80], purple: [185, 140, 255], white: [225, 240, 255] };
+        const rgb = ACCENTS[settings.accent] || ACCENTS.cyan;
+        document.documentElement.style.setProperty('--accent', rgb.join(', '));
+        document.documentElement.style.setProperty('--accent-texte', theme === 'clair' ? `rgb(${rgb.map(v => Math.round(v * 0.55)).join(', ')})` : `rgb(${rgb.join(', ')})`);
     }
     api.theme().then(applyTheme);
     api.onTheme(applyTheme);

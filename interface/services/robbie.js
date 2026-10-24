@@ -30,6 +30,8 @@ function createRobbie({ send }) {
     let speaking = false;
     let listeningUntil = 0;
     let panelOpen = false;
+    // Mode concentration : Robbie n'écoute plus le micro jusqu'à la fin de la séance
+    let focus = false;
 
     // Contexte du moment : date, heure, météo de la ville choisie
     async function context() {
@@ -123,7 +125,7 @@ function createRobbie({ send }) {
 
     function muteEars(muted) {
         clearTimeout(unmuteTimer);
-        if (muted) {
+        if (muted || focus) {
             microphone?.listen('aucun');
         } else {
             // (un court délai : l'écho de sa voix dans la pièce)
@@ -238,6 +240,10 @@ function createRobbie({ send }) {
                 send('robbie-etat', 'pret');
                 whenFree();
             }
+        },
+        setFocus(value) {
+            focus = Boolean(value);
+            muteEars(focus);
         },
         setPanelOpen(value) {
             panelOpen = Boolean(value);

@@ -75,6 +75,12 @@
 
     // Commande par nom (raccourcis clavier, Robbie) : ouvre ou ferme le panneau du même nom
     window.os.onShortcut(name => {
+        // (avant que Robbie range les fenêtres : son panneau et les autres se ferment)
+        if (name === 'fermer-panneaux') {
+            close();
+            window.robbiePanel?.close();
+            return;
+        }
         if (panels.has(name) && !['lanceur', 'notifications'].includes(name)) toggle(name);
     });
 

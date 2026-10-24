@@ -11,6 +11,8 @@
         reglages: () => window.reglages ? window.reglages.open() : toast('Les réglages arrivent bientôt', 'gear'),
         lanceur: () => window.launcher.toggle(),
         alimentation: () => window.panneaux.toggle('alimentation'),
+        aujourdhui: () => window.panneaux.toggle('aujourdhui'),
+        'presse-papiers': () => window.panneaux.toggle('presse-papiers'),
         capture: async () => {
             window.panneaux.close();
             const result = await window.os.screenshot();

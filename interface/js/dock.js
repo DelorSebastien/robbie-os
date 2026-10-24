@@ -234,9 +234,13 @@
     }
 
     document.addEventListener('mousemove', event => {
-        const span = tiles.length ? Math.max(...tiles.map(tile => Math.abs(tile.x - window.innerWidth / 2))) + 60 : 420;
-        const inDock = event.clientY > window.innerHeight - 190 && Math.abs(event.clientX - window.innerWidth / 2) < span;
-        magnify(inDock ? event.clientX : null);
+        // (dock agrandi ou réduit dans les Réglages : la souris est ramenée à sa taille d'origine)
+        const scale = window.disposition?.scale() || 1;
+        const cx = window.innerWidth / 2;
+        const x = cx + (event.clientX - cx) / scale;
+        const span = tiles.length ? Math.max(...tiles.map(tile => Math.abs(tile.x - cx))) + 60 : 420;
+        const inDock = event.clientY > window.innerHeight - 190 * scale && Math.abs(x - cx) < span;
+        magnify(inDock ? x : null);
     });
 
     function showLabel(el, text) {
@@ -322,14 +326,16 @@
         );
     });
 
-    // La couleur de son émotion devient la couleur d'accent de l'interface
-    let lastColor = '';
-    setInterval(() => {
-        const color = face.color().join(', ');
-        if (color === lastColor) return;
-        lastColor = color;
-        document.documentElement.style.setProperty('--accent', color);
-    }, 150);
+    // Couleur d'accent de l'interface : celle choisie dans les Réglages (les yeux de Robbie la
+    // prennent aussi, puis changent avec ses émotions sans faire clignoter l'interface) ;
+    // une version plus foncée sert au texte et aux traits sur le verre blanc du thème clair
+    const ACCENTS = { cyan: [94, 231, 255], green: [94, 240, 168], pink: [255, 110, 200], gold: [255, 196, 80], purple: [185, 140, 255], white: [225, 240, 255] };
+    function setAccent(key) {
+        const rgb = ACCENTS[key] || ACCENTS.cyan;
+        const dark = rgb.map(v => Math.round(v * 0.55));
+        document.documentElement.style.setProperty('--accent', rgb.join(', '));
+        document.documentElement.style.setProperty('--accent-fonce', dark.join(', '));
+    }
 
     // Sans carte graphique, chaque image coûte du processeur : visage à 30 images par seconde
     // (le son de la voix de Robbie ne saccade plus quand la machine est chargée)
@@ -341,6 +347,7 @@
         await window.compte.ready;
         const settings = await window.os.settings();
         face.setEyeColor(settings.eyeColor);
+        setAccent(settings.eyeColor);
         face.setSkin(settings.skin);
         pinned = settings.pinned || [];
         apps = await window.os.apps();
@@ -370,5 +377,5 @@
         return { name: known?.name || app.name, glyph: known ? GLYPHS[known.glyph] : null };
     };
 
-    window.dock = { pinned: () => pinned, setPinned, look };
+    window.dock = { pinned: () => pinned, setPinned, look, setAccent };
 })();

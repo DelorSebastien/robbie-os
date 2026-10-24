@@ -386,3 +386,145 @@
 @keyframes glisse-gauche {
     from { opacity: 0; transform: translateX(-30px); }
 }
+
+/* ---- Recherche globale (Super+Espace) : une barre au centre, les résultats dessous ---- */
+.panneau-recherche {
+    left: 50%;
+    top: 16vh;
+    width: min(640px, 86vw);
+    max-height: 64vh;
+    padding: 8px;
+    transform: translate(-50%, -10px) scale(0.98);
+}
+
+.panneau-recherche.ouvert { transform: translate(-50%, 0); }
+
+.recherche-champ {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    color: var(--texte-doux);
+}
+
+.recherche-champ .icon { width: 20px; height: 20px; }
+.recherche-champ input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--texte); font: 17px 'Inter', 'Noto Sans', sans-serif; }
+.recherche-champ input::placeholder { color: rgba(var(--texte-rgb), 0.45); }
+.recherche-champ kbd { font: 10px var(--police); letter-spacing: 0.08em; padding: 4px 8px; border-radius: var(--r-petit); background: rgba(var(--voile), 0.07); color: var(--texte-doux); }
+
+.recherche-resultats { overflow-y: auto; min-height: 0; }
+.avec-resultats .recherche-resultats { border-top: 1px solid var(--bord); margin-top: 4px; padding: 6px 0 2px; }
+
+.recherche-groupe { margin: 8px 12px 4px; font: 600 9.5px var(--police); letter-spacing: 0.16em; text-transform: uppercase; color: var(--texte-doux); }
+
+.recherche-ligne {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 12px;
+    border-radius: var(--r-petit);
+    text-align: left;
+    font-family: 'Inter', 'Noto Sans', sans-serif;
+}
+
+.recherche-ligne:hover { background: rgba(var(--voile), 0.06); }
+.recherche-ligne.choisie { background: rgba(var(--accent), 0.16); box-shadow: inset 3px 0 0 rgb(var(--accent)); }
+
+/* (la même pastille de verre que le dock, en petit) */
+.recherche-icone {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(var(--verre-rgb), calc(0.42 * var(--verre-force)));
+    border: 1px solid rgba(var(--voile), 0.14);
+    color: var(--texte);
+}
+
+.recherche-icone .icon { width: 16px; height: 16px; }
+.recherche-icone .picto { width: 52%; height: 52%; overflow: visible; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.recherche-icone img { width: 60%; height: 60%; object-fit: contain; }
+
+.recherche-texte { display: flex; flex-direction: column; min-width: 0; }
+.recherche-texte b { font-weight: 500; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recherche-texte small { font-size: 11.5px; color: var(--texte-doux); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Choix en segments (taille du dock…) : la même pilule cyan que le reste */
+.segments { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(var(--voile), 0.06); border: 1px solid var(--bord); align-self: flex-start; }
+.segments button { padding: 6px 16px; border-radius: 999px; font: 500 13px 'Inter', sans-serif; color: var(--texte-doux); }
+.segments button:hover { color: var(--texte); }
+.segments button.actif { background: rgba(var(--accent), 0.18); box-shadow: inset 0 0 0 1px rgba(var(--accent), 0.55); color: var(--texte); }
+
+/* ---- Presse-papiers ---- */
+.presse-liste li { padding: 0; }
+.presse-ligne { width: 100%; display: flex; flex-direction: column; gap: 3px; padding: 9px 10px; border-radius: var(--r-petit); text-align: left; font: 13px/1.35 'Inter', 'Noto Sans', sans-serif; }
+.presse-ligne:hover { background: rgba(var(--accent), 0.12); }
+.presse-texte { white-space: pre-wrap; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.presse-ligne small { font-size: 11px; color: var(--texte-doux); }
+.presse-effacer { align-self: flex-start; margin-top: 4px; }
+
+/* ---- Mode concentration : minuteur dans le coin, réglage rapide ---- */
+.coin-concentration { gap: 6px; color: var(--accent-texte); }
+.coin-concentration b { font: 600 13px var(--police); letter-spacing: 0.06em; font-variant-numeric: tabular-nums; }
+.coin-concentration .icon { color: var(--accent-texte) !important; width: 17px; height: 17px; }
+.rapide-focus { display: flex; align-items: center; gap: 10px; font-size: 13.5px; padding: 2px; }
+.rapide-focus > span:nth-child(2) { flex: 1; }
+.rapide-focus .icon { width: 18px; height: 18px; color: var(--texte-doux); }
+.rapide-focus .segments button { padding: 5px 12px; font-size: 12px; }
+
+/* ---- Aujourd'hui : widgets (météo, à venir, musique, minuteur) ---- */
+.widget { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: var(--r-moyen); background: rgba(var(--voile), 0.04); border: 1px solid var(--bord); }
+.widget h4 { margin: 0; font: 600 9.5px var(--police); letter-spacing: 0.16em; color: var(--texte-doux); }
+.widget-meteo { flex-direction: row; align-items: center; gap: 14px; }
+.widget-meteo-icone .icon { width: 40px; height: 40px; color: var(--accent-texte); stroke-width: 1.4; }
+.widget-meteo-texte { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.widget-meteo-texte b { font: 600 28px var(--police); line-height: 1; }
+.widget-meteo-texte span { font-size: 13px; }
+.widget-meteo-texte small, .widget-agenda small, .widget-musique small { font-size: 11.5px; color: var(--texte-doux); }
+.widget-agenda { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.widget-agenda li { display: flex; gap: 10px; }
+.widget-agenda .liste-texte { display: flex; flex-direction: column; }
+.widget-musique { display: flex; align-items: center; gap: 10px; }
+.widget-musique-texte { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 13px; }
+.widget-musique-texte b { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.widget-musique-boutons { display: flex; gap: 4px; }
+.widget-minuteur { display: flex; align-items: center; justify-content: space-between; }
+.widget-minuteur b { font: 600 26px var(--police); letter-spacing: 0.06em; color: var(--accent-texte); font-variant-numeric: tabular-nums; }
+.widget .segments button { padding: 5px 11px; font-size: 12px; white-space: nowrap; }
+
+/* ---- Suggestions de Robbie : une bulle de verre au-dessus du dock ---- */
+.suggestion {
+    position: fixed;
+    left: 50%;
+    bottom: 150px;
+    z-index: 18;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: min(620px, 90vw);
+    padding: 10px 10px 10px 12px;
+    border-radius: var(--r-grand);
+    background: rgba(var(--verre-rgb), calc(0.66 * var(--verre-force)));
+    border: 1px solid rgba(var(--accent), 0.35);
+    backdrop-filter: blur(30px) saturate(140%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 20px 40px -18px rgba(0, 0, 0, 0.7);
+    font: 13.5px 'Inter', 'Noto Sans', sans-serif;
+    opacity: 0;
+    transform: translate(-50%, 12px);
+    transition: opacity 0.25s, transform 0.3s var(--doux);
+}
+
+.suggestion.visible { opacity: 1; transform: translate(-50%, 0); }
+
+/* (le petit visage de Robbie : son écran noir et ses deux yeux) */
+.suggestion-robbie { width: 34px; height: 34px; flex: none; display: flex; align-items: center; justify-content: center; gap: 4px; border-radius: 50%; background: #02060d; border: 1px solid rgba(255, 255, 255, 0.14); }
+.suggestion-robbie i { width: 6px; height: 10px; border-radius: 3px; background: rgb(var(--accent)); box-shadow: 0 0 6px rgb(var(--accent)); }
+.suggestion-texte { flex: 1; min-width: 0; }
+.suggestion .bouton { padding: 6px 12px; white-space: nowrap; }
+.bouton.principal { background: rgba(var(--accent), 0.85); border-color: transparent; color: #04121c; }
+.suggestion-fermer { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: var(--texte-doux); }
+.suggestion-fermer:hover { background: rgba(var(--voile), 0.08); }
+.suggestion-fermer .icon { width: 15px; height: 15px; }

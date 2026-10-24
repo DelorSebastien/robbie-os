@@ -1,5 +1,5 @@
 // Robbie OS : l'interface, lancée en plein écran au démarrage de la machine
-const { app, BrowserWindow, ipcMain, protocol, net } = require('electron');
+const { app, BrowserWindow, ipcMain, protocol, net, dialog } = require('electron');
 const { pathToFileURL } = require('node:url');
 const path = require('node:path');
 const fs = require('node:fs');
@@ -21,6 +21,9 @@ const verrouillage = require('./services/verrouillage');
 const comptes = require('./services/comptes');
 const theme = require('./services/theme');
 const disposition = require('./services/disposition');
+const recherche = require('./services/recherche');
+const pressePapiers = require('./services/presse-papiers');
+const packs = require('./services/packs');
 const { spawn } = require('node:child_process');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
@@ -94,7 +97,7 @@ if (!preview) {
         fs.writeFileSync(COMMAND_FILE, '');
         // (le verrouillage se fait ici : il doit marcher même si la page ne répond plus)
         if (name === 'verrouiller') verrouillage.lock();
-        else if (/^[a-z-]+$/.test(name)) win?.webContents.send('shortcut', name);
+        else if (/^[a-z0-9-]+$/.test(name)) win?.webContents.send('shortcut', name);
     });
 }
 
@@ -160,6 +163,8 @@ ipcMain.handle('wifi-connecter', (_event, ssid, password) => reseau.connectWifi(
 ipcMain.handle('luminosite', () => luminosite.get());
 ipcMain.handle('set-luminosite', (_event, percent) => luminosite.set(percent));
 ipcMain.handle('capture', () => actions.execute({ type: 'screenshot' }));
+ipcMain.handle('telechargements-en-vrac', () => actions.looseDownloads());
+ipcMain.handle('ranger-telechargements', () => actions.execute({ type: 'organize_downloads' }));
 
 // Réglages : fonds d'écran, voix, écran, informations, ville de la météo
 ipcMain.handle('fonds', () => parametres.wallpapers());
@@ -187,8 +192,66 @@ ipcMain.on('deconnexion', () => {
     spawn('labwc', ['--exit'], { detached: true, stdio: 'ignore' }).unref();
 });
 ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
-ipcMain.on('theme', (_event, name) => !preview && theme.apply(String(name)));
-ipcMain.on('barre', (_event, side) => !preview && disposition.applySidebar(String(side)));
+// Thème clair ou sombre : fenêtres, barres de titre, terminal, et le pack d'icônes qui va avec
+let currentTheme = 'sombre';
+function applyIconPack() {
+    const settings = notes.getSettings();
+    const id = (currentTheme === 'clair' && settings.iconThemeClair) || settings.iconTheme;
+    if (!packs.exists(id)) return;
+    applis.setIconTheme(id);
+    if (!preview) packs.applyIcons(id);
+    win?.webContents.send('icones-changees');
+}
+ipcMain.on('theme', (_event, name) => {
+    currentTheme = String(name) === 'clair' ? 'clair' : 'sombre';
+    if (!preview) theme.apply(currentTheme);
+    applyIconPack();
+});
+
+// Packs d'icônes et de curseurs : liste, import d'une archive, choix
+ipcMain.handle('packs', () => ({ icons: packs.iconThemes(), cursors: packs.cursorThemes() }));
+ipcMain.handle('pack-importer', async () => {
+    const result = await dialog.showOpenDialog(win, {
+        title: 'Importer un pack d’icônes ou de curseurs',
+        buttonLabel: 'Importer',
+        defaultPath: path.join(os.homedir(), 'Téléchargements'),
+        properties: ['openFile'],
+        filters: [{ name: 'Archives', extensions: ['zip', 'gz', 'tgz', 'xz', 'bz2', 'tar'] }]
+    });
+    if (result.canceled || !result.filePaths.length) return null;
+    return packs.importArchive(result.filePaths[0]);
+});
+ipcMain.handle('pack-choisir', (_event, kind, id, variant) => {
+    if (kind === 'curseurs') {
+        if (!packs.applyCursor(String(id))) return false;
+        notes.setSettings({ cursorTheme: String(id) });
+        return true;
+    }
+    if (!packs.exists(String(id)) && !(variant === 'clair' && id === '')) return false;
+    notes.setSettings(variant === 'clair' ? { iconThemeClair: String(id) } : { iconTheme: String(id) });
+    applyIconPack();
+    return true;
+});
+ipcMain.on('disposition', (_event, side, fullScreen) => !preview && disposition.applyLayout(String(side), Boolean(fullScreen)));
+
+// Historique du presse-papiers (Super+V)
+ipcMain.handle('presse-papiers', () => pressePapiers.list());
+ipcMain.handle('presse-papiers-copier', (_event, text) => pressePapiers.copy(String(text)));
+ipcMain.handle('presse-papiers-effacer', () => pressePapiers.clear());
+
+// Mode concentration : Robbie se tait et n'écoute plus jusqu'à la fin de la séance
+ipcMain.on('concentration', (_event, on) => robbie?.setFocus(Boolean(on)));
+
+// Recherche globale : fichiers du dossier personnel
+ipcMain.handle('chercher-fichiers', (_event, query) => recherche.search(String(query)));
+ipcMain.handle('ouvrir-fichier', (_event, file) => recherche.open(String(file)));
+
+// Bureaux virtuels : labwc change de bureau sur ses touches réservées XF86Launch1…4 (voir rc.xml)
+ipcMain.on('bureau', (_event, number) => {
+    const n = Number(number);
+    if (preview || !Number.isInteger(n) || n < 1 || n > 4) return;
+    spawn('wtype', ['-k', `XF86Launch${n}`], { stdio: 'ignore' }).on('error', () => {});
+});
 
 // Notifications des applis
 let notifications = null;
@@ -208,6 +271,7 @@ app.whenReady().then(() => {
     if (!preview) {
         fenetres.watch(list => send('fenetres', list));
         verrouillage.watchIdle();
+        pressePapiers.watch(list => send('presse-papiers', list));
         notifications = createNotifications({
             onNotify: notification => send('notification', notification),
             onClose: id => send('notification-close', id)
@@ -216,6 +280,7 @@ app.whenReady().then(() => {
 });
 app.on('window-all-closed', () => app.quit());
 app.on('before-quit', () => {
+    pressePapiers.stop();
     robbie?.stop();
     verrouillage.stop();
 });
@@ -223,6 +288,7 @@ app.on('before-quit', () => {
 // Fin de session (déconnexion, extinction) : Robbie s'arrête proprement, avec son oreille et sa voix
 for (const signal of ['SIGTERM', 'SIGHUP', 'SIGINT']) {
     process.on(signal, () => {
+        pressePapiers.stop();
         robbie?.stop();
         verrouillage.stop();
         app.quit();

@@ -96,9 +96,22 @@ function network() {
     };
 }
 
+// Batterie (portables) : pourcentage et en charge ou non ; null sur un PC de bureau
+function battery() {
+    try {
+        const folder = fs.readdirSync('/sys/class/power_supply').find(name => name.startsWith('BAT'));
+        if (!folder) return null;
+        const read = file => fs.readFileSync(`/sys/class/power_supply/${folder}/${file}`, 'utf8').trim();
+        return { level: Number(read('capacity')), charging: read('status') !== 'Discharging' };
+    } catch {
+        return null;
+    }
+}
+
 function snapshot() {
     return {
         cpu: cpuPercent(),
+        battery: battery(),
         memory: memory(),
         disk: disk(),
         temperature: temperature(),

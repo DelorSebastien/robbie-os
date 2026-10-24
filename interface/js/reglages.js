@@ -54,7 +54,7 @@
     const wallpaperUrl = file => `fond://image?chemin=${encodeURIComponent(file)}`;
 
     async function renderAppearance() {
-        const wallpapers = await window.os.wallpapers();
+        const [wallpapers, packs] = await Promise.all([window.os.wallpapers(), window.os.packs()]);
         const current = settings.wallpaper || 'jour';
         // Vignette du fond au fil du jour : une tranche de chaque moment de la journée
         const slices = window.soleil.PHOTOS.map((name, i, all) =>
@@ -74,6 +74,12 @@
                     <span class="theme-apercu barre-apercu ${id}"><i></i></span>${label}
                 </button>`).join('')}
             </div>`)
+            + block('Dock', `
+            <div class="segments" role="group" aria-label="Taille du dock">${[['petit', 'Petit'], ['moyen', 'Moyen'], ['grand', 'Grand']].map(([id, label]) => `
+                <button class="${id === (settings.dockTaille || 'moyen') ? 'actif' : ''}" data-dock="${id}">${label}</button>`).join('')}
+            </div>
+            <label class="interrupteur"><input type="checkbox" data-plein-ecran ${settings.pleinEcran ? 'checked' : ''}>
+                <span>Les fenêtres agrandies prennent tout l'écran (elles passent devant le dock)</span></label>`)
             + block('Fond d\'écran', `
             <div class="fonds">
                 <button class="fond-choix jour${current === 'jour' ? ' actif' : ''}" data-fond="jour" title="Au fil du jour">
@@ -86,10 +92,33 @@
             ${current === 'jour' ? '<div class="reglage-ligne"><button class="bouton" data-defiler>Voir défiler la journée</button></div>' : ''}
             <p class="reglage-aide">« Au fil du jour » suit le soleil de ta ville (celle de la météo), de l'aurore à la nuit.
                 Ajoute tes images dans le dossier Images (ou Images › Fonds d'écran) pour les retrouver ici.</p>`)
-            + block('Couleur des yeux de Robbie', `
+            + block('Couleur d’accent', `
             <div class="pastilles">${Object.entries(EYE_COLORS).map(([key, rgb]) => `
                 <button class="pastille-couleur${key === settings.eyeColor ? ' actif' : ''}" data-couleur="${key}" style="--c: ${rgb}" aria-label="${EYE_NAMES[key]}" title="${EYE_NAMES[key]}"></button>`).join('')}
             </div>`)
+            + block('Icônes', `
+            <div class="packs">${packs.icons.map(pack => `
+                <button class="pack-choix${pack.id === settings.iconTheme ? ' actif' : ''}" data-icones="${escape(pack.id)}" title="${escape(pack.name)}">
+                    <span class="pack-apercu">${pack.preview.map(src => `<img src="${src}" alt="">`).join('')}</span>
+                    <span class="pack-nom">${escape(pack.name)}</span>
+                </button>`).join('')}
+            </div>
+            <div class="reglage-ligne">
+                <span>En thème clair</span>
+                <select data-icones-clair aria-label="Pack d’icônes en thème clair">
+                    <option value="">Le même pack</option>${packs.icons.map(pack => `
+                    <option value="${escape(pack.id)}" ${pack.id === settings.iconThemeClair ? 'selected' : ''}>${escape(pack.name)}</option>`).join('')}
+                </select>
+            </div>`)
+            + block('Curseur', `
+            <div class="reglage-ligne">
+                <select data-curseur aria-label="Curseur de la souris">${packs.cursors.map(pack => `
+                    <option value="${escape(pack.id)}" ${pack.id === settings.cursorTheme ? 'selected' : ''}>${escape(pack.name)}</option>`).join('')}
+                </select>
+            </div>
+            <p class="reglage-aide">Le pointeur du bureau change à la prochaine connexion, celui des applis tout de suite.</p>
+            <div class="reglage-ligne"><button class="bouton" data-importer-pack data-icon="download">Importer un pack d’icônes ou de curseurs…</button></div>
+            <p class="reglage-aide">Une archive téléchargée (.zip, .tar.gz, .tar.xz) : sur gnome-look.org par exemple.</p>`)
             + block('Costumes', `
             <label class="interrupteur"><input type="checkbox" data-costumes ${settings.skin === 'auto' ? 'checked' : ''}>
                 <span>Costumes selon les fêtes (citrouille à Halloween…)</span></label>`);
@@ -103,9 +132,20 @@
 
         content.querySelectorAll('[data-barre]').forEach(button => button.addEventListener('click', async () => {
             await change({ barre: button.dataset.barre });
-            window.disposition.set(settings.barre);
+            window.disposition.set({ barre: settings.barre });
             renderAppearance().then(() => window.icons.fill(content));
         }));
+
+        content.querySelectorAll('[data-dock]').forEach(button => button.addEventListener('click', async () => {
+            await change({ dockTaille: button.dataset.dock });
+            window.disposition.set({ dockTaille: settings.dockTaille });
+            renderAppearance().then(() => window.icons.fill(content));
+        }));
+
+        content.querySelector('[data-plein-ecran]').addEventListener('change', async event => {
+            await change({ pleinEcran: event.target.checked });
+            window.disposition.set({ pleinEcran: settings.pleinEcran });
+        });
 
         content.querySelectorAll('[data-theme]').forEach(button => button.addEventListener('click', async () => {
             await change({ theme: button.dataset.theme });
@@ -122,9 +162,30 @@
         content.querySelectorAll('[data-couleur]').forEach(button => button.addEventListener('click', async () => {
             await change({ eyeColor: button.dataset.couleur });
             face.setEyeColor(button.dataset.couleur);
+            window.dock.setAccent(button.dataset.couleur);
             face.setExpression('happy', 1200);
             renderAppearance();
         }));
+
+        content.querySelectorAll('[data-icones]').forEach(button => button.addEventListener('click', async () => {
+            await window.os.choosePack('icones', button.dataset.icones, 'sombre');
+            settings = await window.os.settings();
+            renderAppearance().then(() => window.icons.fill(content));
+        }));
+        content.querySelector('[data-icones-clair]').addEventListener('change', async event => {
+            await window.os.choosePack('icones', event.target.value, 'clair');
+            settings = await window.os.settings();
+        });
+        content.querySelector('[data-curseur]').addEventListener('change', async event => {
+            await window.os.choosePack('curseurs', event.target.value);
+            settings = await window.os.settings();
+        });
+        content.querySelector('[data-importer-pack]').addEventListener('click', async () => {
+            const result = await window.os.importPack();
+            if (!result) return;
+            window.ui.toast(result.installed.length ? `Pack importé : ${result.installed.join(', ')}` : result.error, result.installed.length ? 'check' : 'x');
+            renderAppearance().then(() => window.icons.fill(content));
+        });
 
         content.querySelector('[data-costumes]').addEventListener('change', async event => {
             const skin = event.target.checked ? 'auto' : 'none';

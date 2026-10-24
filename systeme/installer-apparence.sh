@@ -25,6 +25,11 @@ mkdir -p /etc/xdg/foot /etc/robbie-os
 install -m 644 "$ROBBIE_DIR/systeme/terminal/foot.ini" /etc/xdg/foot/foot.ini
 install -m 644 "$ROBBIE_DIR/systeme/terminal/foot-clair.ini" /etc/xdg/foot/robbie-clair.ini
 install -m 644 "$ROBBIE_DIR/systeme/terminal/invite.sh" /etc/robbie-os/invite.sh
+# Éditeur de texte (Mousepad) : jeu de couleurs Robbie, sombre et clair (choisi selon le thème)
+for version in gtksourceview-4 gtksourceview-3.0; do
+    mkdir -p "/usr/share/$version/styles"
+    install -m 644 "$ROBBIE_DIR/systeme/editeur/robbie.xml" "$ROBBIE_DIR/systeme/editeur/robbie-clair.xml" "/usr/share/$version/styles/"
+done
 grep -q 'robbie-os/invite.sh' /etc/skel/.bashrc || printf '\n# Invite de commande de Robbie OS\n[ -f /etc/robbie-os/invite.sh ] && . /etc/robbie-os/invite.sh\n' >> /etc/skel/.bashrc
 
 # Thème d'icônes, extrait sous Linux pour garder ses liens (une icône sert sous plusieurs noms)
@@ -37,6 +42,9 @@ gtk-update-icon-cache -f -q "/usr/share/icons/$ICONS" 2>/dev/null || true
 mkdir -p /etc/dconf/profile /etc/dconf/db/local.d
 printf 'user-db:user\nsystem-db:local\n' > /etc/dconf/profile/user
 cat > /etc/dconf/db/local.d/00-robbie-os <<EOF
+[org/xfce/mousepad/preferences/view]
+color-scheme='robbie'
+
 [org/gnome/desktop/interface]
 gtk-theme='$GTK_THEME'
 icon-theme='$ICONS'
@@ -107,6 +115,48 @@ popover.background, tooltip.background {
     background-color: $6;
     box-shadow: inset 3px 0 0 $7;
     color: $8;
+}
+
+/* Robbie OS : boîtes de dialogue (ouvrir, enregistrer…) comme le reste du système :
+   boutons de verre, le bouton principal à la couleur d'accent, le panneau de gauche
+   avec la même pilule que l'explorateur */
+filechooser placessidebar, filechooser .sidebar {
+    background-color: $4;
+}
+
+filechooser placessidebar row {
+    border-radius: 10px;
+    margin: 1px 6px;
+}
+
+filechooser placessidebar row:hover {
+    background-color: $5;
+}
+
+filechooser placessidebar row:selected {
+    background-color: $6;
+    box-shadow: inset 3px 0 0 $7;
+    color: $8;
+}
+
+dialog headerbar button, window.dialog headerbar button, filechooser ~ headerbar button,
+headerbar.titlebar button.text-button {
+    border-radius: 10px;
+    padding: 4px 14px;
+    background-image: none;
+    background-color: $5;
+    box-shadow: none;
+    color: inherit;
+}
+
+headerbar button.suggested-action, dialog button.suggested-action {
+    background-color: $7;
+    color: #04121c;
+}
+
+headerbar button.destructive-action, dialog button.destructive-action {
+    background-color: rgba(255, 107, 107, 0.85);
+    color: #ffffff;
 }
 EOF
     cat > /tmp/robbie-gtk4.css <<EOF

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Jeu de couleurs de Robbie OS pour l'éditeur de texte (Mousepad, GtkSourceView) -->
+<style-scheme id="robbie" name="Robbie (sombre)" version="1.0">
+  <author>Robbie OS</author>
+  <description>Les couleurs du terminal de Robbie OS</description>
+  <style name="text" foreground="#e6edf7" background="#0a1224"/>
+  <style name="cursor" foreground="#5ee7ff"/>
+  <style name="selection" background="#24507a"/>
+  <style name="current-line" background="#111c33"/>
+  <style name="line-numbers" foreground="#4a5670" background="#0a1224"/>
+  <style name="current-line-number" foreground="#5ee7ff" background="#111c33"/>
+  <style name="bracket-match" background="#24507a" bold="true"/>
+  <style name="search-match" background="#24507a"/>
+  <style name="right-margin" foreground="#4a5670" background="#111c33"/>
+  <style name="def:comment" foreground="#6f7f9e" italic="true"/>
+  <style name="def:string" foreground="#5ef0a8"/>
+  <style name="def:keyword" foreground="#b98cff" bold="true"/>
+  <style name="def:statement" foreground="#b98cff"/>
+  <style name="def:number" foreground="#ffd27a"/>
+  <style name="def:boolean" foreground="#ffd27a"/>
+  <style name="def:constant" foreground="#ffd27a"/>
+  <style name="def:type" foreground="#ff8ae6"/>
+  <style name="def:function" foreground="#5ee7ff"/>
+  <style name="def:identifier" foreground="#e6edf7"/>
+  <style name="def:preprocessor" foreground="#ff8ae6"/>
+  <style name="def:error" foreground="#ff6b8b" underline="error"/>
+  <style name="def:heading" foreground="#5ee7ff" bold="true"/>
+  <style name="def:link-text" foreground="#5ee7ff" underline="single"/>
+</style-scheme>

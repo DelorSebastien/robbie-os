@@ -52,7 +52,21 @@ contextBridge.exposeInMainWorld('os', {
     reloadIdle: () => ipcRenderer.send('inactivite-recharger'),
     setPanelShown: open => ipcRenderer.send('panneau', open),
     setTheme: name => ipcRenderer.send('theme', name),
-    setSidebarSide: side => ipcRenderer.send('barre', side)
+    setLayout: (side, fullScreen) => ipcRenderer.send('disposition', side, fullScreen),
+    goToDesktop: number => ipcRenderer.send('bureau', number),
+    searchFiles: query => ipcRenderer.invoke('chercher-fichiers', query),
+    openFile: file => ipcRenderer.invoke('ouvrir-fichier', file),
+    clipboardHistory: () => ipcRenderer.invoke('presse-papiers'),
+    clipboardCopy: text => ipcRenderer.invoke('presse-papiers-copier', text),
+    clipboardClear: () => ipcRenderer.invoke('presse-papiers-effacer'),
+    onClipboard: callback => ipcRenderer.on('presse-papiers', (_event, list) => callback(list)),
+    setFocusMode: on => ipcRenderer.send('concentration', on),
+    looseDownloads: () => ipcRenderer.invoke('telechargements-en-vrac'),
+    organizeDownloads: () => ipcRenderer.invoke('ranger-telechargements'),
+    packs: () => ipcRenderer.invoke('packs'),
+    importPack: () => ipcRenderer.invoke('pack-importer'),
+    choosePack: (kind, id, variant) => ipcRenderer.invoke('pack-choisir', kind, id, variant),
+    onIconsChanged: callback => ipcRenderer.on('icones-changees', () => callback())
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état
