@@ -25,6 +25,8 @@ function apply(name) {
     const { gtk, scheme } = THEMES[theme];
     execFile('gsettings', ['set', 'org.gnome.desktop.interface', 'gtk-theme', gtk], () => {});
     execFile('gsettings', ['set', 'org.gnome.desktop.interface', 'color-scheme', scheme], () => {});
+    // (éditeur de texte : son jeu de couleurs Robbie, clair ou sombre)
+    execFile('gsettings', ['set', 'org.xfce.mousepad.preferences.view', 'color-scheme', theme === 'clair' ? 'robbie-clair' : 'robbie'], () => {});
 
     try {
         fs.rmSync(USER_THEME, { force: true, recursive: false });
