@@ -153,6 +153,7 @@ ipcMain.on('panneau', (_event, open) => setForeground('panneau', open));
 // Fenêtres ouvertes : suivies pour le dock, et ramenées au premier plan sur demande
 ipcMain.handle('fenetres', () => fenetres.list());
 ipcMain.handle('fenetre-focus', (_event, appId) => fenetres.focus(String(appId)));
+ipcMain.handle('fenetre-active', () => fenetres.active());
 
 // Barre latérale et coin : agenda, contacts, réseau, luminosité, capture d'écran
 ipcMain.handle('agenda', () => notes.getAgenda());

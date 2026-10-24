@@ -41,4 +41,10 @@ function watch(onChange, interval = 1500) {
     return () => clearInterval(timer);
 }
 
-module.exports = { list, focus, watch };
+// L'appli de la fenêtre active (celle qui a le clavier)
+async function active() {
+    const output = await run(['toplevel', 'list', 'state:active']);
+    return output?.match(/^([^:]+):/)?.[1].trim() || null;
+}
+
+module.exports = { list, focus, watch, active };
