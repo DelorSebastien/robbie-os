@@ -45,9 +45,9 @@
     document.body.append(label);
 
     // Le fil émetteur (hauteur dans la zone du dock) et l'écart régulier entre les hologrammes
-    const SPACING = 92;
+    const SPACING = 72;
     const LINE = 158;
-    const TILE_Y = LINE - 66;
+    const TILE_Y = LINE - 52;
 
     let apps = [];
     let pinned = [];
@@ -217,7 +217,7 @@
             tile.cone = document.createElement('span');
             tile.cone.className = 'cone';
             tile.cone.style.left = `${tile.x}px`;
-            tile.cone.style.top = `${LINE - 112}px`;
+            tile.cone.style.top = `${LINE - 88}px`;
             tile.noeud = document.createElement('span');
             tile.noeud.className = 'noeud';
             tile.noeud.style.left = `${tile.x}px`;
