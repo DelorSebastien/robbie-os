@@ -375,7 +375,7 @@
 }
 
 /* ---- Barre latérale à gauche (Réglages › Apparence) : la barre et ses panneaux changent de côté ---- */
-.barre-gauche .laterale { right: auto; left: 10px; }
+.barre-gauche .laterale, .barre-gauche .robbie-tete { right: auto; left: 10px; }
 .barre-gauche .panneau-cote, .barre-gauche .panneau-alim, .barre-gauche .notif-pile { right: auto; left: 76px; }
 .barre-gauche .robbie-panneau { right: auto; left: 76px; transform: translateX(-14px) scale(0.97); transform-origin: 0 0; }
 .barre-gauche .robbie-panneau.ouvert { transform: none; }
@@ -383,7 +383,7 @@
 .barre-gauche .panneau-cote.ouvert, .barre-gauche .panneau-alim.ouvert { transform: none; }
 .barre-gauche .notif-carte { transform: translateX(-24px); }
 .barre-gauche .notif-carte.visible { transform: none; }
-.barre-gauche .demarrage .laterale { animation-name: glisse-gauche; }
+.barre-gauche .demarrage .laterale, .barre-gauche .demarrage .robbie-tete { animation-name: glisse-gauche; }
 
 @keyframes glisse-gauche {
     from { opacity: 0; transform: translateX(-30px); }
