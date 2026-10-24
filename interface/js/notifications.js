@@ -21,16 +21,25 @@
     }
 
     // ---- Carte qui apparaît ----
+    // Boutons d'une notification (sans l'action « default », qui est le clic sur la carte)
+    function buttonsHtml(notification) {
+        const buttons = notification.actions.filter(a => a.key !== 'default');
+        return buttons.length ? `<div class="notif-boutons">${buttons.map(a => `<button data-key="${escape(a.key)}">${escape(a.label)}</button>`).join('')}</div>` : '';
+    }
+
     function popup(notification) {
+        // (une notification remplacée prend la place de sa carte)
+        stack.querySelector(`[data-id="${notification.id}"]`)?.remove();
         const card = document.createElement('div');
         card.className = `notif-carte${notification.urgent ? ' urgente' : ''}`;
+        card.dataset.id = notification.id;
         card.innerHTML = `
             ${notification.icon ? `<img class="notif-icone" src="${notification.icon}" alt="">` : '<span class="notif-icone vide"></span>'}
             <div class="notif-texte">
                 <span class="notif-app">${escape(notification.app)} · ${time(notification.time)}</span>
                 <b>${escape(notification.summary)}</b>
                 ${notification.body ? `<span>${escape(notification.body)}</span>` : ''}
-                ${notification.actions.filter(a => a.key !== 'default').length ? `<div class="notif-boutons">${notification.actions.filter(a => a.key !== 'default').map(a => `<button data-key="${escape(a.key)}">${escape(a.label)}</button>`).join('')}</div>` : ''}
+                ${buttonsHtml(notification)}
             </div>
             <button class="notif-fermer" data-icon="x" aria-label="Fermer"></button>`;
         window.icons.fill(card);
@@ -54,8 +63,10 @@
 
         // Disparaît toute seule (sauf si urgente), plus tard si elle est longue
         if (!notification.urgent) {
-            const duration = notification.timeout > 0 ? notification.timeout : 5000 + notification.body.length * 40;
-            setTimeout(remove, Math.min(duration, 12000));
+            // (avec des boutons, elle reste le temps de choisir)
+            const choice = notification.actions.some(a => a.key !== 'default');
+            const duration = notification.timeout > 0 ? notification.timeout : choice ? 30000 : 5000 + notification.body.length * 40;
+            setTimeout(remove, Math.min(duration, choice ? 30000 : 12000));
         }
     }
 
@@ -81,14 +92,23 @@
                 <span>Ne pas déranger</span>
             </label>
             ${list.length ? list.map(n => `
-                <div class="notif-ligne">
+                <div class="notif-ligne" data-id="${n.id}">
                     ${n.icon ? `<img class="notif-icone" src="${n.icon}" alt="">` : '<span class="notif-icone vide"></span>'}
                     <div class="notif-texte">
                         <span class="notif-app">${escape(n.app)} · ${time(n.time)}</span>
                         <b>${escape(n.summary)}</b>
                         ${n.body ? `<span>${escape(n.body)}</span>` : ''}
+                        ${buttonsHtml(n)}
                     </div>
                 </div>`).join('') : '<p class="panneau-vide">Aucune notification</p>'}`;
+
+        // (les boutons restent utilisables depuis le centre : « Installer » des mises à jour…)
+        center.body.querySelectorAll('.notif-ligne [data-key]').forEach(button => button.addEventListener('click', () => {
+            const id = Number(button.closest('.notif-ligne').dataset.id);
+            window.os.notificationAction(id, button.dataset.key);
+            list = list.filter(n => n.id !== id);
+            render();
+        }));
 
         center.body.querySelector('[data-dnd]').addEventListener('change', async event => {
             doNotDisturb = event.target.checked;
@@ -108,6 +128,7 @@
 
     window.os.onNotificationClose(id => {
         list = list.filter(n => n.id !== id);
+        stack.querySelector(`[data-id="${id}"]`)?.remove();
         if (window.panneaux.current() === 'notifications') render();
     });
 

@@ -67,7 +67,9 @@ contextBridge.exposeInMainWorld('os', {
     packs: () => ipcRenderer.invoke('packs'),
     importPack: () => ipcRenderer.invoke('pack-importer'),
     choosePack: (kind, id, variant) => ipcRenderer.invoke('pack-choisir', kind, id, variant),
-    onIconsChanged: callback => ipcRenderer.on('icones-changees', () => callback())
+    onIconsChanged: callback => ipcRenderer.on('icones-changees', () => callback()),
+    updates: () => ipcRenderer.invoke('mises-a-jour'),
+    openUpdates: () => ipcRenderer.send('ouvrir-mises-a-jour')
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état
