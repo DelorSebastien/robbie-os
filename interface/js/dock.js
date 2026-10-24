@@ -65,7 +65,7 @@
     const appForWindow = w => apps.find(app => app.windowId === w.appId.toLowerCase() || app.id.toLowerCase() === w.appId.toLowerCase());
 
     // Liste du dock : épinglées, puis ouvertes non épinglées, puis réglages, corbeille, toutes les applis ;
-    // Robbie au milieu
+    // (Robbie n'y est plus : il est la tête de la barre latérale)
     function computeItems() {
         const appItem = (app, pinnedApp) => ({ kind: 'app', id: app.id, app, pinned: pinnedApp, ...(KNOWN[app.id] || { name: app.name, tint: '190, 205, 230' }) });
 
@@ -77,22 +77,12 @@
             if (app && !pinned.includes(app.id) && !extras.some(item => item.id === app.id)) extras.push(appItem(app, false));
         }
 
-        const others = [...pinnedItems, ...extras, ...SYSTEM_ITEMS];
-        const half = Math.floor(others.length / 2);
-        return [...others.slice(0, half), { kind: 'robbie', name: 'Robbie' }, ...others.slice(half)];
+        return [...pinnedItems, ...extras, ...SYSTEM_ITEMS];
     }
 
     const signature = list => list.map(item => item.id || item.kind).join('|');
 
     async function tileVisual(el, item) {
-        if (item.kind === 'robbie') {
-            const visage = document.createElement('span');
-            visage.className = 'visage';
-            visage.append(document.getElementById('face'));
-            el.append(visage);
-            return;
-        }
-
         // Applis connues et éléments du système : l'icône au trait ; les autres : leur icône
         // (dans la même pastille de verre)
         if (GLYPHS[item.glyph]) {
@@ -116,16 +106,12 @@
         if (signature(next) === signature(items) && tiles.length) return markOpen();
         items = next;
 
-        // Le visage de Robbie est gardé (son canvas est déplacé, pas recréé)
-        const faceCanvas = document.getElementById('face');
-        document.body.append(faceCanvas);
         dock.innerHTML = '';
-
-        const middle = items.findIndex(item => item.kind === 'robbie');
+        const middle = (items.length - 1) / 2;
 
         tiles = await Promise.all(items.map(async (item, index) => {
             const el = document.createElement('button');
-            el.className = `tuile${item.kind === 'robbie' ? ' robbie' : ''}`;
+            el.className = 'tuile';
             // Ordre d'apparition au démarrage : du centre vers les bords
             el.style.setProperty('--i', Math.abs(index - middle));
             el.setAttribute('aria-label', item.name);
@@ -135,7 +121,7 @@
             el.addEventListener('click', () => {
                 el.classList.remove('rebond');
                 void el.offsetWidth;
-                if (item.kind !== 'robbie') el.classList.add('rebond');
+                el.classList.add('rebond');
                 activate(item);
             });
             el.addEventListener('contextmenu', event => {
@@ -176,7 +162,7 @@
         if (!tiles.length) return;
         const width = window.innerWidth;
         const cx = width / 2;
-        const middle = items.findIndex(item => item.kind === 'robbie');
+        const middle = (tiles.length - 1) / 2;
 
         // Taille automatique : avec beaucoup d'applis, tous les hologrammes rétrécissent ensemble
         // (écarts compris) pour tenir sur la ligne, sans toucher au coin de l'heure ni aux bords
@@ -187,7 +173,7 @@
         zone.style.setProperty('--holo', fit);
         const spacing = SPACING * fit;
 
-        // Un hologramme par place, toutes à la même distance ; Robbie au milieu
+        // Un hologramme par place, toutes à la même distance, centrées
         tiles.forEach((tile, index) => {
             tile.x = cx + (index - middle) * spacing;
             tile.y = LINE - (LINE - TILE_Y) * fit;
@@ -225,7 +211,7 @@
 
         // Sous chaque appli : son nœud sur le fil et son cône de lumière (derrière l'hologramme)
         zone.querySelectorAll('.noeud, .cone').forEach(el => el.remove());
-        tiles.filter(tile => tile.item.kind !== 'robbie').forEach(tile => {
+        tiles.forEach(tile => {
             tile.cone = document.createElement('span');
             tile.cone.className = 'cone';
             tile.cone.style.left = `${tile.x}px`;
@@ -238,20 +224,6 @@
             zone.append(tile.noeud);
         });
         markOpen();
-
-        // Lumière du fil sous Robbie, et son faisceau dans l'eau
-        const robbie = tiles[middle];
-        let glow = zone.querySelector('.robbie-lueur');
-        if (!glow) {
-            glow = document.createElement('span');
-            glow.className = 'robbie-lueur';
-            const beam = document.createElement('span');
-            beam.className = 'robbie-faisceau';
-            zone.append(glow, beam);
-        }
-        glow.style.left = `${robbie.x}px`;
-        glow.style.top = `${LINE}px`;
-        Object.assign(zone.querySelector('.robbie-faisceau').style, { left: `${robbie.x}px`, top: `${LINE}px` });
     }
 
     // État affiché sous le nom : fenêtres ouvertes d'une appli, rôle des autres hologrammes
@@ -260,7 +232,7 @@
             const count = windows.filter(w => w.appId.toLowerCase() === item.app.windowId || w.appId.toLowerCase() === item.app.id.toLowerCase()).length;
             return count ? `${count} fenêtre${count > 1 ? 's' : ''} ouverte${count > 1 ? 's' : ''}` : 'prête';
         }
-        return { robbie: 'ton assistant', settings: 'système', trash: 'fichiers supprimés', launcher: 'toutes tes applis' }[item.kind] || '';
+        return { settings: 'système', trash: 'fichiers supprimés', launcher: 'toutes tes applis' }[item.kind] || '';
     }
 
     // Affichage tête haute : [ NOM ] et son état
@@ -281,9 +253,6 @@
             if (!opened) toast(`${item.name} n'est pas installé`, 'x');
         } else if (item.kind === 'trash') {
             window.os.openLocation('trash:///');
-        } else if (item.kind === 'robbie') {
-            face.blink();
-            window.robbiePanel.toggle();
         } else if (item.kind === 'launcher') {
             window.launcher.toggle();
         } else if (item.kind === 'settings') {
@@ -337,11 +306,17 @@
         build();
     }
 
+    // ---- Robbie, tête de la barre latérale : son visage animé ; un clic ouvre son panneau ----
+    const head = document.getElementById('robbie-tete');
+    head.querySelector('.visage').append(document.getElementById('face'));
+    head.addEventListener('click', () => {
+        face.blink();
+        window.robbiePanel.toggle();
+    });
+
     // Robbie suit la souris des yeux
     document.addEventListener('mousemove', event => {
-        const robbie = tiles.find(tile => tile.item.kind === 'robbie');
-        if (!robbie) return;
-        const box = robbie.el.getBoundingClientRect();
+        const box = head.getBoundingClientRect();
         face.setGaze(
             (event.clientX - (box.left + box.width / 2)) / (window.innerWidth / 2) * 1.3,
             (event.clientY - (box.top + box.height / 2)) / (window.innerHeight / 2) * 1.3
