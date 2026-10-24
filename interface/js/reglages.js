@@ -409,7 +409,7 @@
         adminTimer = setTimeout(() => {
             adminPassword = null;
         }, 2 * 60 * 1000);
-        return true;
+        return result;
     }
 
     // Identifiant tiré du prénom : « Léa Martin » → « leamartin »
@@ -426,8 +426,18 @@
                 <span class="contact-rond">${escape(me.name.charAt(0).toUpperCase())}</span>
                 <span class="liste-texte"><b>${escape(me.name)}</b><small>${escape(me.user)}</small></span>
                 <span class="rang-badge ${me.role}">${ROLES[me.role]}</span>
+                ${me.role === 'invite' ? '' : '<button class="bouton" data-mon-compte>Modifier</button>'}
                 <button class="bouton" data-deconnexion>Se déconnecter</button>
-            </div>`)
+            </div>
+            <form class="mon-compte" data-mon-compte-form hidden>
+                <label>Nom affiché<input maxlength="40" required value="${escape(me.name)}" data-mon-nom></label>
+                <label>Identifiant (pour se connecter)<input maxlength="30" required pattern="[a-z][a-z0-9_-]{1,29}" value="${escape(me.user)}" data-mon-identifiant></label>
+                <label>Nouveau mot de passe<input type="password" minlength="4" placeholder="Laisser vide pour le garder" autocomplete="new-password" data-mon-mdp></label>
+                <label>Confirmer le nouveau mot de passe<input type="password" minlength="4" autocomplete="new-password" data-mon-mdp2></label>
+                <label class="mon-compte-actuel">Mot de passe actuel, pour confirmer<input type="password" required autocomplete="current-password" data-mon-actuel></label>
+                <p class="reglage-aide">Un nouvel identifiant prend effet au prochain démarrage de l'ordinateur ; ton dossier personnel suit.</p>
+                <div class="reglage-ligne boutons"><button class="bouton principal">Enregistrer</button><button type="button" class="bouton" data-mon-annuler>Annuler</button></div>
+            </form>`)
             + block('Comptes', `
             <div class="comptes-liste">${people.map(a => `
                 <div class="compte-ligne" data-user="${escape(a.user)}">
@@ -436,6 +446,7 @@
                     ${admin ? `
                         <select data-rang aria-label="Rang de ${escape(a.name)}">${['admin', 'standard', 'enfant'].map(r => `<option value="${r}" ${r === a.role ? 'selected' : ''}>${ROLES[r]}</option>`).join('')}</select>
                         ${a.role === 'enfant' ? '<button class="petit-bouton" data-regles>Règles</button>' : ''}
+                        ${a.user !== me.user ? '<button class="petit-bouton" data-renommer>Renommer</button>' : ''}
                         <button class="petit-bouton" data-motdepasse>Mot de passe</button>
                         ${a.user !== me.user ? '<button class="petit-bouton danger" data-supprimer>Supprimer</button>' : ''}
                     ` : `<span class="rang-badge ${a.role}">${ROLES[a.role]}</span>`}
@@ -455,6 +466,54 @@
                 <span>Permettre une session invité (sans mot de passe, effacée à chaque fois)</span></label>`) : '');
 
         content.querySelector('[data-deconnexion]').addEventListener('click', () => window.os.logout());
+
+        // ---- Modifier son propre compte (sans être administrateur : son mot de passe actuel suffit) ----
+        const mine = content.querySelector('[data-mon-compte-form]');
+        content.querySelector('[data-mon-compte]')?.addEventListener('click', () => {
+            mine.hidden = !mine.hidden;
+            if (!mine.hidden) mine.querySelector('[data-mon-nom]').focus();
+        });
+        content.querySelector('[data-mon-annuler]')?.addEventListener('click', () => {
+            mine.hidden = true;
+        });
+        mine?.addEventListener('submit', async event => {
+            event.preventDefault();
+            const value = name => mine.querySelector(`[data-mon-${name}]`).value;
+            const current = value('actuel');
+            const name = value('nom').trim();
+            const login = value('identifiant').trim();
+            const password = value('mdp');
+            if (password && password !== value('mdp2')) return toast('Les deux nouveaux mots de passe sont différents', 'x');
+
+            const done = [];
+            let later = false;
+            const step = async (args, input = '') => {
+                const result = await window.os.changeMyAccount(args, current, input);
+                if (!result.ok) throw new Error(result.error);
+                later ||= result.later;
+            };
+            try {
+                if (name && name !== me.name) {
+                    await step(['nom', name]);
+                    done.push('nom');
+                }
+                if (password) {
+                    await step(['motdepasse'], `${password}\n`);
+                    done.push('mot de passe');
+                }
+                if (login && login !== me.user) {
+                    await step(['identifiant', login]);
+                    done.push('identifiant');
+                }
+            } catch (error) {
+                toast(error.message, 'x');
+                if (!done.length) return;
+            }
+            if (!done.length) return toast('Rien à changer', 'check');
+            toast(`Enregistré : ${done.join(', ')}${later ? ' (identifiant au prochain démarrage)' : ''}`, 'check');
+            show('comptes');
+        });
+
         if (!admin) return;
 
         const nameInput = content.querySelector('[data-nom]');
@@ -507,6 +566,31 @@
                         toast(`Mot de passe de ${account.name} changé`, 'check');
                         form.remove();
                     }
+                });
+            });
+
+            // Renommer un autre compte : son nom affiché et son identifiant
+            row.querySelector('[data-renommer]')?.addEventListener('click', () => {
+                if (row.nextElementSibling?.matches('.compte-edition')) return row.nextElementSibling.remove();
+                const form = document.createElement('form');
+                form.className = 'compte-edition compte-nouveau';
+                form.innerHTML = `<input maxlength="40" required value="${escape(account.name)}" aria-label="Nom affiché">
+                    <input maxlength="30" required pattern="[a-z][a-z0-9_-]{1,29}" value="${escape(user)}" aria-label="Identifiant">
+                    <button class="bouton">Renommer</button>`;
+                row.after(form);
+                form.querySelector('input').focus();
+                form.addEventListener('submit', async event => {
+                    event.preventDefault();
+                    const [nameField, loginField] = form.querySelectorAll('input');
+                    if (nameField.value.trim() !== account.name && !(await adminChange(['nom', user, nameField.value.trim()]))) return;
+                    let later = false;
+                    if (loginField.value !== user) {
+                        const result = await adminChange(['renommer', user, loginField.value]);
+                        if (!result) return;
+                        later = result.later;
+                    }
+                    toast(later ? `${account.name} est connecté : son identifiant changera au prochain démarrage` : `Compte de ${nameField.value.trim()} modifié`, 'check');
+                    show('comptes');
                 });
             });
 

@@ -179,12 +179,16 @@ ipcMain.on('verrouiller', () => verrouillage.lock());
 
 // Comptes : qui est connecté, liste, modifications (mot de passe administrateur demandé),
 // déconnexion (retour à l'écran d'accueil)
-const ACCOUNT_COMMANDS = ['creer', 'rang', 'nom', 'motdepasse', 'supprimer', 'invite', 'enfant'];
+const ACCOUNT_COMMANDS = ['creer', 'rang', 'nom', 'motdepasse', 'supprimer', 'invite', 'enfant', 'renommer'];
 ipcMain.handle('moi', () => comptes.me());
 ipcMain.handle('comptes', () => comptes.list());
 ipcMain.handle('compte-modifier', (_event, args, password, input) => {
     if (!Array.isArray(args) || !ACCOUNT_COMMANDS.includes(args[0])) return { ok: false, error: 'Modification inconnue' };
     return comptes.change(args, String(password || ''), String(input || ''));
+});
+ipcMain.handle('mon-compte', (_event, args, current, input) => {
+    if (!Array.isArray(args)) return { ok: false, error: 'Modification inconnue' };
+    return comptes.changeMine(args, String(current || ''), String(input || ''));
 });
 ipcMain.on('deconnexion', () => {
     robbie?.stop();

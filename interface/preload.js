@@ -48,6 +48,7 @@ contextBridge.exposeInMainWorld('os', {
     me: () => ipcRenderer.invoke('moi'),
     accounts: () => ipcRenderer.invoke('comptes'),
     changeAccount: (args, password, input) => ipcRenderer.invoke('compte-modifier', args, password, input),
+    changeMyAccount: (args, current, input) => ipcRenderer.invoke('mon-compte', args, current, input),
     logout: () => ipcRenderer.send('deconnexion'),
     reloadIdle: () => ipcRenderer.send('inactivite-recharger'),
     setPanelShown: open => ipcRenderer.send('panneau', open),

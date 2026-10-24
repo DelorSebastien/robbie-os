@@ -10,9 +10,18 @@
 #   comptes supprimer <identifiant>
 #   comptes invite on|off
 #   comptes enfant <identifiant>                        (règles JSON sur l'entrée)
+#   comptes renommer <identifiant> <nouvel identifiant> (au prochain démarrage si le compte est ouvert)
+#   comptes appliquer-renommages                        (au démarrage, avant l'écran de connexion)
+#
+# Et pour son propre compte, sans être administrateur (sudo sans mot de passe pour « moi »,
+# le mot de passe actuel est vérifié ici, en première ligne de l'entrée) :
+#   comptes moi motdepasse                              (actuel puis nouveau sur l'entrée)
+#   comptes moi nom <nom complet>                       (actuel sur l'entrée)
+#   comptes moi identifiant <nouvel identifiant>        (actuel sur l'entrée ; au prochain démarrage)
 set -eu
 
 ENFANTS=/etc/robbie-os/enfants
+RENOMMAGES=/etc/robbie-os/renommages
 CALLER="${SUDO_USER:-}"
 
 fail() {
@@ -57,6 +66,53 @@ set_role() {
         admin) usermod -aG sudo "$user" ;;
         enfant) usermod -aG robbie-enfant "$user" ;;
     esac
+}
+
+# Le mot de passe actuel d'un compte (première ligne de l'entrée), vérifié comme le fait la
+# connexion : par unix_chkpwd, lancé au nom de ce compte
+check_current() {
+    IFS= read -r current || true
+    printf '%s\0' "$current" | setpriv --reuid="$1" --regid="$(id -g "$1")" --clear-groups /usr/sbin/unix_chkpwd "$1" nullok >/dev/null 2>&1         || fail "Mot de passe actuel incorrect"
+}
+
+# Nouvel identifiant libre et valable
+valid_new_user() {
+    valid_user "$1"
+    [ "$1" = invite ] && fail "Cet identifiant est réservé"
+    id "$1" >/dev/null 2>&1 && fail "Cet identifiant est déjà pris"
+    getent group "$1" >/dev/null 2>&1 && fail "Cet identifiant est déjà pris"
+    [ -e "/home/$1" ] && fail "Cet identifiant est déjà pris"
+    return 0
+}
+
+# Renommer un compte fermé : identifiant, groupe du même nom, dossier personnel, règles d'enfant,
+# et les chemins écrits dans ses réglages (favoris de l'explorateur, photos…)
+rename_now() {
+    old=$1
+    new=$2
+    usermod -l "$new" "$old"
+    [ "$(id -gn "$new")" = "$old" ] && groupmod -n "$new" "$old"
+    usermod -d "/home/$new" -m "$new"
+    [ -f "$ENFANTS/$old.json" ] && mv "$ENFANTS/$old.json" "$ENFANTS/$new.json"
+    [ -f "/var/mail/$old" ] && mv "/var/mail/$old" "/var/mail/$new"
+    for file in "/home/$new/.config/gtk-3.0/bookmarks" /home/"$new"/.config/robbie-os/*.json; do
+        [ -f "$file" ] && sed -i "s|/home/$old/|/home/$new/|g; s|/home/$old\"|/home/$new\"|g; s|/home/$old\$|/home/$new|" "$file"
+    done
+    return 0
+}
+
+# Compte ouvert (des programmes tournent à son nom) : le renommage attend le prochain démarrage
+rename_or_schedule() {
+    if pgrep -u "$1" >/dev/null 2>&1; then
+        mkdir -p "$(dirname "$RENOMMAGES")"
+        grep -v "^$1 " "$RENOMMAGES" 2>/dev/null > "$RENOMMAGES.tmp" || true
+        echo "$1 $2" >> "$RENOMMAGES.tmp"
+        mv "$RENOMMAGES.tmp" "$RENOMMAGES"
+        echo "plus-tard"
+    else
+        rename_now "$1" "$2"
+        echo "fait"
+    fi
 }
 
 read_password() {
@@ -139,6 +195,51 @@ case "$command" in
         cat > "$ENFANTS/$1.json.tmp"
         mv "$ENFANTS/$1.json.tmp" "$ENFANTS/$1.json"
         chmod 644 "$ENFANTS/$1.json"
+        ;;
+
+    renommer)
+        [ $# -eq 2 ] || fail "Usage : renommer <identifiant> <nouvel identifiant>"
+        valid_user "$1"
+        human_user "$1"
+        [ "$1" = invite ] && fail "La session invité ne se renomme pas"
+        valid_new_user "$2"
+        rename_or_schedule "$1" "$2"
+        ;;
+
+    appliquer-renommages)
+        [ -f "$RENOMMAGES" ] || exit 0
+        while read -r old new; do
+            [ -n "$old" ] && [ -n "$new" ] || continue
+            id "$old" >/dev/null 2>&1 && ! id "$new" >/dev/null 2>&1 && rename_now "$old" "$new" || true
+        done < "$RENOMMAGES"
+        rm -f "$RENOMMAGES"
+        ;;
+
+    moi)
+        [ -n "$CALLER" ] || fail "Commande réservée aux Réglages"
+        human_user "$CALLER"
+        [ "$CALLER" = invite ] && fail "La session invité n'a pas de compte à modifier"
+        what=${1:-}
+        [ $# -gt 0 ] && shift
+        case "$what" in
+            motdepasse)
+                check_current "$CALLER"
+                read_password
+                echo "$CALLER:$password" | chpasswd
+                ;;
+            nom)
+                [ $# -eq 1 ] || fail "Usage : moi nom <nom>"
+                check_current "$CALLER"
+                usermod -c "$1" "$CALLER"
+                ;;
+            identifiant)
+                [ $# -eq 1 ] || fail "Usage : moi identifiant <nouvel identifiant>"
+                check_current "$CALLER"
+                valid_new_user "$1"
+                rename_or_schedule "$CALLER" "$1"
+                ;;
+            *) fail "Commande inconnue" ;;
+        esac
         ;;
 
     *)

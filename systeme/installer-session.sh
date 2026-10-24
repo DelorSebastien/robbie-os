@@ -47,6 +47,28 @@ chmod 644 /usr/local/lib/robbie-os/machine
 # ---- Outil de gestion des comptes (lancé par sudo depuis les Réglages) ----
 install -D -m 755 "$ROBBIE_DIR/systeme/outils/comptes" /usr/local/lib/robbie-os/comptes
 getent group robbie-enfant >/dev/null || groupadd robbie-enfant
+# Chacun peut modifier son propre compte (mot de passe, nom, identifiant) sans être administrateur :
+# l'outil vérifie lui-même son mot de passe actuel
+cat > /etc/sudoers.d/robbie-os-comptes <<'EOF'
+ALL ALL=(root) NOPASSWD: /usr/local/lib/robbie-os/comptes moi *
+EOF
+chmod 440 /etc/sudoers.d/robbie-os-comptes
+visudo -cq -f /etc/sudoers.d/robbie-os-comptes || rm -f /etc/sudoers.d/robbie-os-comptes
+# Un compte ouvert ne peut pas changer d'identifiant : c'est fait au démarrage suivant,
+# avant l'écran de connexion
+cat > /etc/systemd/system/robbie-os-renommages.service <<'EOF'
+[Unit]
+Description=Robbie OS : identifiants de comptes changés
+Before=greetd.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/robbie-os/comptes appliquer-renommages
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl enable robbie-os-renommages.service >/dev/null 2>&1
 mkdir -p "$CONFIG/enfants"
 
 # ---- Applis de Robbie OS : Photos (photothèque, albums, visionneuse, retouches) ----
