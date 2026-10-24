@@ -185,10 +185,12 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     pointer-events: none;
 }
 
+/* (le fond est celui de la barre latérale et du coin de l'heure, tramé de la couleur d'accent) */
 .tuile::before {
     background:
-        linear-gradient(180deg, rgba(var(--accent), 0.16), rgba(var(--accent), 0.04)),
-        repeating-linear-gradient(0deg, rgba(var(--accent), 0.13) 0 1px, transparent 1px 4px);
+        repeating-linear-gradient(0deg, rgba(var(--accent), 0.1) 0 1px, transparent 1px 4px),
+        linear-gradient(180deg, rgba(var(--accent), 0.12), transparent 70%),
+        var(--capsule);
 }
 
 /* (contour de l'hexagone : la forme pleine moins un hexagone intérieur) */

@@ -12,6 +12,8 @@
     --verre-rgb: 255, 255, 255;
     --verre-force: 1.25;
     --capsule: #eef2f8;
+    /* (icônes des hologrammes en bleu nuit sur leur fond blanc) */
+    --holo-trait: 14, 60, 96;
     --creux-rgb: 10, 18, 36;
     --creux-force: 0.25;
     --accent-texte: rgb(var(--accent-fonce));
