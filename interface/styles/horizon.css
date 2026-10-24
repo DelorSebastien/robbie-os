@@ -131,9 +131,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* Cône de lumière : du nœud du fil jusqu'à l'hologramme */
 .cone {
     position: absolute;
-    width: 80px;
-    height: 88px;
-    margin-left: -40px;
+    width: calc(80px * var(--holo, 1));
+    height: calc(88px * var(--holo, 1));
+    margin-left: calc(-40px * var(--holo, 1));
     clip-path: polygon(46% 100%, 54% 100%, 100% 0, 0 0);
     background: linear-gradient(0deg, rgba(var(--accent), 0.42), rgba(var(--accent), 0.03));
     opacity: 0.4;
@@ -160,8 +160,8 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* L'hologramme : un hexagone de lumière tramé de lignes de balayage */
 .tuile {
-    --l: 54px;
-    --h: 60px;
+    --l: calc(54px * var(--holo, 1));
+    --h: calc(60px * var(--holo, 1));
     position: absolute;
     width: var(--l);
     height: var(--h);
@@ -259,9 +259,9 @@ body:not(.leger):not(.demarrage) .tuile:not(.robbie):not(:hover) { animation: gr
 
 /* Robbie : son visage dans un écran holographique arrondi */
 .tuile.robbie {
-    --l: 70px;
-    --h: 62px;
-    border-radius: 20px;
+    --l: calc(70px * var(--holo, 1));
+    --h: calc(62px * var(--holo, 1));
+    border-radius: calc(20px * var(--holo, 1));
     border: 1px solid rgba(var(--accent), 0.5);
     background: repeating-linear-gradient(0deg, rgba(var(--accent), 0.1) 0 1px, transparent 1px 4px), rgba(2, 6, 13, 0.55);
     box-shadow: 0 0 30px rgba(var(--accent), 0.35), inset 0 0 26px rgba(var(--accent), 0.15);
@@ -269,13 +269,13 @@ body:not(.leger):not(.demarrage) .tuile:not(.robbie):not(:hover) { animation: gr
 .tuile.robbie::before, .tuile.robbie::after { display: none; }
 .tuile.robbie:hover { box-shadow: 0 0 40px rgba(var(--accent), 0.55), inset 0 0 30px rgba(var(--accent), 0.25); }
 
-.tuile.robbie .visage { position: absolute; inset: 3px; border-radius: 17px; overflow: hidden; }
+.tuile.robbie .visage { position: absolute; inset: 3px; border-radius: calc(17px * var(--holo, 1)); overflow: hidden; }
 
 .tuile.robbie #face {
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%) scale(0.34);
+    transform: translate(-50%, -50%) scale(calc(0.34 * var(--holo, 1)));
 }
 
 /* Lumière du fil sous Robbie, et son faisceau dans l'eau */

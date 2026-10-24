@@ -48,6 +48,9 @@
     const SPACING = 72;
     const LINE = 158;
     const TILE_Y = LINE - 52;
+    // Place gardée de chaque côté (le coin de l'heure, en bas à droite) et taille minimale
+    const MARGIN = 215;
+    const MIN_FIT = 0.5;
 
     let apps = [];
     let pinned = [];
@@ -175,10 +178,19 @@
         const cx = width / 2;
         const middle = items.findIndex(item => item.kind === 'robbie');
 
+        // Taille automatique : avec beaucoup d'applis, tous les hologrammes rétrécissent ensemble
+        // (écarts compris) pour tenir sur la ligne, sans toucher au coin de l'heure ni aux bords
+        // (taille du dock choisie dans les Réglages prise en compte)
+        const userScale = window.disposition?.scale() || 1;
+        const available = (width - 2 * MARGIN) / userScale;
+        const fit = Math.max(MIN_FIT, Math.min(1, available / (tiles.length * SPACING)));
+        zone.style.setProperty('--holo', fit);
+        const spacing = SPACING * fit;
+
         // Un hologramme par place, toutes à la même distance ; Robbie au milieu
         tiles.forEach((tile, index) => {
-            tile.x = cx + (index - middle) * SPACING;
-            tile.y = TILE_Y;
+            tile.x = cx + (index - middle) * spacing;
+            tile.y = LINE - (LINE - TILE_Y) * fit;
             tile.el.style.left = `${tile.x}px`;
             tile.el.style.top = `${tile.y}px`;
         });
@@ -186,7 +198,7 @@
         // Le fil émetteur dépasse de chaque côté (un soupçon de courbe : sans hauteur, son
         // dégradé ne s'afficherait pas)
         const outerTile = Math.max(...tiles.map(tile => Math.abs(tile.x - cx)));
-        const half = outerTile + 150;
+        const half = outerTile + 150 * fit;
         const d = `M${cx - half} ${LINE} Q${cx} ${LINE + 1} ${cx + half} ${LINE}`;
         document.querySelectorAll('#dock-arc path').forEach(path => path.setAttribute('d', d));
 
@@ -217,7 +229,7 @@
             tile.cone = document.createElement('span');
             tile.cone.className = 'cone';
             tile.cone.style.left = `${tile.x}px`;
-            tile.cone.style.top = `${LINE - 88}px`;
+            tile.cone.style.top = `${LINE - 88 * fit}px`;
             tile.noeud = document.createElement('span');
             tile.noeud.className = 'noeud';
             tile.noeud.style.left = `${tile.x}px`;
@@ -352,6 +364,8 @@
     if (window.ui.light) face.setMaxFps(30);
 
     window.addEventListener('resize', layout);
+    // (taille du dock changée dans les Réglages : la place disponible change aussi)
+    document.addEventListener('settings-changed', () => setTimeout(layout, 50));
 
     (async () => {
         await window.compte.ready;
