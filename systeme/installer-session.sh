@@ -27,6 +27,19 @@ install -D -m 755 "$ROBBIE_DIR/systeme/outils/comptes" /usr/local/lib/robbie-os/
 getent group robbie-enfant >/dev/null || groupadd robbie-enfant
 mkdir -p "$CONFIG/enfants"
 
+# ---- Applis de Robbie OS : Photos (photothèque, albums, visionneuse, retouches) ----
+install -m 644 "$ROBBIE_DIR/applis/photos/robbie-photos.desktop" /usr/share/applications/
+update-desktop-database -q /usr/share/applications 2>/dev/null || true
+# Photos ouvre les images et les vidéos ; les dossiers s'ouvrent dans l'explorateur
+mkdir -p /etc/xdg
+{
+    echo '[Default Applications]'
+    echo 'inode/directory=thunar.desktop'
+    for type in image/jpeg image/png image/webp image/gif image/bmp image/avif image/tiff video/mp4 video/webm video/quicktime; do
+        echo "$type=robbie-photos.desktop"
+    done
+} > /etc/xdg/mimeapps.list
+
 # ---- Configuration de labwc commune à tous les comptes ----
 mkdir -p "$CONFIG/labwc"
 

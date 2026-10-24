@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data: blob:; media-src file:; style-src 'self' 'unsafe-inline'">
+    <title>Photos</title>
+    <link rel="stylesheet" href="./photos.css">
+</head>
+<body>
+    <!-- Barre latérale : photothèque, collections automatiques, albums, importer -->
+    <aside class="barre">
+        <h1 class="marque">PHOTOS</h1>
+        <nav class="vues" aria-label="Collections">
+            <button data-vue="bibliotheque" data-icon="image">Photothèque</button>
+            <button data-vue="favoris" data-icon="heart">Favoris</button>
+            <button data-vue="recentes" data-icon="download">Importées récemment</button>
+            <button data-vue="captures" data-icon="capture">Captures d'écran</button>
+            <button data-vue="videos" data-icon="video">Vidéos</button>
+        </nav>
+        <div class="titre-albums">
+            <span>ALBUMS</span>
+            <button class="petit" id="nouvel-album" data-icon="plus" aria-label="Nouvel album" title="Nouvel album"></button>
+        </div>
+        <nav class="albums" id="albums" aria-label="Albums"></nav>
+        <div class="importer">
+            <button class="bouton" id="importer" data-icon="download">Importer</button>
+        </div>
+    </aside>
+
+    <!-- Contenu : en-tête, grille, sélecteur Années / Mois / Jours / Tout -->
+    <main class="contenu">
+        <header class="entete">
+            <div>
+                <h2 id="titre">Photothèque</h2>
+                <p id="sous-titre"></p>
+            </div>
+            <div class="actions">
+                <input class="zoom" id="zoom" type="range" min="90" max="320" value="170" aria-label="Taille des vignettes" title="Taille des vignettes (Ctrl + molette)">
+                <button class="bouton icone" id="diaporama" data-icon="slideshow" title="Diaporama"></button>
+            </div>
+        </header>
+        <section class="grille-zone" id="zone"></section>
+        <div class="echelles" id="echelles" role="tablist" aria-label="Regrouper par">
+            <button data-echelle="annees">Années</button>
+            <button data-echelle="mois">Mois</button>
+            <button data-echelle="jours">Jours</button>
+            <button data-echelle="tout">Tout</button>
+        </div>
+        <!-- Barre de sélection (Ctrl + clic, Maj + clic) -->
+        <div class="selection" id="selection" hidden>
+            <span id="selection-nombre"></span>
+            <button class="bouton icone" data-sel="favori" data-icon="heart" title="Favori"></button>
+            <button class="bouton" data-sel="album" data-icon="album">Ajouter à un album</button>
+            <button class="bouton danger icone" data-sel="corbeille" data-icon="trash" title="Mettre à la corbeille"></button>
+            <button class="bouton icone" data-sel="annuler" data-icon="x" title="Désélectionner"></button>
+        </div>
+    </main>
+
+    <!-- Visionneuse : la photo en grand sur son propre reflet flouté -->
+    <section class="visionneuse" id="visionneuse" hidden>
+        <img class="vis-fond" id="vis-fond" alt="">
+        <header class="vis-haut">
+            <button class="rond" id="vis-fermer" data-icon="x" title="Fermer (Échap)"></button>
+            <div class="vis-titre"><b id="vis-date"></b><span id="vis-nom"></span></div>
+            <div class="vis-actions">
+                <button class="rond" id="vis-favori" data-icon="heart" title="Favori (F)"></button>
+                <button class="rond" id="vis-infos" data-icon="info" title="Informations (I)"></button>
+                <button class="rond" id="vis-retoucher" data-icon="edit" title="Retoucher (E)"></button>
+                <button class="rond" id="vis-diaporama" data-icon="slideshow" title="Diaporama"></button>
+                <button class="rond" id="vis-dossier" data-icon="folder-open" title="Afficher dans le dossier"></button>
+                <button class="rond danger" id="vis-corbeille" data-icon="trash" title="Mettre à la corbeille (Suppr)"></button>
+            </div>
+        </header>
+        <div class="vis-scene" id="vis-scene"></div>
+        <button class="vis-fleche gauche" id="vis-precedente" data-icon="chevron-left" aria-label="Précédente"></button>
+        <button class="vis-fleche droite" id="vis-suivante" data-icon="chevron-right" aria-label="Suivante"></button>
+        <aside class="vis-panneau" id="vis-panneau" hidden></aside>
+    </section>
+
+    <!-- Retouche : aperçu au centre, réglages à droite -->
+    <section class="retouche" id="retouche" hidden>
+        <div class="ret-scene" id="ret-scene"></div>
+        <aside class="ret-reglages" id="ret-reglages"></aside>
+    </section>
+
+    <!-- Diaporama : plein écran, fondus enchaînés -->
+    <section class="diapo" id="diapo" hidden>
+        <img class="diapo-image" alt="">
+        <img class="diapo-image" alt="">
+        <span class="diapo-aide">Échap pour quitter · Espace pour mettre en pause</span>
+    </section>
+
+    <div class="menu" id="menu" hidden></div>
+    <div class="dialogue-fond" id="dialogue" hidden></div>
+    <div class="message" id="message" hidden></div>
+
+    <script src="../../interface/js/icones.js"></script>
+    <script src="../../interface/js/soleil.js"></script>
+    <script src="./photos.js"></script>
+    <script src="./visionneuse.js"></script>
+    <script src="./retouche.js"></script>
+</body>
+</html>

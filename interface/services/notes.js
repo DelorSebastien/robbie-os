@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
     eyeColor: 'cyan',
     skin: 'none',
     doNotDisturb: false,
-    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'org.xfce.ristretto'],
+    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'robbie-photos'],
     // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
     wallpaper: null,
     theme: 'sombre',
@@ -38,6 +38,12 @@ const DEFAULT_SETTINGS = {
     lockMinutes: 0
 };
 
+// La visionneuse Ristretto a été remplacée par l'appli Photos : elle garde sa place dans le dock
+function withPhotos(settings) {
+    if (Array.isArray(settings.pinned)) settings.pinned = settings.pinned.map(id => (id === 'org.xfce.ristretto' ? 'robbie-photos' : id));
+    return settings;
+}
+
 module.exports = {
     getNotes: () => load('notes', []),
     setNotes: notes => save('notes', Array.isArray(notes) ? notes.slice(0, 200) : []),
@@ -46,6 +52,6 @@ module.exports = {
     setAgenda: agenda => save('agenda', agenda && typeof agenda === 'object' ? agenda : {}),
     getContacts: () => load('contacts', []),
     setContacts: contacts => save('contacts', Array.isArray(contacts) ? contacts.slice(0, 30) : []),
-    getSettings: () => ({ ...DEFAULT_SETTINGS, ...load('reglages', {}) }),
+    getSettings: () => withPhotos({ ...DEFAULT_SETTINGS, ...load('reglages', {}) }),
     setSettings: changes => save('reglages', { ...DEFAULT_SETTINGS, ...load('reglages', {}), ...changes })
 };

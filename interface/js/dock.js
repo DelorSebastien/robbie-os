@@ -42,7 +42,7 @@
         'firefox-esr': { icon: 'firefox-esr', glyph: 'globe', name: 'Navigateur', tint: '255, 130, 60' },
         foot: { icon: 'utilities-terminal', glyph: 'terminal', name: 'Terminal', tint: '190, 205, 230' },
         'org.xfce.mousepad': { icon: 'accessories-text-editor', glyph: 'code', name: 'Éditeur de texte', tint: '60, 130, 255' },
-        'org.xfce.ristretto': { icon: 'image-viewer', glyph: 'image', name: 'Images', tint: '160, 90, 255' }
+        'robbie-photos': { icon: 'image-viewer', glyph: 'image', name: 'Photos', tint: '160, 90, 255' }
     };
 
     const SYSTEM_ITEMS = [

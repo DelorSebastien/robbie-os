@@ -54,7 +54,7 @@ const SYNONYMS = {
     fichiers: 'thunar', explorateur: 'thunar', dossiers: 'thunar',
     terminal: 'foot', console: 'foot',
     editeur: 'mousepad', 'bloc-notes': 'mousepad', texte: 'mousepad',
-    images: 'ristretto', photos: 'ristretto'
+    images: 'photos', photos: 'photos', galerie: 'photos'
 };
 
 function findApp(name) {
