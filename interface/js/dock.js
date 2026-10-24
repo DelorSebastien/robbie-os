@@ -5,35 +5,19 @@
     const { toast } = window.ui;
     const face = window.face;
 
-    // Pictogrammes lumineux du dock (dégradés et traits, pas d'aplats de couleur)
-    const gradient = (id, from, to) =>
-        `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs>`;
-    const svg = body => `<svg class="picto" viewBox="0 0 32 32" aria-hidden="true">${body}</svg>`;
+    // Icônes du dock : le même trait que celles de la barre latérale et du coin, teinté d'un
+    // dégradé par appli (les dégradés sont dans la page : #d-bleu, #d-orange…)
+    const line = (gradient, d) => `<svg class="picto" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" stroke="url(#d-${gradient})"/></svg>`;
 
     const GLYPHS = {
-        folder: svg(`${gradient('g-dossier', '#8fd8ff', '#2f86f6')}
-            <path d="M4 9.5A2.5 2.5 0 0 1 6.5 7h6l2.6 2.8h10.4A2.5 2.5 0 0 1 28 12.3V24a2.5 2.5 0 0 1-2.5 2.5h-19A2.5 2.5 0 0 1 4 24z" fill="url(#g-dossier)"/>
-            <path d="M4 13h24" stroke="rgba(255,255,255,0.55)" stroke-width="1.2"/>`),
-        globe: svg(`${gradient('g-globe', '#9be4ff', '#3f8cff')}
-            <g fill="none" stroke="url(#g-globe)" stroke-width="2.1" stroke-linecap="round">
-            <circle cx="16" cy="16" r="11"/><path d="M5 16h22M16 5c4 3.5 4 18.5 0 22M16 5c-4 3.5-4 18.5 0 22M7.5 9.5h17M7.5 22.5h17"/></g>`),
-        terminal: svg(`<g fill="none" stroke="#f2f6ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 10l6 6-6 6M16 23h9"/></g>`),
-        code: svg(`${gradient('g-code', '#7fd0ff', '#2a6bff')}
-            <g fill="none" stroke="url(#g-code)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 9l-7 7 7 7M21 9l7 7-7 7M18 7l-4 18"/></g>`),
-        image: svg(`${gradient('g-image', '#d79bff', '#7b3cff')}
-            <rect x="4.5" y="6.5" width="23" height="19" rx="4" fill="none" stroke="url(#g-image)" stroke-width="2.2"/>
-            <path d="M6 23l7-7 5 5 3-3 6 6" fill="none" stroke="url(#g-image)" stroke-width="2.2" stroke-linejoin="round"/>
-            <circle cx="21.5" cy="12" r="2.4" fill="url(#g-image)"/>`),
-        gear: svg(`<g fill="none" stroke="#e8eef9" stroke-width="2.1" stroke-linejoin="round">
-            <path d="M16 4.5l2.2 2.6 3.3-.6.9 3.2 3.1 1.4-.9 3.2 1.9 2.7-2.6 2.1.3 3.4-3.3.6-1.5 3-3.1-1.2-2.9 1.8-2-2.7-3.4-.2-.2-3.4-2.7-2 1.8-2.9-1.2-3.1 3-1.5.6-3.3 3.4.3z"/>
-            <circle cx="16" cy="16" r="4.2"/></g>`),
-        trash: svg(`<g fill="none" stroke="#e8eef9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9h20M12.5 9V6h7v3M8.5 9l1.3 17h12.4l1.3-17M13.5 13.5v8M18.5 13.5v8"/></g>`),
-        grid: svg(`${gradient('g-grille', '#bfefff', '#5ec8ff')}
-            <g fill="url(#g-grille)"><rect x="6" y="6" width="8" height="8" rx="2.5"/><rect x="18" y="6" width="8" height="8" rx="2.5"/>
-            <rect x="6" y="18" width="8" height="8" rx="2.5"/><rect x="18" y="18" width="8" height="8" rx="2.5"/></g>`)
+        folder: line('bleu', 'M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2.5h8.5A1.5 1.5 0 0 1 21 9v9.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5z'),
+        globe: line('orange', 'M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zM3 12h18M12 3c3 2.8 3 15.2 0 18M12 3c-3 2.8-3 15.2 0 18'),
+        terminal: line('argent', 'M4 5h16v14H4zM8 10l3 2.5L8 15M13 15h4'),
+        code: line('bleu', 'M9 7l-5 5 5 5M15 7l5 5-5 5M13.5 5l-3 14'),
+        image: line('violet', 'M4 5h16v14H4zM4 16l4.5-4.5 3.5 3.5 2.5-2.5L20 18M15.5 9.5h.01'),
+        gear: line('argent', 'M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1'),
+        trash: line('argent', 'M5 7h14M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6'),
+        grid: line('cyan', 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z')
     };
 
     // Apparence soignée pour les applis connues ; les autres prennent l'icône de leur thème
@@ -106,6 +90,12 @@
             return;
         }
 
+        // Applis connues et éléments du système : l'icône au trait ; les autres : leur icône
+        // (dans la même pastille de verre)
+        if (GLYPHS[item.glyph]) {
+            el.innerHTML = GLYPHS[item.glyph];
+            return;
+        }
         const src = (item.icon && await window.os.icon(item.icon)) || item.app?.icon;
         if (src) {
             const img = document.createElement('img');
@@ -114,7 +104,7 @@
             img.alt = '';
             el.append(img);
         } else {
-            el.innerHTML = GLYPHS[item.glyph] || GLYPHS.grid;
+            el.innerHTML = GLYPHS.grid;
         }
     }
 
@@ -154,7 +144,7 @@
             });
             el.addEventListener('mouseenter', () => showLabel(el, item.name));
             el.addEventListener('mouseleave', () => label.classList.remove('visible'));
-            return { el, item, x: 0, y: 0, size: item.kind === 'robbie' ? 66 : 56 };
+            return { el, item, x: 0, y: 0, size: item.kind === 'robbie' ? 68 : 54 };
         }));
 
         tiles.forEach(tile => dock.append(tile.el));

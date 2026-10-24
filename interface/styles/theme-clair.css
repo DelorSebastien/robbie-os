@@ -16,15 +16,27 @@
     --accent-texte: #0e8fb3;
 }
 
-/* Ce qui est posé directement sur la photo garde son texte clair (l'heure, les icônes du coin) */
-.clair .coin { color: #eef3fb; }
+/* Coin : ses icônes en bleu nuit, comme celles de la barre latérale */
+.clair .coin .icon { color: rgba(10, 18, 36, 0.78); }
+
+/* Dock : les dégradés clairs (argent, cyan) deviennent plus soutenus sur le verre blanc */
+.clair #d-argent stop:first-child { stop-color: #6b7a96; }
+.clair #d-argent stop:last-child { stop-color: #2c3850; }
+.clair #d-cyan stop:first-child { stop-color: #3cc4ea; }
+.clair #d-cyan stop:last-child { stop-color: #0e7fa3; }
+.clair #d-bleu stop:first-child { stop-color: #3f8cf0; }
+.clair #d-bleu stop:last-child { stop-color: #1a4fc4; }
+.clair #d-violet stop:first-child { stop-color: #9a5cf0; }
+.clair #d-violet stop:last-child { stop-color: #5b21b6; }
+.clair #d-orange stop:first-child { stop-color: #f5803e; }
+.clair #d-orange stop:last-child { stop-color: #d9480f; }
 
 /* Dock : pictos bleu nuit sur les tuiles de verre blanc ; Robbie garde son écran noir */
 .clair .tuile .icon { color: #26324a; }
 .clair .tuile.robbie { color: #eef3fb; }
 
 /* Barre latérale : icônes bleu nuit */
-.clair .lat-bouton, .clair .lat-ajout, .clair .contact { color: rgba(10, 18, 36, 0.78); }
+.clair .lat-bouton, .clair .contact { color: rgba(10, 18, 36, 0.78); }
 
 /* Pastille « blanc » des yeux de Robbie : un liseré pour qu'elle ne disparaisse pas sur le blanc */
 .clair .pastille-couleur { outline: 1px solid rgba(10, 18, 36, 0.15); }

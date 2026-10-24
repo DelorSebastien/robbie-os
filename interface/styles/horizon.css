@@ -124,36 +124,39 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     -webkit-box-reflect: below 8px linear-gradient(transparent 62%, rgba(255, 255, 255, 0.1));
 }
 
-/* Les applis : icônes nues, mises en valeur par leur ombre et leur reflet dans le lac */
+/* Les applis : toutes dans la même pastille ronde, du même verre que la barre latérale
+   et le coin, avec une icône au trait teintée ; posées sur l'arc, reflétées dans le lac */
 .tuile:not(.robbie) {
-    --s: 56px;
-    background: none;
-    border: 0;
-    box-shadow: none;
-    backdrop-filter: none;
-    border-radius: 0;
-    -webkit-box-reflect: below 6px linear-gradient(transparent 50%, rgba(255, 255, 255, 0.28));
+    --s: 54px;
+    border-radius: 50%;
+    border-color: rgba(var(--voile), 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 10px 22px -12px rgba(0, 0, 0, 0.7);
+    -webkit-box-reflect: below 6px linear-gradient(transparent 60%, rgba(255, 255, 255, 0.14));
 }
 
 .tuile:active { filter: brightness(0.85); }
 
-.tuile .icone-theme,
 .tuile .picto {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    width: 48%;
+    height: 48%;
     overflow: visible;
     pointer-events: none;
-    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
+    fill: none;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
     transition: filter 0.25s;
 }
 
-.tuile:not(.robbie) .picto { width: 72%; height: 72%; }
+/* (applis sans icône au trait : leur propre icône, plus petite, dans la pastille) */
+.tuile .icone-theme { width: 62%; height: 62%; object-fit: contain; pointer-events: none; }
 
-/* Survol : l'icône s'illumine */
-.tuile:not(.robbie):hover .icone-theme,
-.tuile:not(.robbie):hover .picto {
-    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 12px rgba(190, 235, 255, 0.55)) brightness(1.12);
+/* Survol : la pastille s'éclaire et l'icône brille */
+.tuile:not(.robbie):hover { border-color: rgba(var(--accent), 0.5); background: rgba(var(--verre-rgb), calc(0.55 * var(--verre-force))); }
+.tuile:not(.robbie):hover .picto,
+.tuile:not(.robbie):hover .icone-theme {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(190, 235, 255, 0.55)) brightness(1.15);
 }
 
 /* Point de lumière sur l'arc, sous chaque icône */
@@ -192,17 +195,17 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 .etiquette.visible { opacity: 1; }
 
-/* Robbie : un peu plus grand, tuile sombre sans néon, seuls ses yeux brillent */
+/* Robbie : un peu plus grand, rond comme les applis, écran sombre sans néon, seuls ses yeux brillent */
 .tuile.robbie {
-    --s: 66px;
-    border-radius: 19px;
+    --s: 68px;
+    border-radius: 50%;
     border: 1px solid rgba(var(--voile), 0.12);
     background: #02060d;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px -8px rgba(0, 0, 0, 0.7);
     -webkit-box-reflect: below 10px linear-gradient(transparent 55%, rgba(255, 255, 255, 0.16));
 }
 
-.tuile.robbie .visage { position: absolute; inset: 3px; border-radius: 16px; overflow: hidden; }
+.tuile.robbie .visage { position: absolute; inset: 3px; border-radius: 50%; overflow: hidden; }
 
 .tuile.robbie #face {
     position: absolute;
@@ -233,6 +236,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     pointer-events: none;
 }
 
+/* ---- Capsules de verre : barre latérale et coin, exactement le même verre ---- */
+.laterale, .coin {
+    background: var(--verre);
+    border: 1px solid var(--bord);
+    backdrop-filter: blur(30px) saturate(140%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 18px 40px -18px rgba(0, 0, 0, 0.55);
+}
+
 /* ---- Barre latérale ---- */
 .laterale {
     position: fixed;
@@ -246,11 +257,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     align-items: center;
     gap: 8px;
     padding: 14px 0 12px;
-    border-radius: 18px;
-    background: var(--verre);
-    border: 1px solid var(--bord);
-    backdrop-filter: blur(30px) saturate(140%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
 }
 
 .laterale-trait {
@@ -318,36 +325,29 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     border: 2px solid #0b1328;
 }
 
-.lat-ajout {
-    margin-top: auto;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    border: 1px solid rgba(var(--voile), 0.2);
-    color: rgba(230, 238, 250, 0.85);
-}
+/* (le bas de la barre : toutes les applis et l'alimentation, sous un séparateur) */
+.lat-bas { margin-top: auto; }
 
-.lat-ajout .icon { width: 16px; height: 16px; }
-.lat-ajout:hover { background: rgba(var(--voile), 0.07); }
-
-/* ---- Coin : réseau, son, heure ---- */
+/* ---- Coin : réseau, son, heure et date, dans une capsule du même verre ---- */
 .coin {
     position: fixed;
-    right: 24px;
-    bottom: 18px;
+    right: 10px;
+    bottom: 14px;
     z-index: 6;
     display: flex;
     align-items: center;
-    gap: 16px;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    gap: 4px;
+    height: 50px;
+    padding: 0 6px;
+    border-radius: 18px;
 }
 
-.coin .icon { width: 17px; height: 17px; stroke-width: 1.6; }
+.coin .icon { width: 19px; height: 19px; stroke-width: 1.5; color: rgba(230, 238, 250, 0.88); }
+.coin-sep { width: 1px; height: 24px; background: rgba(var(--voile), 0.14); }
+
+.coin-horloge { flex-direction: column; align-items: flex-start; gap: 0; line-height: 1.15; }
+.coin-horloge time { font: 600 15px var(--police); letter-spacing: 0.06em; }
+.coin-horloge span { font: 11px 'Inter', 'Noto Sans', sans-serif; color: var(--texte-doux); }
 
 /* ---- Notifications discrètes ---- */
 .toasts {

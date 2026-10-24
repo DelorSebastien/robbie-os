@@ -13,6 +13,17 @@
     <!-- Fond d'écran : des images superposées qui se fondent l'une dans l'autre (js/fond.js) -->
     <div class="fond" id="fond" aria-hidden="true"></div>
 
+    <!-- Dégradés des icônes du dock (une teinte par appli, même trait pour toutes) -->
+    <svg class="degrades" width="0" height="0" aria-hidden="true">
+        <defs>
+            <linearGradient id="d-bleu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fe0ff"/><stop offset="1" stop-color="#3b8cf6"/></linearGradient>
+            <linearGradient id="d-orange" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc08a"/><stop offset="1" stop-color="#ff6a3d"/></linearGradient>
+            <linearGradient id="d-argent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2f6ff"/><stop offset="1" stop-color="#9fb0cc"/></linearGradient>
+            <linearGradient id="d-violet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcb0ff"/><stop offset="1" stop-color="#8b4dff"/></linearGradient>
+            <linearGradient id="d-cyan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8f6ff"/><stop offset="1" stop-color="#4fcfff"/></linearGradient>
+        </defs>
+    </svg>
+
     <!-- Barre latérale : notifications, contacts, raccourcis -->
     <aside class="laterale" aria-label="Barre latérale">
         <span class="laterale-trait"></span>
@@ -24,8 +35,9 @@
         <button class="lat-bouton" data-panneau data-action="agenda" data-icon="calendar" aria-label="Agenda" title="Agenda"></button>
         <button class="lat-bouton" data-action="capture" data-icon="capture" aria-label="Capture d'écran" title="Capture d'écran"></button>
         <button class="lat-bouton" data-panneau data-action="reglages" data-icon="gear" aria-label="Réglages" title="Réglages (Super+I)"></button>
-        <button class="lat-ajout" data-panneau data-action="lanceur" data-icon="plus" aria-label="Toutes les applis" title="Toutes les applis (Super+A)"></button>
-        <button class="lat-ajout lat-alim" data-panneau data-action="alimentation" data-icon="power" aria-label="Alimentation" title="Verrouiller, se déconnecter, éteindre…"></button>
+        <span class="lat-sep lat-bas"></span>
+        <button class="lat-bouton" data-panneau data-action="lanceur" data-icon="plus" aria-label="Toutes les applis" title="Toutes les applis (Super+A)"></button>
+        <button class="lat-bouton" data-panneau data-action="alimentation" data-icon="power" aria-label="Alimentation" title="Verrouiller, se déconnecter, éteindre…"></button>
     </aside>
 
     <!-- Dock incurvé, Robbie au centre -->
@@ -56,7 +68,8 @@
             <span data-icon="wifi" id="coin-reseau"></span>
             <span data-icon="volume" id="coin-son"></span>
         </button>
-        <button class="coin-bouton" id="coin-heure" data-panneau aria-label="Agenda"><time id="heure">--:--</time></button>
+        <span class="coin-sep"></span>
+        <button class="coin-bouton coin-horloge" id="coin-heure" data-panneau aria-label="Agenda"><time id="heure">--:--</time><span id="coin-date"></span></button>
     </div>
 
     <!-- Panneau de Robbie : la conversation, au-dessus du dock -->

@@ -3,11 +3,14 @@
     const { escape, toast } = window.ui;
     const time = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
     const clock = document.getElementById('heure');
+    const day = document.getElementById('coin-date');
+    const dayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
     const soundIcon = document.getElementById('coin-son');
     const networkIcon = document.getElementById('coin-reseau');
 
     function tick() {
         clock.textContent = time.format(new Date());
+        day.textContent = dayFormat.format(new Date());
         clock.title = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     }
 
