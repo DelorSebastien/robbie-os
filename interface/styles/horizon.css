@@ -86,7 +86,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 #face { position: fixed; left: -9999px; width: 200px; height: 125px; }
 
-/* ---- Dock ---- */
+/* ---- Dock : hologramme ----
+   Un fil de lumière posé sur le lac projette les applis en hologrammes hexagonaux, chacune
+   dans son cône de lumière, à intervalles réguliers (Robbie occupe la place du milieu).
+   Au survol, l'hologramme se stabilise et monte ; un affichage tête haute donne son nom et son état. */
 .dock-zone {
     position: fixed;
     left: 0;
@@ -101,147 +104,198 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     transition: transform 0.3s var(--doux);
 }
 
+/* Le fil émetteur (droit) et sa lueur dans l'eau */
 .dock-arc { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.arc-ligne { fill: none; stroke: url(#arc-degrade); stroke-width: 1; }
-.arc-halo { fill: none; stroke: url(#arc-degrade); stroke-width: 4; opacity: 0.3; }
+.arc-ligne { fill: none; stroke: url(#arc-degrade); stroke-width: 2; }
+.arc-halo { fill: none; stroke: url(#arc-degrade); stroke-width: 10; opacity: 0.45; }
 
 .dock-points span {
     position: absolute;
     border-radius: 50%;
     background: #f2fbff;
-    box-shadow: 0 0 4px rgba(var(--accent), 0.7);
+    box-shadow: 0 0 6px rgba(var(--accent), 0.9);
     transform: translate(-50%, -50%);
+}
+
+/* Lueur projetée sous le fil, dans le lac */
+.fil-reflet {
+    position: absolute;
+    height: 54px;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(var(--accent), 0.16), transparent);
+    -webkit-mask: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
 }
 
 .dock { position: absolute; inset: 0; pointer-events: none; }
 
-.tuile {
-    --s: 50px;
+/* Cône de lumière : du nœud du fil jusqu'à l'hologramme */
+.cone {
     position: absolute;
-    width: var(--s);
-    height: var(--s);
-    margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
-    border-radius: var(--r-moyen);
+    width: 104px;
+    height: 112px;
+    margin-left: -52px;
+    clip-path: polygon(46% 100%, 54% 100%, 100% 0, 0 0);
+    background: linear-gradient(0deg, rgba(var(--accent), 0.42), rgba(var(--accent), 0.03));
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+.cone.ouverte { opacity: 0.62; }
+.cone.survol { opacity: 1; }
+
+/* Nœud lumineux du fil, sous chaque hologramme (plus vif si l'appli est ouverte) */
+.noeud {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+    border-radius: 50%;
+    background: #eaffff;
+    box-shadow: 0 0 8px rgb(var(--accent)), 0 0 18px rgba(var(--accent), 0.7);
+    opacity: 0.55;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+}
+.noeud.ouverte { opacity: 1; transform: scale(1.35); }
+
+/* L'hologramme : un hexagone de lumière tramé de lignes de balayage */
+.tuile {
+    --l: 70px;
+    --h: 78px;
+    position: absolute;
+    width: var(--l);
+    height: var(--h);
+    margin: calc(var(--h) / -2) 0 0 calc(var(--l) / -2);
     display: grid;
     place-items: center;
     pointer-events: auto;
-    background: rgba(var(--verre-rgb), calc(0.42 * var(--verre-force)));
-    border: 1px solid rgba(var(--voile), 0.08);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 18px -8px rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(16px);
+    background: none;
+    border: 0;
     transform-origin: 50% 100%;
-    transition: transform 0.25s var(--doux), border-color 0.2s, background 0.2s;
-    -webkit-box-reflect: below 8px linear-gradient(transparent 62%, rgba(255, 255, 255, 0.1));
+    transition: transform 0.3s var(--doux), opacity 0.3s;
 }
 
-/* Les applis : toutes dans la même pastille ronde, du même verre que la barre latérale
-   et le coin, avec une icône au trait teintée ; posées sur l'arc, reflétées dans le lac */
-.tuile:not(.robbie) {
-    --s: 54px;
-    border-radius: 50%;
-    border-color: rgba(var(--voile), 0.16);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 10px 22px -12px rgba(0, 0, 0, 0.7);
-    -webkit-box-reflect: below 6px linear-gradient(transparent 60%, rgba(255, 255, 255, 0.14));
+.tuile::before,
+.tuile::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+    pointer-events: none;
 }
 
-.tuile:active { filter: brightness(0.85); }
+.tuile::before {
+    background:
+        linear-gradient(180deg, rgba(var(--accent), 0.16), rgba(var(--accent), 0.04)),
+        repeating-linear-gradient(0deg, rgba(var(--accent), 0.13) 0 1px, transparent 1px 4px);
+}
+
+/* (contour de l'hexagone : la forme pleine moins un hexagone intérieur) */
+.tuile::after {
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%, 0 25%, 3% 26.5%, 3% 73.5%, 50% 96.5%, 97% 73.5%, 97% 26.5%, 50% 3.5%, 3% 26.5%, 0 25%);
+    background: rgba(var(--accent), 0.7);
+    transition: background 0.3s;
+}
 
 .tuile .picto {
-    width: 48%;
-    height: 48%;
+    position: relative;
+    z-index: 1;
+    width: 40%;
+    height: 40%;
     overflow: visible;
     pointer-events: none;
     fill: none;
-    stroke-width: 1.9;
+    stroke-width: 1.7;
     stroke-linecap: round;
     stroke-linejoin: round;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
-    transition: filter 0.25s;
+    filter: drop-shadow(0 0 4px rgb(var(--accent))) drop-shadow(0 0 10px rgba(var(--accent), 0.6));
 }
 
-/* (applis sans icône au trait : leur propre icône, plus petite, dans la pastille) */
-.tuile .icone-theme { width: 62%; height: 62%; object-fit: contain; pointer-events: none; }
+/* (toutes les icônes prennent la lumière de l'hologramme, quelle que soit leur couleur) */
+.tuile .picto path { stroke: rgb(var(--holo-trait, 200, 248, 255)); }
 
-/* Survol : la pastille s'éclaire et l'icône brille */
-.tuile:not(.robbie):hover { border-color: rgba(var(--accent), 0.5); background: rgba(var(--verre-rgb), calc(0.55 * var(--verre-force))); }
-.tuile:not(.robbie):hover .picto,
-.tuile:not(.robbie):hover .icone-theme {
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(190, 235, 255, 0.55)) brightness(1.15);
-}
-
-/* Point de lumière sur l'arc, sous chaque icône */
-.appui {
-    position: absolute;
-    width: 26px;
-    height: 3px;
-    margin: -1.5px 0 0 -13px;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(225, 248, 255, 0.95), rgba(var(--accent), 0.4) 60%, transparent);
-    filter: blur(0.6px);
+/* (applis sans icône au trait : leur icône, passée en lumière cyan) */
+.tuile .icone-theme {
+    position: relative;
+    z-index: 1;
+    width: 46%;
+    height: 46%;
+    object-fit: contain;
     pointer-events: none;
-    transition: opacity 0.25s, transform 0.25s;
+    filter: grayscale(1) brightness(1.3) drop-shadow(0 0 4px rgb(var(--accent))) opacity(0.9);
+    mix-blend-mode: screen;
 }
-.tuile .icon { width: 50%; height: 50%; color: #dbe5f5; }
 
-/* Nom de l'appli au survol */
+.tuile .icon { position: relative; z-index: 1; width: 40%; height: 40%; color: rgb(var(--holo-trait, 200, 248, 255)); }
+
+/* Survol : l'hologramme se stabilise, monte et s'éclaire */
+.tuile:not(.robbie):hover { transform: translateY(-10px) scale(1.18); }
+.tuile:not(.robbie):hover::after { background: rgb(var(--accent)); }
+.tuile:not(.robbie):hover .picto { filter: drop-shadow(0 0 5px rgb(var(--accent))) drop-shadow(0 0 16px rgba(var(--accent), 0.9)) brightness(1.2); }
+.tuile:active { filter: brightness(0.8); }
+
+/* Grésillement de temps en temps (sauf sans carte graphique, pour épargner le processeur) */
+body:not(.leger):not(.demarrage) .tuile:not(.robbie):not(:hover) { animation: gresille 5s infinite; animation-delay: calc(var(--i) * -0.7s); }
+@keyframes gresille { 0%, 46%, 49%, 100% { opacity: 1; } 47.5% { opacity: 0.55; } }
+
+/* Affichage tête haute au survol : [ NOM ] et l'état de l'appli */
 .etiquette {
     position: fixed;
     z-index: 10;
-    padding: 5px 10px;
-    border-radius: var(--r-petit);
-    background: rgba(var(--verre-rgb), calc(0.72 * var(--verre-force)));
-    border: 1px solid var(--bord);
-    backdrop-filter: blur(20px);
-    font-size: 10.5px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
+    font: 600 11px var(--police);
+    letter-spacing: 0.22em;
     text-transform: uppercase;
+    text-align: center;
+    color: #cffaff;
+    text-shadow: 0 0 8px rgb(var(--accent)), 0 1px 6px rgba(0, 0, 0, 0.8);
     white-space: nowrap;
     transform: translate(-50%, -100%);
     opacity: 0;
     transition: opacity 0.12s;
     pointer-events: none;
 }
-
+.etiquette small { display: block; margin-top: 3px; font: 500 9.5px 'Inter', sans-serif; letter-spacing: 0.14em; color: rgba(var(--accent), 0.95); }
 .etiquette.visible { opacity: 1; }
 
-/* Robbie : un peu plus grand, rond comme les applis, écran sombre sans néon, seuls ses yeux brillent */
+/* Robbie : son visage dans un écran holographique arrondi */
 .tuile.robbie {
-    --s: 68px;
-    border-radius: 50%;
-    border: 1px solid rgba(var(--voile), 0.12);
-    background: #02060d;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px -8px rgba(0, 0, 0, 0.7);
-    -webkit-box-reflect: below 10px linear-gradient(transparent 55%, rgba(255, 255, 255, 0.16));
+    --l: 92px;
+    --h: 80px;
+    border-radius: 26px;
+    border: 1px solid rgba(var(--accent), 0.5);
+    background: repeating-linear-gradient(0deg, rgba(var(--accent), 0.1) 0 1px, transparent 1px 4px), rgba(2, 6, 13, 0.55);
+    box-shadow: 0 0 30px rgba(var(--accent), 0.35), inset 0 0 26px rgba(var(--accent), 0.15);
 }
+.tuile.robbie::before, .tuile.robbie::after { display: none; }
+.tuile.robbie:hover { box-shadow: 0 0 40px rgba(var(--accent), 0.55), inset 0 0 30px rgba(var(--accent), 0.25); }
 
-.tuile.robbie .visage { position: absolute; inset: 3px; border-radius: 50%; overflow: hidden; }
+.tuile.robbie .visage { position: absolute; inset: 4px; border-radius: 22px; overflow: hidden; }
 
 .tuile.robbie #face {
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%) scale(0.42);
+    transform: translate(-50%, -50%) scale(0.44);
 }
 
-/* Point de lumière sous Robbie, posé sur l'arc */
+/* Lumière du fil sous Robbie, et son faisceau dans l'eau */
 .robbie-lueur {
     position: absolute;
-    width: 5px;
-    height: 5px;
-    margin: -2.5px 0 0 -2.5px;
+    width: 9px;
+    height: 9px;
+    margin: -4.5px 0 0 -4.5px;
     border-radius: 50%;
     background: #fff;
-    box-shadow: 0 0 6px 2px rgba(var(--accent), 0.9), 0 0 18px 4px rgba(var(--accent), 0.4);
+    box-shadow: 0 0 8px 3px rgba(var(--accent), 0.9), 0 0 24px 6px rgba(var(--accent), 0.45);
     pointer-events: none;
 }
 
 .robbie-faisceau {
     position: absolute;
-    width: 2px;
-    height: 46px;
-    margin-left: -1px;
-    background: linear-gradient(to bottom, rgba(var(--accent), 0.6), transparent);
+    width: 3px;
+    height: 50px;
+    margin-left: -1.5px;
+    background: linear-gradient(to bottom, rgba(var(--accent), 0.7), transparent);
     filter: blur(1px);
     pointer-events: none;
 }
