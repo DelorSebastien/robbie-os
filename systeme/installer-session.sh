@@ -157,10 +157,22 @@ setup_folders() {
     done > "$bookmarks"
 }
 
+# Configuration de labwc propre à la personne : copie de la commune (remise à jour à chaque
+# connexion), où l'interface règle la place réservée à la barre latérale (à gauche ou à droite)
+LABWC_DIR="$HOME/.config/robbie-os/labwc"
+setup_labwc() {
+    mkdir -p "$LABWC_DIR"
+    cp /etc/robbie-os/labwc/* "$LABWC_DIR/"
+    if grep -q '"barre": *"gauche"' "$HOME/.config/robbie-os/reglages.json" 2>/dev/null; then
+        sed -i 's|<margin top="10" bottom="120" left="10" right="78" />|<margin top="10" bottom="120" left="78" right="10" />|' "$LABWC_DIR/rc.xml"
+    fi
+}
+
 clean_guest
 setup_folders
-labwc -C /etc/robbie-os/labwc > "$HOME/.cache/robbie-os-session.log" 2>&1 \
-    || WLR_RENDERER=pixman labwc -C /etc/robbie-os/labwc >> "$HOME/.cache/robbie-os-session.log" 2>&1
+setup_labwc
+labwc -C "$LABWC_DIR" > "$HOME/.cache/robbie-os-session.log" 2>&1 \
+    || WLR_RENDERER=pixman labwc -C "$LABWC_DIR" >> "$HOME/.cache/robbie-os-session.log" 2>&1
 stop_leftovers
 clean_guest
 EOF

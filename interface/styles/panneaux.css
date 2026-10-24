@@ -374,3 +374,16 @@
     background: linear-gradient(90deg, currentColor var(--force), rgba(var(--voile), 0.15) var(--force));
     clip-path: polygon(0 100%, 100% 100%, 100% 0);
 }
+
+/* ---- Barre latérale à gauche (Réglages › Apparence) : la barre et ses panneaux changent de côté ---- */
+.barre-gauche .laterale { right: auto; left: 10px; }
+.barre-gauche .panneau-cote, .barre-gauche .panneau-alim, .barre-gauche .notif-pile { right: auto; left: 76px; }
+.barre-gauche .panneau-cote, .barre-gauche .panneau-alim { transform: translateX(-14px); }
+.barre-gauche .panneau-cote.ouvert, .barre-gauche .panneau-alim.ouvert { transform: none; }
+.barre-gauche .notif-carte { transform: translateX(-24px); }
+.barre-gauche .notif-carte.visible { transform: none; }
+.barre-gauche .demarrage .laterale { animation-name: glisse-gauche; }
+
+@keyframes glisse-gauche {
+    from { opacity: 0; transform: translateX(-30px); }
+}

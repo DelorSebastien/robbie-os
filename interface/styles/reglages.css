@@ -149,6 +149,11 @@
 .theme-apercu i + i { display: none; }
 .theme-apercu.auto i + i { display: block; background: rgba(246, 248, 251, 0.9); clip-path: inset(0 0 0 50%); }
 
+/* Barre latérale : deux cartes, avec la barre dessinée du bon côté de l'écran */
+.themes.deux { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 440px; }
+.barre-apercu i { left: auto; right: 6%; top: 12%; width: 7%; height: 62%; border-radius: 4px; background: rgba(10, 18, 36, 0.7); }
+.barre-apercu.gauche i { left: 6%; right: auto; }
+
 /* Fonds d'écran */
 .fonds { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
 

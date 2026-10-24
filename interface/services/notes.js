@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS = {
     // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
     wallpaper: null,
     theme: 'sombre',
+    barre: 'droite',
     voice: 'fr_FR-siwis-medium',
     robotVoice: true,
     voiceThreshold: 150,

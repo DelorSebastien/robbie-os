@@ -68,6 +68,12 @@
                 </button>`).join('')}
             </div>
             <p class="reglage-aide">Automatique : clair du lever au coucher du soleil, sombre la nuit.</p>`)
+            + block('Barre latérale', `
+            <div class="themes deux">${[['gauche', 'À gauche'], ['droite', 'À droite']].map(([id, label]) => `
+                <button class="theme-choix${id === (settings.barre || 'droite') ? ' actif' : ''}" data-barre="${id}">
+                    <span class="theme-apercu barre-apercu ${id}"><i></i></span>${label}
+                </button>`).join('')}
+            </div>`)
             + block('Fond d\'écran', `
             <div class="fonds">
                 <button class="fond-choix jour${current === 'jour' ? ' actif' : ''}" data-fond="jour" title="Au fil du jour">
@@ -92,6 +98,12 @@
             const wallpaper = button.dataset.fond === 'jour' ? 'jour' : wallpapers[Number(button.dataset.fond)].path;
             await change({ wallpaper });
             applyWallpaper(wallpaper);
+            renderAppearance().then(() => window.icons.fill(content));
+        }));
+
+        content.querySelectorAll('[data-barre]').forEach(button => button.addEventListener('click', async () => {
+            await change({ barre: button.dataset.barre });
+            window.disposition.set(settings.barre);
             renderAppearance().then(() => window.icons.fill(content));
         }));
 
