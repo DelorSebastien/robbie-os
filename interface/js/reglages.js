@@ -13,6 +13,7 @@
     ];
 
     const EYE_COLORS = { cyan: '56, 232, 255', green: '80, 255, 140', pink: '255, 110, 200', gold: '255, 200, 70', purple: '170, 120, 255', white: '225, 240, 255' };
+    const THEMES = [['sombre', 'Sombre'], ['clair', 'Clair'], ['auto', 'Automatique']];
     const EYE_NAMES = { cyan: 'Cyan', green: 'Vert', pink: 'Rose', gold: 'Or', purple: 'Violet', white: 'Blanc' };
 
     const panel = window.panneaux.create('reglages', 'Réglages', { place: 'reglages', onOpen: () => show(section) });
@@ -59,7 +60,15 @@
         const slices = window.soleil.PHOTOS.map((name, i, all) =>
             `<img src="${window.fond.photo(name)}" alt="" loading="lazy" style="clip-path: inset(0 ${(100 - (i + 1) * 100 / all.length).toFixed(2)}% 0 ${(i * 100 / all.length).toFixed(2)}%)">`).join('');
 
-        content.innerHTML = block('Fond d\'écran', `
+        const theme = settings.theme || 'sombre';
+        content.innerHTML = block('Thème', `
+            <div class="themes">${THEMES.map(([id, label]) => `
+                <button class="theme-choix${id === theme ? ' actif' : ''}" data-theme="${id}">
+                    <span class="theme-apercu ${id}"><i></i><i></i></span>${label}
+                </button>`).join('')}
+            </div>
+            <p class="reglage-aide">Automatique : clair du lever au coucher du soleil, sombre la nuit.</p>`)
+            + block('Fond d\'écran', `
             <div class="fonds">
                 <button class="fond-choix jour${current === 'jour' ? ' actif' : ''}" data-fond="jour" title="Au fil du jour">
                     ${slices}<span>Au fil du jour</span>
@@ -83,6 +92,12 @@
             const wallpaper = button.dataset.fond === 'jour' ? 'jour' : wallpapers[Number(button.dataset.fond)].path;
             await change({ wallpaper });
             applyWallpaper(wallpaper);
+            renderAppearance().then(() => window.icons.fill(content));
+        }));
+
+        content.querySelectorAll('[data-theme]').forEach(button => button.addEventListener('click', async () => {
+            await change({ theme: button.dataset.theme });
+            window.theme.set(settings.theme, settings.place);
             renderAppearance().then(() => window.icons.fill(content));
         }));
 
@@ -169,6 +184,7 @@
                 if (!place) throw new Error('introuvable');
                 await change({ place: { name: place.name, latitude: place.latitude, longitude: place.longitude } });
                 applyWallpaper(settings.wallpaper);
+                window.theme.set(settings.theme, settings.place);
                 info.textContent = `Ville actuelle : ${place.name}${place.region ? `, ${place.region}` : ''}`;
                 input.value = '';
                 input.placeholder = place.name;

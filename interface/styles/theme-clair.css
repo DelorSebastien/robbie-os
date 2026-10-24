@@ -1,0 +1,48 @@
+/* Robbie OS — thème clair « verre givré blanc » : panneaux en verre blanc laiteux,
+   texte bleu nuit, accents cyan plus profond (lisible sur du blanc).
+   Activé par la classe .clair sur <html> (voir js/theme.js) */
+:root.clair {
+    --texte: #0a1224;
+    --texte-doux: rgba(10, 18, 36, 0.68);
+    --verre: rgba(255, 255, 255, 0.55);
+    --bord: rgba(10, 18, 36, 0.1);
+    --voile: 10, 18, 36;
+    --texte-rgb: 10, 18, 36;
+    --texte-fort: #050a16;
+    --verre-rgb: 255, 255, 255;
+    --verre-force: 1.25;
+    --creux-rgb: 10, 18, 36;
+    --creux-force: 0.25;
+    --accent-texte: #0e8fb3;
+}
+
+/* Ce qui est posé directement sur la photo garde son texte clair (l'heure, les icônes du coin) */
+.clair .coin { color: #eef3fb; }
+
+/* Dock : pictos bleu nuit sur les tuiles de verre blanc ; Robbie garde son écran noir */
+.clair .tuile .icon { color: #26324a; }
+.clair .tuile.robbie { color: #eef3fb; }
+
+/* Barre latérale : icônes bleu nuit */
+.clair .lat-bouton, .clair .lat-ajout, .clair .contact { color: rgba(10, 18, 36, 0.78); }
+
+/* Pastille « blanc » des yeux de Robbie : un liseré pour qu'elle ne disparaisse pas sur le blanc */
+.clair .pastille-couleur { outline: 1px solid rgba(10, 18, 36, 0.15); }
+
+/* Menu du clic droit sur le dock */
+.clair .menu-dock { background: #f7f9fc; }
+
+/* Couleurs vives trop pâles sur du blanc : versions plus soutenues */
+.clair .rang-badge.enfant { color: #a36a00; background: rgba(255, 180, 40, 0.2); }
+.clair .rang-badge.invite { color: #6b3fd4; background: rgba(140, 90, 255, 0.16); }
+.clair .petit-bouton.danger:hover { color: #c62828; }
+.clair .liste-supprimer:hover { color: #d33; }
+.clair .rp-message.systeme { color: #c0392b; }
+
+/* Vignette « Au fil du jour » et pastilles des yeux : leur liseré suit le fond du panneau */
+.clair .pastille-couleur.actif { box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px rgb(var(--c)), 0 0 16px rgba(var(--c), 0.8); }
+
+/* Ombres plus légères : sur du verre blanc, les ombres noires épaisses font sale */
+.clair .panneau, .clair .robbie-panneau {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 30px 60px -24px rgba(10, 18, 36, 0.45);
+}

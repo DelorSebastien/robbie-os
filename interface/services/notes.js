@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS = {
     pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'org.xfce.ristretto'],
     // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
     wallpaper: null,
+    theme: 'sombre',
     voice: 'fr_FR-siwis-medium',
     robotVoice: true,
     voiceThreshold: 150,

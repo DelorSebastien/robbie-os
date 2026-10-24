@@ -1,0 +1,41 @@
+# Thème de fenêtres Robbie OS (clair) pour labwc : barre de titre en verre givré blanc,
+# texte bleu nuit, mêmes boutons ronds néon que le thème sombre
+border.width: 1
+window.titlebar.padding.width: 8
+window.titlebar.padding.height: 0
+
+window.active.border.color: #0a12241a
+window.inactive.border.color: #0a122410
+
+window.active.title.bg.color: #f6f8fbe8
+window.inactive.title.bg.color: #f6f8fbdc
+window.active.label.text.color: #0a1224
+window.inactive.label.text.color: #8a93a6
+window.label.text.justify: center
+
+window.button.width: 22
+window.button.height: 26
+window.button.spacing: 2
+window.button.hover.bg.corner-radius: 0
+
+window.active.shadow.size: 50
+window.inactive.shadow.size: 30
+window.active.shadow.color: #0a122450
+window.inactive.shadow.color: #0a122430
+
+menu.border.width: 1
+menu.border.color: #d5dbe5
+menu.items.bg.color: #f7f9fcf0
+menu.items.text.color: #0a1224
+menu.items.active.bg.color: #0e8fb3
+menu.items.active.text.color: #ffffff
+menu.items.padding.x: 12
+menu.items.padding.y: 6
+menu.separator.color: #d5dbe5
+menu.title.bg.color: #eef2f7
+menu.title.text.color: #0a1224
+
+osd.bg.color: #f7f9fcf0
+osd.border.color: #d5dbe5
+osd.label.text.color: #0a1224
+osd.window-switcher.item.active.border.width: 2

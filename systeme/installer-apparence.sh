@@ -50,45 +50,34 @@ gtk-font-name=Inter 10
 EOF
 done
 
-# Thème « Robbie » : barre de titre (labwc) et fenêtres GTK.
-# Les fenêtres GTK reprennent Orchis-Dark, repeint avec le verre translucide du bureau :
-# les fonds deviennent du bleu nuit presque opaque (le fond d'écran transparaît à peine :
-# plus transparent, on lirait le texte d'une fenêtre à travers celle de devant).
-rm -rf /usr/share/themes/Robbie
-cp -r "$ROBBIE_DIR/systeme/theme-labwc/Robbie" /usr/share/themes/
-for version in gtk-3.0 gtk-4.0; do
-    # Version compacte d'Orchis : marges et boutons plus petits, interface épurée
-    cp -r "/usr/share/themes/Orchis-Dark-Compact/$version" "/usr/share/themes/Robbie/$version"
-    find "/usr/share/themes/Robbie/$version" -name '*.css' -exec sed -i \
-        -e 's/#212121/rgba(10, 18, 36, 0.86)/gI' \
-        -e 's/#242424/rgba(10, 18, 36, 0.88)/gI' \
-        -e 's/#2C2C2C/rgba(10, 18, 36, 0.3)/gI' \
-        -e 's/#3C3C3C/rgba(255, 255, 255, 0.08)/gI' \
-        -e 's/#404040/rgba(255, 255, 255, 0.12)/gI' \
-        -e 's/#3281EA/#1e9cc4/gI' {} +
+# Thèmes « Robbie » (sombre) et « Robbie-Clair » (verre givré blanc) : barre de titre (labwc)
+# et fenêtres GTK, choisis dans les Réglages de Robbie OS (Apparence › Thème).
+# Les fenêtres GTK reprennent Orchis en version compacte (marges et boutons plus petits),
+# repeint avec le verre du bureau, presque opaque : le fond d'écran transparaît à peine
+# (plus transparent, on lirait le texte d'une fenêtre à travers celle de devant).
 
-done
-
-# Menus, menus contextuels, bulles d'aide et listes déroulantes restent opaques :
-# translucides, on lirait le contenu de la fenêtre à travers.
+# Ajouts communs aux deux thèmes : menus et bulles opaques (translucides, on lirait la fenêtre
+# à travers), et le panneau de gauche de l'explorateur (Thunar) comme le menu des Réglages :
+# lignes aérées aux coins arrondis, survol voilé, sélection en pilule avec un trait lumineux.
 # (une règle CSS est ignorée en entier si un seul nom est inconnu : une version par GTK ;
-# en mode sombre, GTK lit gtk-dark.css au lieu de gtk.css : on complète les deux)
-cat > /tmp/robbie-menus-gtk3.css <<'EOF'
+# selon le mode, GTK lit gtk.css ou gtk-dark.css : on complète les deux)
+# $1 thème  $2 fond des menus  $3 bord  $4 fond du panneau  $5 survol  $6 sélection  $7 trait  $8 texte sélectionné
+robbie_extras() {
+    cat > /tmp/robbie-gtk3.css <<EOF
 
 /* Robbie OS : menus et bulles opaques, lisibles par-dessus les fenêtres translucides */
 menu, .menu, .context-menu, .background.popup > menu, .background.csd > menu, combobox menu {
-    background-color: #0f1a30;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: $2;
+    border: 1px solid $3;
 }
 
 popover.background, tooltip.background {
-    background-color: #0f1a30;
+    background-color: $2;
 }
 
-/* Robbie OS : panneau de gauche de l'explorateur (Thunar), comme le menu des Réglages :
-   lignes aérées aux coins arrondis, survol voilé, sélection en pilule cyan avec un trait lumineux */
+/* Robbie OS : panneau de gauche de l'explorateur (Thunar) */
 .thunar .shortcuts-pane {
-    background-color: rgba(5, 10, 22, 0.35);
+    background-color: $4;
     padding: 6px 4px;
 }
 
@@ -100,41 +89,74 @@ popover.background, tooltip.background {
 }
 
 .thunar .shortcuts-pane treeview.view:hover {
-    background-color: rgba(255, 255, 255, 0.06);
+    background-color: $5;
 }
 
 .thunar .shortcuts-pane treeview.view:selected,
 .thunar .shortcuts-pane treeview.view:selected:focus {
-    background-color: rgba(94, 231, 255, 0.16);
-    box-shadow: inset 3px 0 0 #5ee7ff;
-    color: #ffffff;
+    background-color: $6;
+    box-shadow: inset 3px 0 0 $7;
+    color: $8;
 }
 EOF
-
-cat > /tmp/robbie-menus-gtk4.css <<'EOF'
+    cat > /tmp/robbie-gtk4.css <<EOF
 
 /* Robbie OS : menus et bulles opaques, lisibles par-dessus les fenêtres translucides */
 popover > contents, popover > arrow, popover.menu > contents, tooltip.background {
-    background-color: #0f1a30;
+    background-color: $2;
 }
 EOF
-for v in 3 4; do
-    for css in gtk.css gtk-dark.css; do
-        cat "/tmp/robbie-menus-gtk$v.css" >> "/usr/share/themes/Robbie/gtk-$v.0/$css"
+    for v in 3 4; do
+        for css in gtk.css gtk-dark.css; do
+            [ -f "/usr/share/themes/$1/gtk-$v.0/$css" ] && cat "/tmp/robbie-gtk$v.css" >> "/usr/share/themes/$1/gtk-$v.0/$css"
+        done
     done
-done
-rm -f /tmp/robbie-menus-gtk3.css /tmp/robbie-menus-gtk4.css
-cat > /usr/share/themes/Robbie/index.theme <<EOF
+    rm -f /tmp/robbie-gtk3.css /tmp/robbie-gtk4.css
+    cat > "/usr/share/themes/$1/index.theme" <<EOF
 [Desktop Entry]
 Type=X-GNOME-Metatheme
-Name=Robbie
-Comment=Thème de Robbie OS : bleu nuit et cyan
+Name=$1
+Comment=Thème de Robbie OS
 
 [X-GNOME-Metatheme]
-GtkTheme=Robbie
+GtkTheme=$1
 IconTheme=$ICONS
 CursorTheme=$CURSOR
 EOF
+}
+
+# Sombre : Orchis-Dark repeint en bleu nuit
+rm -rf /usr/share/themes/Robbie
+cp -r "$ROBBIE_DIR/systeme/theme-labwc/Robbie" /usr/share/themes/
+for version in gtk-3.0 gtk-4.0; do
+    cp -r "/usr/share/themes/Orchis-Dark-Compact/$version" "/usr/share/themes/Robbie/$version"
+    find "/usr/share/themes/Robbie/$version" -name '*.css' -exec sed -i \
+        -e 's/#212121/rgba(10, 18, 36, 0.86)/gI' \
+        -e 's/#242424/rgba(10, 18, 36, 0.88)/gI' \
+        -e 's/#2C2C2C/rgba(10, 18, 36, 0.3)/gI' \
+        -e 's/#3C3C3C/rgba(255, 255, 255, 0.08)/gI' \
+        -e 's/#404040/rgba(255, 255, 255, 0.12)/gI' \
+        -e 's/#3281EA/#1e9cc4/gI' {} +
+done
+robbie_extras Robbie '#0f1a30' 'rgba(255, 255, 255, 0.1)' 'rgba(5, 10, 22, 0.35)' \
+    'rgba(255, 255, 255, 0.06)' 'rgba(94, 231, 255, 0.16)' '#5ee7ff' '#ffffff'
+
+# Clair : Orchis-Light repeint en verre givré blanc, accent cyan profond (lisible sur du blanc)
+rm -rf /usr/share/themes/Robbie-Clair
+cp -r "$ROBBIE_DIR/systeme/theme-labwc/Robbie-Clair" /usr/share/themes/
+for version in gtk-3.0 gtk-4.0; do
+    cp -r "/usr/share/themes/Orchis-Light-Compact/$version" "/usr/share/themes/Robbie-Clair/$version"
+    find "/usr/share/themes/Robbie-Clair/$version" -name '*.css' -exec sed -i \
+        -e 's/#F2F2F2/rgba(246, 248, 251, 0.86)/gI' \
+        -e 's/#FAFAFA/rgba(250, 251, 253, 0.5)/gI' \
+        -e 's/\(background\(-color\)\?: \)#FFFFFF/\1rgba(255, 255, 255, 0.5)/gI' \
+        -e 's/#1A73E8/#0e8fb3/gI' {} +
+    # (le système demande le mode sombre aux applis, qui lisent alors gtk-dark.css :
+    # en clair, c'est la même feuille que gtk.css)
+    cp "/usr/share/themes/Robbie-Clair/$version/gtk.css" "/usr/share/themes/Robbie-Clair/$version/gtk-dark.css"
+done
+robbie_extras Robbie-Clair '#f7f9fc' 'rgba(10, 18, 36, 0.1)' 'rgba(255, 255, 255, 0.35)' \
+    'rgba(10, 18, 36, 0.06)' 'rgba(14, 143, 179, 0.14)' '#0e8fb3' '#0a1224'
 
 # Écran de verrouillage en français (gtklock n'a pas de traduction française : on fournit la nôtre)
 msgfmt -o /usr/share/locale/fr/LC_MESSAGES/gtklock.mo "$ROBBIE_DIR/systeme/traductions/gtklock-fr.po"
