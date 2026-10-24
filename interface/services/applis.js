@@ -83,7 +83,7 @@ function iconData(name) {
 
 // Entrées techniques que personne ne lance à la main (variantes, réglages internes, outils en console)
 const HIDDEN = new Set([
-    'footclient', 'foot-server', 'thunar-settings', 'thunar-bulk-rename', 'org.xfce.mousepad-settings',
+    'footclient', 'foot-server', 'nemo-autorun-software', 'nemo-autostart', 'org.xfce.mousepad-settings',
     'vim', 'display-im7.q16', 'display-im6.q16', 'org.freedesktop.Xwayland', 'python3.13', 'debian-uxterm', 'debian-xterm'
 ]);
 
@@ -145,8 +145,8 @@ function launch(id) {
 
 // Ouvre un dossier ou un emplacement (trash:///…) dans le gestionnaire de fichiers
 function openLocation(location) {
-    // (la corbeille va directement à Thunar : xdg-open l'enverrait au navigateur)
-    const [command, args] = location.startsWith('trash:') ? ['thunar', [location]] : ['xdg-open', [location]];
+    // (la corbeille va directement à l'explorateur : xdg-open l'enverrait au navigateur)
+    const [command, args] = location.startsWith('trash:') ? ['nemo', [location]] : ['xdg-open', [location]];
     const child = spawn(command, args, { detached: true, stdio: 'ignore' });
     child.on('error', error => console.error(`Ouverture impossible : ${location}`, error.message));
     child.unref();
