@@ -23,6 +23,7 @@
         panel.el.hidden = false;
         requestAnimationFrame(() => panel.el.classList.add('ouvert'));
         panel.onOpen?.();
+        window.os.setPanelShown(true);
         document.dispatchEvent(new CustomEvent('panneau-ouvert', { detail: id }));
     }
 
@@ -36,6 +37,7 @@
             if (current !== id) panel.el.hidden = true;
         }, 250);
         panel.onClose?.();
+        window.os.setPanelShown(false);
         document.dispatchEvent(new CustomEvent('panneau-ferme', { detail: id }));
     }
 

@@ -49,7 +49,8 @@ contextBridge.exposeInMainWorld('os', {
     accounts: () => ipcRenderer.invoke('comptes'),
     changeAccount: (args, password, input) => ipcRenderer.invoke('compte-modifier', args, password, input),
     logout: () => ipcRenderer.send('deconnexion'),
-    reloadIdle: () => ipcRenderer.send('inactivite-recharger')
+    reloadIdle: () => ipcRenderer.send('inactivite-recharger'),
+    setPanelShown: open => ipcRenderer.send('panneau', open)
 });
 
 // Robbie : lui parler, et recevoir ses réponses, sa voix et son état

@@ -118,7 +118,30 @@ let robbie = null;
 ipcMain.handle('robbie-demander', (_event, text) => robbie?.ask(text));
 ipcMain.handle('robbie-confirmer', (_event, action) => robbie?.confirm(action));
 ipcMain.on('robbie-parle', (_event, speaking) => robbie?.setSpeaking(speaking));
-ipcMain.on('robbie-panneau', (_event, open) => robbie?.setPanelOpen(open));
+ipcMain.on('robbie-panneau', (_event, open) => {
+    robbie?.setPanelOpen(open);
+    setForeground('robbie', open);
+});
+
+// Le bureau reste sous les fenêtres (règle de labwc), sauf quand un panneau est ouvert :
+// il passe alors devant, puis repasse dessous. labwc n'a pas de commande pour ça,
+// on lui envoie des touches réservées à cet usage (voir rc.xml)
+const openPanels = { panneau: false, robbie: false };
+let inFront = false;
+let foregroundTimer = null;
+function setForeground(kind, open) {
+    openPanels[kind] = Boolean(open);
+    // (passer d'un panneau à l'autre ferme puis rouvre : on attend un peu avant de décider)
+    clearTimeout(foregroundTimer);
+    foregroundTimer = setTimeout(() => {
+        const wanted = openPanels.panneau || openPanels.robbie;
+        if (preview || wanted === inFront) return;
+        inFront = wanted;
+        spawn('wtype', ['-k', wanted ? 'XF86Launch8' : 'XF86Launch9'], { stdio: 'ignore' })
+            .on('error', error => console.error('Premier plan impossible :', error.message));
+    }, 120);
+}
+ipcMain.on('panneau', (_event, open) => setForeground('panneau', open));
 
 // Fenêtres ouvertes : suivies pour le dock, et ramenées au premier plan sur demande
 ipcMain.handle('fenetres', () => fenetres.list());

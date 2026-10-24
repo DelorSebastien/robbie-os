@@ -62,7 +62,26 @@ cat > "$CONFIG/labwc/rc.xml" <<'EOF'
     <keybind key="W-n"><action name="Execute" command="sh -c 'echo notifications > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="W-i"><action name="Execute" command="sh -c 'echo reglages > $HOME/.cache/robbie-os.commande'" /></keybind>
     <keybind key="W-l"><action name="Execute" command="sh -c 'echo verrouiller > $HOME/.cache/robbie-os.commande'" /></keybind>
+    <!-- Touches invisibles envoyées par l'interface (wtype) : le bureau passe devant les fenêtres
+         le temps qu'un de ses panneaux est ouvert, puis repasse dessous -->
+    <keybind key="XF86Launch8">
+      <action name="ForEach"><query identifier="robbie-os" /><then>
+        <action name="ToggleAlwaysOnBottom" /><action name="Raise" /><action name="Focus" />
+      </then></action>
+    </keybind>
+    <keybind key="XF86Launch9">
+      <action name="ForEach"><query identifier="robbie-os" /><then>
+        <action name="ToggleAlwaysOnBottom" />
+      </then></action>
+    </keybind>
   </keyboard>
+  <!-- Le bureau (l'interface de Robbie OS, en plein écran) reste toujours sous les fenêtres :
+       un clic dessus ne les cache plus -->
+  <windowRules>
+    <windowRule identifier="robbie-os" skipWindowSwitcher="yes">
+      <action name="ToggleAlwaysOnBottom" />
+    </windowRule>
+  </windowRules>
 </labwc_config>
 EOF
 
