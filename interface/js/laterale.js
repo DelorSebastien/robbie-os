@@ -10,6 +10,7 @@
         agenda: () => window.panneaux.toggle('agenda'),
         reglages: () => window.reglages ? window.reglages.open() : toast('Les réglages arrivent bientôt', 'gear'),
         lanceur: () => window.launcher.toggle(),
+        alimentation: () => window.panneaux.toggle('alimentation'),
         capture: async () => {
             window.panneaux.close();
             const result = await window.os.screenshot();
@@ -27,6 +28,40 @@
     });
     document.addEventListener('panneau-ouvert', event => mark(event.detail));
     document.addEventListener('panneau-ferme', () => mark(null));
+
+    // ---- Alimentation : verrouiller, se déconnecter, veille, redémarrer, éteindre ----
+    // (ce qui ferme la session ou l'ordinateur demande un deuxième clic pour confirmer)
+    const POWER = [
+        { id: 'lock', label: 'Verrouiller', icon: 'lock', run: () => window.os.lock() },
+        { id: 'logout', label: 'Se déconnecter', icon: 'logout', confirm: true, run: () => window.os.logout() },
+        { id: 'suspend', label: 'Veille', icon: 'moon', run: () => window.os.power('suspend') },
+        { id: 'reboot', label: 'Redémarrer', icon: 'restart', confirm: true, run: () => window.os.power('reboot') },
+        { id: 'poweroff', label: 'Éteindre', icon: 'power', confirm: true, danger: true, run: () => window.os.power('poweroff') }
+    ];
+    const powerPanel = window.panneaux.create('alimentation', 'Alimentation', { place: 'alim', onOpen: renderPower });
+
+    function renderPower() {
+        powerPanel.body.innerHTML = `<div class="alim-grille">${POWER.map(item => `
+            <button class="alim-bouton${item.danger ? ' danger' : ''}" data-alim="${item.id}">
+                <span class="alim-icone" data-icon="${item.icon}"></span><span class="alim-texte">${item.label}</span>
+            </button>`).join('')}</div>`;
+        window.icons.fill(powerPanel.body);
+
+        powerPanel.body.querySelectorAll('[data-alim]').forEach(button => button.addEventListener('click', () => {
+            const item = POWER.find(entry => entry.id === button.dataset.alim);
+            if (item.confirm && !button.classList.contains('confirmer')) {
+                button.classList.add('confirmer');
+                button.querySelector('.alim-texte').textContent = 'Confirmer00a0?';
+                setTimeout(() => {
+                    button.classList.remove('confirmer');
+                    button.querySelector('.alim-texte').textContent = item.label;
+                }, 4000);
+                return;
+            }
+            window.panneaux.close();
+            item.run();
+        }));
+    }
 
     // ---- Contacts (enregistrés sur l'ordinateur ; photos à venir) ----
     let contacts = [];
