@@ -13,7 +13,7 @@ apt-get install -y --no-install-recommends \
     labwc seatd xwayland foot swaybg wlr-randr wtype wl-clipboard grim \
     mesa-utils libgl1-mesa-dri fonts-noto-core fonts-noto-color-emoji fonts-inter \
     `# Premières applis : navigateur, fichiers, texte, images` \
-    firefox-esr firefox-esr-l10n-fr thunar mousepad ristretto adwaita-icon-theme papirus-icon-theme \
+    firefox-esr firefox-esr-l10n-fr thunar gvfs xdg-utils mousepad ristretto adwaita-icon-theme papirus-icon-theme \
     `# Son et micro` \
     pipewire pipewire-pulse pipewire-alsa wireplumber alsa-utils playerctl sox \
     `# Interface : Node.js et ce dont Electron a besoin` \
