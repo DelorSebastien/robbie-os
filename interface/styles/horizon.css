@@ -726,22 +726,26 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     transition: background 0.15s, border-color 0.15s;
 }
 
-.lanceur-appli:hover, .lanceur-appli.choisie { background: rgba(var(--voile), 0.07); border-color: rgba(var(--voile), 0.1); }
-.lanceur-appli.choisie { border-color: rgba(var(--accent), 0.45); }
+.lanceur-appli:hover, .lanceur-appli.choisie { background: rgba(var(--voile), 0.06); }
 
-.lanceur-icone { width: 48px; height: 48px; display: grid; place-items: center; }
-.lanceur-icone img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5)); }
-
-.app-lettre {
-    width: 100%;
-    height: 100%;
+/* Même pastille ronde de verre que le dock, même icône au trait */
+.lanceur-icone {
+    width: 54px;
+    height: 54px;
     display: grid;
     place-items: center;
-    border-radius: 14px;
-    background: rgba(var(--voile), 0.08);
-    font-size: 18px;
-    font-weight: 600;
+    border-radius: 50%;
+    background: rgba(var(--verre-rgb), calc(0.42 * var(--verre-force)));
+    border: 1px solid rgba(var(--voile), 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 10px 22px -12px rgba(0, 0, 0, 0.7);
+    transition: border-color 0.2s;
 }
+
+.lanceur-icone .picto { width: 48%; height: 48%; overflow: visible; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.lanceur-icone img { width: 62%; height: 62%; object-fit: contain; }
+.lanceur-appli:hover .lanceur-icone, .lanceur-appli.choisie .lanceur-icone { border-color: rgba(var(--accent), 0.5); }
+
+.app-lettre { font-size: 18px; font-weight: 600; }
 
 .lanceur-nom {
     font: 12px/1.25 'Inter', 'Noto Sans', sans-serif;
@@ -753,14 +757,17 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     -webkit-box-orient: vertical;
 }
 
+/* Épinglée au dock : un point cyan posé sur le bord de la pastille */
+.lanceur-icone { position: relative; }
 .lanceur-epingle {
     position: absolute;
-    top: 9px;
-    right: 12px;
-    width: 6px;
-    height: 6px;
+    top: 3px;
+    right: 3px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: rgb(var(--accent));
+    box-shadow: 0 0 0 2px rgba(var(--verre-rgb), 0.9), 0 0 6px rgba(var(--accent), 0.8);
 }
 
 .lanceur-vide { grid-column: 1 / -1; text-align: center; font: 13px 'Inter', sans-serif; color: var(--texte-doux); padding: 30px 0; }

@@ -83,7 +83,7 @@ function iconData(name) {
 
 // Entrées techniques que personne ne lance à la main (variantes, réglages internes, outils en console)
 const HIDDEN = new Set([
-    'footclient', 'foot-server', 'thunar-settings', 'thunar-bulk-rename', 'org.xfce.mousepad-settings',
+    'footclient', 'foot-server', 'thunar-settings', 'thunar-bulk-rename', 'thunar-volman-settings', 'org.xfce.mousepad-settings', 'org.xfce.ristretto',
     'vim', 'display-im7.q16', 'display-im6.q16', 'org.freedesktop.Xwayland', 'python3.13', 'debian-uxterm', 'debian-xterm'
 ]);
 

@@ -10,16 +10,17 @@
     let shown = [];
     let selected = 0;
 
-    const appIcon = app => (app.icon
-        ? `<img src="${app.icon}" alt="">`
-        : `<span class="app-lettre">${escape(app.name.charAt(0))}</span>`);
+    // Même pastille de verre et même icône au trait que dans le dock
+    const appIcon = app => window.dock?.look(app).glyph
+        || (app.icon ? `<img src="${app.icon}" alt="">` : `<span class="app-lettre">${escape(app.name.charAt(0))}</span>`);
+    const appName = app => window.dock?.look(app).name || app.name;
 
     function render() {
         const query = search.value;
         shown = apps
-            .map(app => ({ app, score: score(query, app.name, app.description, app.keywords) }))
+            .map(app => ({ app, score: score(query, appName(app), app.name, app.description, app.keywords) }))
             .filter(item => item.score > 0)
-            .sort((a, b) => b.score - a.score || a.app.name.localeCompare(b.app.name, 'fr'))
+            .sort((a, b) => b.score - a.score || appName(a.app).localeCompare(appName(b.app), 'fr'))
             .map(item => item.app);
 
         selected = Math.min(selected, Math.max(0, shown.length - 1));
@@ -27,9 +28,8 @@
 
         grid.innerHTML = shown.map((app, index) => `
             <button class="lanceur-appli${index === selected ? ' choisie' : ''}" data-index="${index}" title="${escape(app.description)}">
-                <span class="lanceur-icone">${appIcon(app)}</span>
-                <span class="lanceur-nom">${escape(app.name)}</span>
-                ${pinned.includes(app.id) ? '<span class="lanceur-epingle" aria-label="Épinglée au dock"></span>' : ''}
+                <span class="lanceur-icone">${appIcon(app)}${pinned.includes(app.id) ? '<span class="lanceur-epingle" aria-label="Épinglée au dock"></span>' : ''}</span>
+                <span class="lanceur-nom">${escape(appName(app))}</span>
             </button>`).join('') || '<p class="lanceur-vide">Aucune appli trouvée</p>';
     }
 
@@ -58,7 +58,7 @@
         const pinned = window.dock.pinned();
         const next = pinned.includes(app.id) ? pinned.filter(id => id !== app.id) : [...pinned, app.id];
         document.dispatchEvent(new CustomEvent('pinned-changed', { detail: next }));
-        window.ui.toast(pinned.includes(app.id) ? `${app.name} retiré du dock` : `${app.name} épinglé au dock`, 'check');
+        window.ui.toast(pinned.includes(app.id) ? `${appName(app)} retiré du dock` : `${appName(app)} épinglé au dock`, 'check');
         setTimeout(render, 50);
     });
 

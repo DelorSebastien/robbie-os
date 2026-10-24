@@ -363,5 +363,12 @@
         face.setExpression('happy', 1800);
     }, 3500);
 
-    window.dock = { pinned: () => pinned, setPinned };
+    // Apparence d'une appli, partagée avec Toutes les applis : son nom, et son icône au trait
+    // (null : l'appli prend l'icône de son thème)
+    const look = app => {
+        const known = KNOWN[app.id];
+        return { name: known?.name || app.name, glyph: known ? GLYPHS[known.glyph] : null };
+    };
+
+    window.dock = { pinned: () => pinned, setPinned, look };
 })();
