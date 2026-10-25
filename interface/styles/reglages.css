@@ -172,7 +172,27 @@
     transition: border-color 0.15s, transform 0.2s var(--doux);
 }
 
+.fond-choix { position: relative; }
 .fond-choix:hover { transform: scale(1.03); }
+
+/* Croix pour retirer un fond ajouté : visible au survol */
+.fond-retirer {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgba(5, 10, 22, 0.75);
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s;
+}
+.fond-retirer .icon { width: 13px; height: 13px; }
+.fond-choix:hover .fond-retirer { opacity: 1; }
+.fond-retirer:hover { background: rgba(255, 90, 110, 0.9); }
 .fond-choix.actif { border-color: var(--accent-texte); }
 .fond-choix img { width: 100%; height: 100%; object-fit: cover; display: block; }
 

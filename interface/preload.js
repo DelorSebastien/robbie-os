@@ -38,6 +38,8 @@ contextBridge.exposeInMainWorld('os', {
     setBrightness: percent => ipcRenderer.invoke('set-luminosite', percent),
     screenshot: () => ipcRenderer.invoke('capture'),
     wallpapers: () => ipcRenderer.invoke('fonds'),
+    importWallpaper: () => ipcRenderer.invoke('fond-importer'),
+    removeWallpaper: file => ipcRenderer.invoke('fond-retirer', file),
     voices: () => ipcRenderer.invoke('voix'),
     displays: () => ipcRenderer.invoke('ecrans'),
     setResolution: (name, width, height) => ipcRenderer.invoke('set-resolution', name, width, height),
