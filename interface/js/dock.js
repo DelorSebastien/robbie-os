@@ -102,6 +102,9 @@
     }
 
     async function build() {
+        // (une appli installée depuis le début de la session, par la Logithèque par exemple,
+        // doit pouvoir être épinglée : la liste des applis est relue à chaque fois)
+        apps = await window.os.apps();
         const next = computeItems();
         if (signature(next) === signature(items) && tiles.length) return markOpen();
         items = next;
