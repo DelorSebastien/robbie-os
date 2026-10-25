@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
     eyeColor: 'cyan',
     skin: 'none',
     doNotDisturb: false,
-    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'robbie-photos', 'robbie-logitheque'],
+    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'robbie-logitheque'],
     // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
     wallpaper: null,
     theme: 'sombre',
@@ -44,13 +44,17 @@ const DEFAULT_SETTINGS = {
     lockMinutes: 0
 };
 
-// La visionneuse Ristretto a été remplacée par l'appli Photos : elle garde sa place dans le dock.
-// La Logithèque arrive une fois dans le dock des comptes créés avant elle (on peut ensuite l'en retirer)
+// La Logithèque arrive une fois dans le dock des comptes créés avant elle ; Photos (et l'ancienne
+// visionneuse Ristretto) en part une fois : elle s'ouvre depuis l'explorateur (on peut la réépingler)
 function migrate(settings) {
-    if (Array.isArray(settings.pinned)) settings.pinned = settings.pinned.map(id => (id === 'org.xfce.ristretto' ? 'robbie-photos' : id));
     if (!settings.logithequeProposee) {
         if (Array.isArray(settings.pinned) && !settings.pinned.includes('robbie-logitheque')) settings.pinned = [...settings.pinned, 'robbie-logitheque'];
         settings.logithequeProposee = true;
+        save('reglages', settings);
+    }
+    if (!settings.photosDansExplorateur) {
+        if (Array.isArray(settings.pinned)) settings.pinned = settings.pinned.filter(id => id !== 'robbie-photos' && id !== 'org.xfce.ristretto');
+        settings.photosDansExplorateur = true;
         save('reglages', settings);
     }
     return settings;

@@ -1,0 +1,39 @@
+Description: Robbie OS : un signet vers un lanceur d'appli (.desktop) lance l'appli
+Author: Robbie OS
+
+--- a/thunar/thunar-shortcuts-view.c	2026-10-25 13:37:08.147618533 +0100
++++ b/thunar/thunar-shortcuts-view.c	2026-10-25 13:37:08.147618533 +0100
+@@ -47,6 +47,7 @@
+ #include "thunar/thunar-shortcuts-view.h"
+ 
+ #include <gdk/gdkkeysyms.h>
++#include <gio/gdesktopappinfo.h>
+ #include <libxfce4util/libxfce4util.h>
+ 
+ 
+@@ -1749,6 +1750,25 @@
+                           THUNAR_SHORTCUTS_MODEL_COLUMN_LOCATION, &location,
+                           -1);
+ 
++      /* Robbie OS : un signet vers un lanceur d'appli (.desktop), comme « Photos », lance l'appli */
++      if (device == NULL && file != NULL && thunar_file_is_desktop_file (file))
++        {
++          gchar           *path = g_file_get_path (thunar_file_get_file (file));
++          GDesktopAppInfo *info = path != NULL ? g_desktop_app_info_new_from_filename (path) : NULL;
++
++          g_free (path);
++          if (info != NULL)
++            {
++              g_app_info_launch (G_APP_INFO (info), NULL, NULL, NULL);
++              g_object_unref (info);
++              thunar_shortcuts_view_select_by_file (view, view->current_directory);
++              g_object_unref (file);
++              if (location != NULL)
++                g_object_unref (location);
++              return;
++            }
++        }
++
+       if (device != NULL)
+         {
+           g_object_set (G_OBJECT (view->action_mgr), "selected-device", device, NULL);

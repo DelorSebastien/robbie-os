@@ -275,13 +275,26 @@ setup_folders() {
     # (dossier anglais vide laissé par Firefox avant que Téléchargements existe)
     [ "$(xdg-user-dir DOWNLOAD)" != "$HOME/Downloads" ] && rmdir "$HOME/Downloads" 2>/dev/null
     bookmarks="$HOME/.config/gtk-3.0/bookmarks"
-    [ -s "$bookmarks" ] && return
-    mkdir -p "$(dirname "$bookmarks")"
-    for name in DOCUMENTS PICTURES VIDEOS MUSIC DOWNLOAD; do
-        folder="$(xdg-user-dir "$name")"
-        [ "$folder" != "$HOME" ] && [ -d "$folder" ] || continue
-        python3 -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).as_uri())' "$folder"
-    done > "$bookmarks"
+    if [ ! -s "$bookmarks" ]; then
+        mkdir -p "$(dirname "$bookmarks")"
+        for name in DOCUMENTS PICTURES VIDEOS MUSIC DOWNLOAD; do
+            folder="$(xdg-user-dir "$name")"
+            [ "$folder" != "$HOME" ] && [ -d "$folder" ] || continue
+            python3 -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).as_uri())' "$folder"
+        done > "$bookmarks"
+    fi
+    # L'appli Photos dans l'explorateur, sous Images (une seule fois : on peut retirer le signet)
+    photos_mark="$HOME/.config/robbie-os/signet-photos"
+    if [ ! -e "$photos_mark" ]; then
+        photos='file:///usr/share/applications/robbie-photos.desktop Photos'
+        pictures="$(python3 -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).as_uri())' "$(xdg-user-dir PICTURES)")"
+        if grep -qx "$pictures" "$bookmarks"; then
+            sed -i "\|^$pictures\$|a $photos" "$bookmarks"
+        else
+            echo "$photos" >> "$bookmarks"
+        fi
+        mkdir -p "$(dirname "$photos_mark")" && touch "$photos_mark"
+    fi
 }
 
 # Configuration de labwc propre à la personne : copie de la commune (remise à jour à chaque
