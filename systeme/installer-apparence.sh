@@ -52,6 +52,11 @@ cursor-theme='$CURSOR'
 cursor-size=24
 color-scheme='prefer-dark'
 font-name='Inter 10'
+
+# Boutons des barres de titre dessinées par les applis (GTK, Firefox) : les trois de Robbie OS,
+# dans le même ordre que labwc (fermer, réduire, agrandir), à gauche
+[org/gnome/desktop/wm/preferences]
+button-layout='close,minimize,maximize:'
 EOF
 dconf update
 
@@ -65,8 +70,15 @@ gtk-cursor-theme-name=$CURSOR
 gtk-cursor-theme-size=24
 gtk-application-prefer-dark-theme=true
 gtk-font-name=Inter 10
+gtk-decoration-layout=close,minimize,maximize:
 EOF
 done
+
+# Firefox : la barre de titre de Robbie OS (les trois boutons de labwc) plutôt que la sienne
+cat > /etc/firefox-esr/robbie-os.js <<'EOF'
+// Robbie OS : Firefox garde la barre de titre du système (fermer, réduire, agrandir de labwc)
+pref("browser.tabs.inTitlebar", 0);
+EOF
 
 # Thèmes « Robbie » (sombre) et « Robbie-Clair » (verre givré blanc) : barre de titre (labwc)
 # et fenêtres GTK, choisis dans les Réglages de Robbie OS (Apparence › Thème).

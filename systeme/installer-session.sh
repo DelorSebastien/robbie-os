@@ -327,10 +327,23 @@ setup_shell() {
         || printf '\n# Invite de commande de Robbie OS\n[ -f /etc/robbie-os/invite.sh ] && . /etc/robbie-os/invite.sh\n' >> "$HOME/.bashrc"
 }
 
+# Firefox (celui de Debian et celui de Flathub) : la barre de titre de Robbie OS, avec les trois
+# boutons de labwc, plutôt que la sienne (le Firefox de Flathub ne lit pas /etc/firefox-esr)
+setup_firefox() {
+    for profile in "$HOME"/.config/mozilla/firefox/*.default* "$HOME"/.mozilla/firefox/*.default* \
+                   "$HOME"/.var/app/org.mozilla.firefox/config/mozilla/firefox/*.default* \
+                   "$HOME"/.var/app/org.mozilla.firefox/.mozilla/firefox/*.default*; do
+        [ -d "$profile" ] || continue
+        grep -q 'browser.tabs.inTitlebar' "$profile/user.js" 2>/dev/null \
+            || echo 'user_pref("browser.tabs.inTitlebar", 0);' >> "$profile/user.js"
+    done
+}
+
 clean_guest
 setup_folders
 setup_labwc
 setup_shell
+setup_firefox
 labwc -C "$LABWC_DIR" > "$HOME/.cache/robbie-os-session.log" 2>&1 \
     || WLR_RENDERER=pixman labwc -C "$LABWC_DIR" >> "$HOME/.cache/robbie-os-session.log" 2>&1
 stop_leftovers
