@@ -32,14 +32,9 @@
         <!-- Bureaux virtuels : un point par bureau, l'actif est allumé (Super + 1…4) -->
         <div class="bureaux" id="bureaux" role="group" aria-label="Bureaux virtuels"></div>
         <button class="lat-bouton" data-panneau data-action="notifications" data-icon="bell" aria-label="Notifications" title="Notifications (Super+N)"><span class="pastille" hidden></span></button>
-        <button class="lat-bouton" data-panneau data-action="contacts" data-icon="users" aria-label="Contacts" title="Contacts"></button>
-        <div class="contacts" id="contacts"></div>
-        <span class="lat-sep"></span>
-        <button class="lat-bouton" data-panneau data-action="aujourdhui" data-icon="sun" aria-label="Aujourd'hui" title="Aujourd'hui : météo, rendez-vous, musique, minuteur"></button>
-        <button class="lat-bouton" data-panneau data-action="notes" data-icon="file" aria-label="Notes" title="Notes"></button>
-        <button class="lat-bouton" data-panneau data-action="agenda" data-icon="calendar" aria-label="Agenda" title="Agenda"></button>
-        <button class="lat-bouton" data-action="capture" data-icon="capture" aria-label="Capture d'écran" title="Capture d'écran"></button>
-        <button class="lat-bouton" data-panneau data-action="presse-papiers" data-icon="clipboard" aria-label="Presse-papiers" title="Presse-papiers (Super+V)"></button>
+        <!-- Groupes : chacun ouvre son tiroir à côté de la barre (elle ne déborde jamais) -->
+        <button class="lat-bouton" data-panneau data-action="contacts" data-icon="users" aria-label="Contacts" title="Contacts"><span class="lat-nombre" id="contacts-nombre" hidden></span></button>
+        <button class="lat-bouton" data-panneau data-action="outils" data-icon="grid" aria-label="Outils" title="Outils : aujourd'hui, notes, agenda, capture, presse-papiers"></button>
         <button class="lat-bouton" data-panneau data-action="reglages" data-icon="gear" aria-label="Réglages" title="Réglages (Super+I)"></button>
         <span class="lat-sep lat-bas"></span>
         <button class="lat-bouton" data-panneau data-action="lanceur" data-icon="plus" aria-label="Toutes les applis" title="Toutes les applis (Super+A)"></button>
