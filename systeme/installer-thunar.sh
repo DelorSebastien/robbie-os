@@ -34,4 +34,17 @@ fi
 apt-get install -y --allow-downgrades "$PAQUETS"/thunar_*.deb "$PAQUETS"/thunar-data_*.deb "$PAQUETS"/libthunarx-3-0_*.deb
 apt-mark hold thunar thunar-data libthunarx-3-0
 
+# « Définir comme fond d'écran » (clic droit sur une image) : le module de Thunar ne connaît que
+# les bureaux Xfce, GNOME… ; il est mis de côté et remplacé par une action de Robbie OS
+# (outil « fond » : l'image est rangée dans Images › Fonds d'écran et l'interface la prend tout de suite)
+install -D -m 755 "$ROBBIE_DIR/systeme/outils/fond" /usr/local/lib/robbie-os/fond
+PLUGIN=/usr/lib/x86_64-linux-gnu/thunarx-3/thunar-wallpaper-plugin.so
+dpkg-divert --quiet --local --rename --divert "$PLUGIN.robbie-os" --add "$PLUGIN"
+ACTION='<action><icon>preferences-desktop-wallpaper</icon><name>Définir comme fond d’écran</name><submenu></submenu><unique-id>robbie-os-fond</unique-id><command>/usr/local/lib/robbie-os/fond %f</command><description>Utiliser cette image comme fond d’écran de Robbie OS</description><range>1</range><patterns>*.jpg;*.jpeg;*.png;*.webp;*.avif;*.JPG;*.JPEG;*.PNG</patterns><image-files/></action>'
+# (pour les nouveaux comptes, et dans les actions déjà personnalisées de chaque compte)
+for UCA in /etc/xdg/Thunar/uca.xml /home/*/.config/Thunar/uca.xml; do
+    [ -f "$UCA" ] || continue
+    grep -q robbie-os-fond "$UCA" || sed -i "s|</actions>|$ACTION\n</actions>|" "$UCA"
+done
+
 echo "Thunar de Robbie OS installé"
