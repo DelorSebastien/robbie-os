@@ -615,3 +615,47 @@
 .fiche-ligne { width: 100%; display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 .fiche-ligne .danger { margin-right: auto; }
 .fiche-ligne .confirmer { background: rgba(255, 107, 107, 0.25); border-color: rgba(255, 107, 107, 0.6); }
+
+/* ---- Téléphone : appel entrant, appel en cours, batterie du téléphone relié ---- */
+.appel-entrant { position: fixed; right: 76px; top: 10px; z-index: 30; width: 360px; padding: 18px; border-radius: var(--r-grand); display: flex; flex-direction: column; gap: 16px; font: 13px/1.4 'Inter', 'Noto Sans', sans-serif;
+    background: var(--capsule); border: 1px solid rgba(127, 240, 187, 0.3); box-shadow: 0 24px 50px -18px #000, 0 0 30px -14px #7ff0bb;
+    opacity: 0; transform: translateX(14px); transition: opacity 0.25s, transform 0.25s var(--doux); }
+.appel-entrant.visible { opacity: 1; transform: none; }
+.barre-gauche .appel-entrant { right: auto; left: 76px; transform: translateX(-14px); }
+.barre-gauche .appel-entrant.visible { transform: none; }
+.ae-tete { display: flex; align-items: center; gap: 14px; }
+.ae-avatar { position: relative; width: 58px; height: 58px; flex: none; }
+.ae-onde { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #7ff0bb; animation: ae-onde 1.6s ease-out infinite; }
+@keyframes ae-onde { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.7); opacity: 0; } }
+.ae-av { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; font: 600 18px 'Inter', sans-serif; color: #04121c; background: var(--c); }
+.ae-qui { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.3; }
+.ae-qui small { font: 600 10px var(--police); letter-spacing: 0.18em; color: #7ff0bb; }
+.ae-qui b { font-weight: 600; font-size: 18px; color: var(--texte-fort); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ae-qui span { font-size: 12.5px; color: var(--texte-doux); }
+.ae-boutons { display: flex; gap: 10px; }
+.ae-boutons button { flex: 1; height: 46px; border-radius: var(--r-moyen); font: 600 14px 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.ae-boutons .icon { width: 20px; height: 20px; }
+.ae-refuser { background: #ff5f7a; color: #fff; }
+.ae-refuser .icon { transform: rotate(135deg); }
+.ae-repondre { background: #7ff0bb; color: #04121c; box-shadow: 0 0 20px -6px #7ff0bb; }
+.ae-boutons button:hover { filter: brightness(1.08); }
+.ae-rapides { display: flex; flex-direction: column; gap: 8px; }
+.ae-rapides small { font-size: 11.5px; color: var(--texte-doux); }
+.ae-rapides div { display: flex; gap: 6px; flex-wrap: wrap; }
+.ae-rapide { height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid rgba(var(--voile), 0.1); background: rgba(var(--voile), 0.05); color: var(--texte-fort); font: 500 12.5px 'Inter', sans-serif; white-space: nowrap; }
+.ae-rapide:hover { background: rgba(var(--voile), 0.1); }
+
+.appel-pastille { position: fixed; left: 50%; top: 14px; transform: translateX(-50%); z-index: 29; display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 14px; border-radius: 999px; font-family: 'Inter', 'Noto Sans', sans-serif;
+    background: var(--capsule); border: 1px solid rgba(var(--voile), 0.1); box-shadow: 0 14px 30px -14px #000; font-size: 13px; color: var(--texte-fort); cursor: default; white-space: nowrap; }
+.appel-pastille b { font-weight: 600; }
+.ap-doux { color: var(--texte-doux); }
+.ap-point { width: 8px; height: 8px; border-radius: 50%; background: #7ff0bb; box-shadow: 0 0 6px #7ff0bb; }
+.ap-rond { width: 32px; height: 32px; border-radius: 50%; background: rgba(var(--voile), 0.08); display: grid; place-items: center; color: var(--texte-fort); }
+.ap-rond .icon { width: 16px; height: 16px; }
+.ap-rond.coupe { background: rgba(255, 255, 255, 0.9); color: #04121c; }
+.ap-raccrocher { background: #ff5f7a; color: #fff; }
+.ap-raccrocher .icon { transform: rotate(135deg); }
+
+.lat-bouton.en-appel { background: rgba(127, 240, 187, 0.16); color: #7ff0bb; box-shadow: inset 3px 0 0 #7ff0bb; }
+.coin-telephone { display: inline-flex; align-items: center; gap: 3px; padding: 0 6px; font: 500 12px 'Inter', sans-serif; color: var(--texte-doux); }
+.coin .coin-telephone .icon { width: 16px; height: 16px; }

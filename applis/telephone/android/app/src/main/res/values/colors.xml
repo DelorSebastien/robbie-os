@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fond">#FF050A16</color>
+    <color name="capsule">#FF0E1526</color>
+    <color name="texte">#FFEEF3FB</color>
+    <color name="doux">#9EE2EAF8</color>
+    <color name="accent">#FF5EE7FF</color>
+    <color name="vert">#FF7FF0BB</color>
+    <color name="sur_accent">#FF04121C</color>
+</resources>

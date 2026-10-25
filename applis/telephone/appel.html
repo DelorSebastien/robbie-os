@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; media-src 'self' blob: mediastream:; style-src 'self' 'unsafe-inline'">
+    <title>Appel</title>
+    <link rel="stylesheet" href="./appel.css">
+</head>
+<body>
+    <!-- L'image de l'autre personne, plein cadre (ou son avatar quand sa caméra est coupée) -->
+    <video class="distant" id="distant" autoplay playsinline></video>
+    <div class="sans-video" id="sans-video">
+        <span class="grand-av" id="grand-av"></span>
+        <b id="grand-nom"></b>
+        <span id="grand-etat"></span>
+    </div>
+
+    <header class="haut">
+        <span class="qui"><span class="av" id="av"></span><span><b id="nom"></b><span id="duree">Appel…</span></span></span>
+        <span class="chiffre" data-icon="cadenas">Chiffré de bout en bout</span>
+        <span class="qualite" id="qualite" hidden><span class="barres" id="barres"><i></i><i></i><i></i><i></i></span><span id="qualite-texte">Bonne connexion</span></span>
+    </header>
+
+    <div class="moi" id="moi-zone" hidden><video id="moi" autoplay playsinline muted></video></div>
+
+    <div class="sous-titre" id="sous-titre" hidden><span class="etiquette"><i></i>SOUS-TITRES</span><span id="sous-titre-texte"></span></div>
+
+    <div class="commandes" role="toolbar" aria-label="Commandes de l'appel">
+        <button class="cmd" id="micro" data-icon="micro" aria-label="Couper le micro" title="Couper le micro"></button>
+        <button class="cmd" id="camera" data-icon="video" aria-label="Couper la caméra" title="Couper la caméra"></button>
+        <button class="cmd" id="ecran" data-icon="partage-ecran" aria-label="Partager l'écran" title="Partager l'écran"></button>
+        <button class="cmd" id="sous-titres" data-icon="sous-titres" aria-label="Sous-titres par Robbie" title="Sous-titres par Robbie"></button>
+        <button class="cmd" id="ecrire" data-icon="message" aria-label="Envoyer un message" title="Envoyer un message"></button>
+        <span class="sep"></span>
+        <button class="raccrocher" id="raccrocher" data-icon="phone" aria-label="Raccrocher">Raccrocher</button>
+    </div>
+
+    <div class="fin" id="fin" hidden></div>
+
+    <script src="../../interface/js/icones.js"></script>
+    <script src="./appel.js"></script>
+</body>
+</html>

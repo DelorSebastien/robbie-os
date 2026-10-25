@@ -21,6 +21,7 @@
             <linearGradient id="d-argent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2f6ff"/><stop offset="1" stop-color="#9fb0cc"/></linearGradient>
             <linearGradient id="d-violet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#dcb0ff"/><stop offset="1" stop-color="#8b4dff"/></linearGradient>
             <linearGradient id="d-cyan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c8f6ff"/><stop offset="1" stop-color="#4fcfff"/></linearGradient>
+            <linearGradient id="d-vert" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c6ffe6"/><stop offset="1" stop-color="#3ed79a"/></linearGradient>
         </defs>
     </svg>
 
@@ -32,6 +33,7 @@
         <!-- Bureaux virtuels : un point par bureau, l'actif est allumé (Super + 1…4) -->
         <div class="bureaux" id="bureaux" role="group" aria-label="Bureaux virtuels"></div>
         <button class="lat-bouton" data-panneau data-action="notifications" data-icon="bell" aria-label="Notifications" title="Notifications (Super+N)"><span class="pastille" hidden></span></button>
+        <button class="lat-bouton" data-action="telephone" data-icon="phone" aria-label="Téléphone" title="Téléphone : messages et appels"><span class="pastille" hidden></span></button>
         <!-- Groupes : chacun ouvre son tiroir à côté de la barre (elle ne déborde jamais) -->
         <button class="lat-bouton" data-panneau data-action="contacts" data-icon="users" aria-label="Contacts" title="Contacts"><span class="lat-nombre" id="contacts-nombre" hidden></span></button>
         <button class="lat-bouton" data-panneau data-action="outils" data-icon="grid" aria-label="Outils" title="Outils : aujourd'hui, notes, agenda, capture, presse-papiers"></button>
@@ -65,6 +67,7 @@
 
     <!-- Coin : réseau, son, heure -->
     <div class="coin">
+        <span class="coin-telephone" id="coin-telephone" hidden><span data-icon="batterie"></span><b></b></span>
         <button class="coin-bouton" id="coin-rapide" data-panneau aria-label="Réglages rapides : réseau et son">
             <span data-icon="wifi" id="coin-reseau"></span>
             <span data-icon="volume" id="coin-son"></span>
@@ -129,6 +132,7 @@
     <script src="./js/recherche.js"></script>
     <script src="./js/presse-papiers.js"></script>
     <script src="./js/concentration.js"></script>
+    <script src="./js/telephone.js"></script>
     <script src="./js/aujourdhui.js"></script>
     <script src="./js/suggestions.js"></script>
 </body>

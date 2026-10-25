@@ -326,3 +326,19 @@
 .mon-compte input { padding: 8px 12px; border-radius: var(--r-petit); background: rgba(var(--creux-rgb), calc(0.3 * var(--creux-force))); border: 1px solid var(--bord); color: var(--texte); font: 13.5px 'Inter', sans-serif; outline: none; }
 .mon-compte input:focus { border-color: rgba(var(--accent), 0.5); }
 .mon-compte .mon-compte-actuel, .mon-compte p, .mon-compte .reglage-ligne { grid-column: 1 / -1; }
+
+/* Téléphone : appareils reliés, code QR de liaison */
+.tel-appareil { flex-wrap: nowrap; padding: 10px 12px; border-radius: var(--r-petit); background: rgba(var(--voile), 0.04); }
+.tel-point { width: 8px; height: 8px; flex: none; border-radius: 50%; background: rgba(var(--voile), 0.3); }
+.tel-point.relie { background: #7ff0bb; box-shadow: 0 0 6px #7ff0bb; }
+.tel-texte { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.35; }
+.tel-texte small { font-size: 11.5px; color: rgba(var(--texte-rgb), 0.55); }
+.tel-liaison { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+.tel-qr { width: 200px; height: 200px; padding: 10px; border-radius: 16px; background: #fff; flex: none; }
+.tel-qr.petit { width: 96px; height: 96px; padding: 5px; border-radius: 10px; }
+.tel-qr img { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.tel-etapes { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; font-size: 13px; }
+.tel-etapes ol { margin: 0; padding-left: 18px; color: rgba(var(--texte-rgb), 0.75); display: flex; flex-direction: column; gap: 3px; }
+.tel-code { font: 600 13px var(--police); letter-spacing: 0.2em; color: rgb(var(--accent)); }
+.tel-apk { display: flex; gap: 10px; align-items: center; }
+.tel-apk small { font-size: 11.5px; color: rgba(var(--texte-rgb), 0.55); max-width: 220px; }

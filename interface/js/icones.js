@@ -95,7 +95,26 @@
         'liste-num': 'M10 6h10M10 12h10M10 18h10M4 5h1.5v3M3.8 8h3M4 14.5a1.2 1.2 0 0 1 2.3.3c0 .9-2.3 1.7-2.3 2.7h2.5',
         lien: 'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
         tableau: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14',
-        'saut-page': 'M6 3v5h12V3M6 21v-5h12v5M3 12h2M8 12h3M13 12h3M19 12h2'
+        'saut-page': 'M6 3v5h12V3M6 21v-5h12v5M3 12h2M8 12h3M13 12h3M19 12h2',
+        // Téléphone : appels, vidéo, micro, partage d'écran, sous-titres
+        video: 'M3 6h13v12H3zM16 10l5-3v10l-5-3',
+        personne: 'M12 4.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM5 20a7 7 0 0 1 14 0',
+        trombone: 'm20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.5 3.5 0 0 1 5 5l-8.5 8.5a2 2 0 0 1-3-3L14 7',
+        envoyer: 'M4 12 20 4l-6 16-3-7z',
+        effacer: 'M9 5h11v14H9l-6-7zM12 9l5 6M17 9l-5 6',
+        micro: 'M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3',
+        'micro-coupe': 'M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3M4 4l16 16',
+        'video-coupee': 'M3 6h13v12H3zM16 10l5-3v10l-5-3M3 3l18 18',
+        'partage-ecran': 'M3 4h18v12H3zM8 20h8M12 13V7M9 10l3-3 3 3',
+        'sous-titres': 'M3 5h18v14H3zM7 11h4M13 11h4M7 15h7',
+        'appel-entrant': 'M17 7 7 17M7 9v8h8',
+        'appel-sortant': 'M7 17 17 7M9 7h8v8',
+        cadenas: 'M5 11h14v9H5zM8 11V8a4 4 0 0 1 8 0v3',
+        chevron: 'M6 9l6 6 6-6',
+        qr: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2M14 18h2v2M18 18h2v2',
+        'haut-parleur': 'M4 9.5h4L13 5v14l-5-4.5H4zM16.5 9a4 4 0 0 1 0 6',
+        batterie: 'M10 7h4M9 4h6a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z',
+        cloche: 'M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4'
     };
 
     function icon(name) {

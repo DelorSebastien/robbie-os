@@ -20,6 +20,7 @@
         trash: line('argent', 'M5 7h14M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6'),
         grid: line('cyan', 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'),
         plume: line('bleu', 'M20 4C14 6 9 11 6 18l-1 2 2-1c7-3 12-8 13-15zM5 20l6-6M9 7H5v13h13v-4'),
+        combine: line('vert', 'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z'),
         bag: line('cyan', 'M5 8h14l-1.2 12H6.2zM9 8V6.5a3 3 0 0 1 6 0V8M9.5 12.5v2M14.5 12.5v2')
     };
 
@@ -31,7 +32,8 @@
         'org.xfce.mousepad': { icon: 'accessories-text-editor', glyph: 'code', name: 'Éditeur de texte', tint: '60, 130, 255' },
         'robbie-photos': { icon: 'image-viewer', glyph: 'image', name: 'Photos', tint: '160, 90, 255' },
         'robbie-logitheque': { icon: 'system-software-install', glyph: 'bag', name: 'Logithèque', tint: '80, 220, 255' },
-        'robbie-ecriture': { icon: 'accessories-text-editor', glyph: 'plume', name: 'Écriture', tint: '120, 200, 255' }
+        'robbie-ecriture': { icon: 'accessories-text-editor', glyph: 'plume', name: 'Écriture', tint: '120, 200, 255' },
+        'robbie-telephone': { icon: 'call-start', glyph: 'combine', name: 'Téléphone', tint: '127, 240, 187' }
     };
 
     const SYSTEM_ITEMS = [

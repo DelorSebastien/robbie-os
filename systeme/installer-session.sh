@@ -74,6 +74,14 @@ mkdir -p "$CONFIG/enfants"
 # ---- Applis de Robbie OS : Fichiers (l'explorateur, avec Photos dans sa fenêtre), Photos ----
 install -m 644 "$ROBBIE_DIR/applis/fichiers/robbie-fichiers.desktop" /usr/share/applications/
 install -m 644 "$ROBBIE_DIR/applis/ecriture/robbie-ecriture.desktop" /usr/share/applications/
+# Téléphone : SMS et appels du téléphone Android relié, appels vidéo entre Robbie OS ;
+# le partage d'écran pendant un appel passe par le portail de labwc (wlroots)
+install -m 644 "$ROBBIE_DIR/applis/telephone/robbie-telephone.desktop" /usr/share/applications/
+apt-get install -y --no-install-recommends xdg-desktop-portal-wlr
+# (boîtes de dialogue par GTK ; partage d'écran et captures par wlroots, sur le seul écran sans demander)
+printf '[preferred]\ndefault=gtk\norg.freedesktop.impl.portal.ScreenCast=wlr\norg.freedesktop.impl.portal.Screenshot=wlr\n' > /usr/share/xdg-desktop-portal/robbie-os-portals.conf
+mkdir -p /etc/xdg/xdg-desktop-portal-wlr
+printf '[screencast]\nchooser_type=none\n' > /etc/xdg/xdg-desktop-portal-wlr/config
 # (polices compatibles avec Word : Times, Arial, Calibri, Cambria ; correcteur en français)
 apt-get install -y --no-install-recommends fonts-liberation fonts-crosextra-carlito fonts-crosextra-caladea hunspell-fr
 install -m 644 "$ROBBIE_DIR/applis/photos/robbie-photos.desktop" /usr/share/applications/
@@ -84,6 +92,9 @@ mkdir -p /etc/xdg
     echo '[Default Applications]'
     echo 'inode/directory=robbie-fichiers.desktop'
     echo 'application/vnd.openxmlformats-officedocument.wordprocessingml.document=robbie-ecriture.desktop'
+    for scheme in tel sms smsto; do
+        echo "x-scheme-handler/$scheme=robbie-telephone.desktop"
+    done
     for type in image/jpeg image/png image/webp image/gif image/bmp image/avif image/tiff video/mp4 video/webm video/quicktime; do
         echo "$type=robbie-photos.desktop"
     done

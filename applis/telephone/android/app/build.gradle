@@ -1,0 +1,45 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'os.robbie.lien'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'os.robbie.lien'
+        // (Android 8 : décrocher depuis l'ordinateur ; Android 9 : raccrocher)
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '1.0'
+    }
+
+    // Signature : la clé de Robbie OS (gardée hors du dépôt, voir construire.sh)
+    signingConfigs {
+        robbie {
+            storeFile file(System.getenv('ROBBIE_LIEN_CLE') ?: "${System.getProperty('user.home')}/android-outils/robbie-lien.jks")
+            storePassword System.getenv('ROBBIE_LIEN_MDP') ?: 'robbie-lien'
+            keyAlias 'robbie-lien'
+            keyPassword System.getenv('ROBBIE_LIEN_MDP') ?: 'robbie-lien'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.robbie
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // Lecture du code QR de liaison avec l'appareil photo
+    implementation('com.journeyapps:zxing-android-embedded:4.3.0') { transitive = false }
+    implementation 'com.google.zxing:core:3.5.3'
+}

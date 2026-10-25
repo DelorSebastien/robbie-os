@@ -1,0 +1,6 @@
+{
+  "name": "robbie-telephone-service",
+  "description": "Service du téléphone de Robbie OS : liaisons avec le téléphone Android et les autres Robbie OS",
+  "private": true,
+  "main": "index.js"
+}

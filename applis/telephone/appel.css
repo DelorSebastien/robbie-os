@@ -1,0 +1,70 @@
+/* Fenêtre d'appel : l'autre personne plein cadre, ta caméra en vignette, les commandes dans
+   une capsule en bas (maquette « Téléphone Robbie OS », écran 3) */
+@font-face {
+    font-family: 'Orbitron';
+    src: url('../../assets/polices/Orbitron.ttf') format('truetype');
+    font-weight: 400 900;
+}
+
+:root {
+    --accent: 94, 231, 255;
+    --texte: #eef3fb;
+    --doux: rgba(226, 234, 248, 0.7);
+    --capsule: #0e1526;
+    --vert: #7ff0bb;
+    --rouge: #ff5f7a;
+    --police: 'Orbitron', 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #02060d; color: var(--texte); font: 14px/1.5 'Inter', 'Noto Sans', sans-serif; -webkit-font-smoothing: antialiased; user-select: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.icon { width: 20px; height: 20px; flex: none; }
+
+.distant { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #02060d; }
+.sans-video { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    background: radial-gradient(ellipse 70% 60% at 50% 45%, #13213d, #02060d 75%); }
+.grand-av { width: 120px; height: 120px; border-radius: 50%; display: grid; place-items: center; font: 600 42px 'Inter', sans-serif; color: #04121c; background: var(--c, #5ee7ff); box-shadow: 0 0 60px -10px var(--c, #5ee7ff); }
+.sans-video.sonne .grand-av { animation: onde 1.6s ease-out infinite; }
+@keyframes onde { 0% { box-shadow: 0 0 0 0 rgba(var(--accent), 0.5); } 100% { box-shadow: 0 0 0 30px rgba(var(--accent), 0); } }
+.sans-video b { font-size: 22px; font-weight: 600; }
+.sans-video span:last-child { color: var(--doux); font-size: 13px; }
+
+.haut { position: absolute; left: 18px; top: 16px; right: 18px; display: flex; align-items: center; gap: 12px; }
+.qui { display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border-radius: 999px; background: rgba(14, 21, 38, 0.82); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(14px); }
+.qui > span:last-child { display: flex; flex-direction: column; line-height: 1.25; }
+.qui b { font-weight: 600; font-size: 13.5px; }
+.qui span span { font-size: 11.5px; color: var(--doux); }
+.av { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: 600 12px 'Inter', sans-serif; color: #04121c; background: var(--c, #5ee7ff); }
+.chiffre { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(127, 240, 187, 0.12); color: var(--vert); font-size: 12px; }
+.chiffre .icon { width: 14px; height: 14px; }
+.qualite { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--doux); padding: 4px 10px; border-radius: 999px; background: rgba(2, 6, 13, 0.4); }
+.barres { display: flex; gap: 2px; align-items: flex-end; }
+.barres i { width: 3px; border-radius: 1px; background: rgba(255, 255, 255, 0.25); }
+.barres i:nth-child(1) { height: 6px; } .barres i:nth-child(2) { height: 9px; } .barres i:nth-child(3) { height: 12px; } .barres i:nth-child(4) { height: 15px; }
+.barres i.on { background: var(--vert); }
+.barres.moyen i.on { background: #ffd25c; }
+.barres.faible i.on { background: var(--rouge); }
+
+.moi { position: absolute; right: 18px; top: 70px; width: 220px; height: 136px; border-radius: 14px; overflow: hidden; border: 1px solid rgba(94, 231, 255, 0.35); background: #0b1426; box-shadow: 0 14px 30px -12px #000; }
+.moi video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.moi.ecran video { transform: none; object-fit: contain; }
+
+.sous-titre { position: absolute; left: 50%; bottom: 104px; transform: translateX(-50%); max-width: min(640px, calc(100vw - 40px)); padding: 10px 16px; border-radius: 14px; background: rgba(2, 6, 13, 0.72); font-size: 15px; line-height: 1.45; text-align: center; }
+.etiquette { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #a8f1ff; margin-right: 6px; vertical-align: 1px; letter-spacing: 0.04em; }
+.etiquette i { width: 5px; height: 8px; border-radius: 2px; background: rgb(var(--accent)); box-shadow: 0 0 6px rgb(var(--accent)); }
+
+.commandes { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 20px; background: var(--capsule); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 16px 34px -14px #000; }
+.cmd { width: 48px; height: 48px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.06); display: grid; place-items: center; }
+.cmd:hover { background: rgba(255, 255, 255, 0.12); }
+.cmd.on { background: rgba(94, 231, 255, 0.2); border-color: rgba(94, 231, 255, 0.4); color: #a8f1ff; }
+.cmd.coupe { background: rgba(255, 255, 255, 0.9); color: #04121c; }
+.cmd:disabled { opacity: 0.35; cursor: default; }
+.sep { width: 1px; height: 28px; background: rgba(255, 255, 255, 0.12); margin: 0 4px; }
+.raccrocher { height: 48px; padding: 0 20px; border-radius: 14px; background: var(--rouge); color: #fff; display: flex; align-items: center; gap: 8px; font-weight: 600; box-shadow: 0 0 20px -6px var(--rouge); }
+.raccrocher .icon { transform: rotate(135deg); }
+.raccrocher:hover { filter: brightness(1.08); }
+
+.fin { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 14px 22px; border-radius: 16px; background: var(--capsule); border: 1px solid rgba(255, 255, 255, 0.12); font-size: 15px; box-shadow: 0 24px 50px -18px #000; }
+.flash { position: absolute; left: 50%; top: 80px; transform: translateX(-50%); padding: 8px 14px; border-radius: 12px; background: var(--capsule); border: 1px solid rgba(255, 95, 122, 0.4); font-size: 13px; }
