@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: file:; style-src 'self' 'unsafe-inline'">
+    <title>Écriture</title>
+    <link rel="stylesheet" href="./ecriture.css">
+</head>
+<body>
+    <!-- À gauche : nouveau document, ouvrir, récents, plan du document -->
+    <aside class="gauche">
+        <button class="nouveau" id="nouveau" data-icon="plus">Nouveau document</button>
+        <button class="lien-ouvrir" id="ouvrir" data-icon="folder-open">Ouvrir…</button>
+        <div class="groupe">RÉCENTS</div>
+        <nav class="recents" id="recents"></nav>
+        <div class="groupe">PLAN</div>
+        <nav class="plan" id="plan"></nav>
+    </aside>
+
+    <!-- Au centre : la page, sous sa capsule d'outils -->
+    <main class="centre">
+        <header class="tete">
+            <input class="nom-document" id="nom-document" value="Sans titre" spellcheck="false" aria-label="Nom du document">
+            <span class="etat-enregistrement" id="enregistrement">Pas encore enregistré</span>
+            <div class="actions-tete">
+                <button class="rond" id="annuler" data-icon="restart" title="Annuler (Ctrl+Z)"></button>
+                <button class="rond" id="retablir" data-icon="refresh" title="Rétablir (Ctrl+Y)"></button>
+                <button class="rond" id="panneau-droit" data-icon="sliders" title="Styles et page"></button>
+            </div>
+        </header>
+
+        <div class="capsule" id="capsule" role="toolbar" aria-label="Mise en forme">
+            <select id="style" aria-label="Style du paragraphe">
+                <option value="p">Texte</option>
+                <option value="h1">Titre</option>
+                <option value="h2">Titre 2</option>
+                <option value="h3">Titre 3</option>
+                <option value="blockquote">Citation</option>
+            </select>
+            <select id="police" aria-label="Police"></select>
+            <select id="taille" aria-label="Taille">
+                <option>9</option><option>10</option><option>11</option><option selected>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>24</option><option>28</option><option>32</option><option>40</option>
+            </select>
+            <span class="sep"></span>
+            <button data-cmd="bold" title="Gras (Ctrl+B)"><b>G</b></button>
+            <button data-cmd="italic" title="Italique (Ctrl+I)"><i class="ital">I</i></button>
+            <button data-cmd="underline" title="Souligné (Ctrl+U)"><u>S</u></button>
+            <button data-cmd="strikeThrough" title="Barré"><s>ab</s></button>
+            <label class="couleur" title="Couleur du texte"><span class="a">A</span><span class="trait" id="trait-couleur"></span><input type="color" id="couleur" value="#e0245e"></label>
+            <label class="couleur" title="Surligner"><span data-icon="brush"></span><span class="trait" id="trait-surligne"></span><input type="color" id="surligne" value="#5ee7ff"></label>
+            <span class="sep"></span>
+            <button data-align="justifyLeft" data-icon="aligne-gauche" title="Aligner à gauche"></button>
+            <button data-align="justifyCenter" data-icon="aligne-centre" title="Centrer"></button>
+            <button data-align="justifyRight" data-icon="aligne-droite" title="Aligner à droite"></button>
+            <button data-align="justifyFull" data-icon="justifier" title="Justifier"></button>
+            <span class="sep"></span>
+            <button data-cmd="insertUnorderedList" data-icon="liste" title="Liste à puces"></button>
+            <button data-cmd="insertOrderedList" data-icon="liste-num" title="Liste numérotée"></button>
+            <span class="sep"></span>
+            <button id="lien" data-icon="lien" title="Lien (Ctrl+K)"></button>
+            <button id="image" data-icon="image" title="Insérer une image"></button>
+            <button id="tableau" data-icon="tableau" title="Insérer un tableau"></button>
+            <button id="saut" data-icon="saut-page" title="Saut de page"></button>
+            <span class="sep"></span>
+            <button id="pdf" class="texte" data-icon="download" title="Exporter en PDF">PDF</button>
+        </div>
+
+        <div class="defile" id="defile">
+            <div class="pages" id="pages">
+                <article class="feuille" id="feuille" contenteditable="true" spellcheck="true" lang="fr"></article>
+            </div>
+        </div>
+
+        <!-- Bulle sur la sélection : mise en forme rapide et Robbie -->
+        <div class="bulle" id="bulle" hidden>
+            <button data-cmd="bold"><b>G</b></button>
+            <button data-cmd="italic"><i class="ital">I</i></button>
+            <button data-cmd="underline"><u>S</u></button>
+            <button id="bulle-lien" data-icon="lien"></button>
+            <button class="robbie" id="bulle-robbie"><i></i>Robbie</button>
+        </div>
+        <div class="menu" id="menu-robbie" hidden></div>
+
+        <footer class="etat">
+            <span id="pages-nombre">Page 1 sur 1</span><span id="mots">0 mot</span><span>Français</span>
+        </footer>
+    </main>
+
+    <!-- À droite : styles, thème du document, page -->
+    <aside class="droite" id="droite">
+        <h3>STYLES</h3>
+        <div class="styles" id="styles">
+            <button data-style="h1" class="s-titre">Titre</button>
+            <button data-style="h2" class="s-t2">Titre 2</button>
+            <button data-style="h3" class="s-t3">Titre 3</button>
+            <button data-style="p" class="s-texte">Texte normal du document</button>
+            <button data-style="blockquote" class="s-cit">« Citation mise en valeur »</button>
+        </div>
+        <h3>THÈME DU DOCUMENT</h3>
+        <div class="themes" id="themes"></div>
+        <h3>PAGE</h3>
+        <label class="reglage"><span>Orientation</span><select id="orientation"><option value="portrait">Portrait</option><option value="paysage">Paysage</option></select></label>
+        <label class="reglage"><span>Marges</span><select id="marges"><option value="1.27">Étroites</option><option value="2.5" selected>Normales</option><option value="3.5">Larges</option></select></label>
+        <label class="reglage"><span>Interligne</span><select id="interligne"><option value="1">1</option><option value="1.15" selected>1,15</option><option value="1.5">1,5</option><option value="2">2</option></select></label>
+        <div class="infos-doc" id="infos-doc"></div>
+    </aside>
+
+    <input type="file" id="choisir-image" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
+    <div class="dialogue-fond" id="dialogue" hidden></div>
+    <div class="message" id="message" hidden></div>
+
+    <script src="../../interface/js/icones.js"></script>
+    <script src="../../interface/js/soleil.js"></script>
+    <script src="./ecriture.js"></script>
+</body>
+</html>

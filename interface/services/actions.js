@@ -76,7 +76,7 @@ const SYNONYMS = {
     navigateur: 'firefox', internet: 'firefox', web: 'firefox',
     fichiers: 'robbie-fichiers', explorateur: 'robbie-fichiers', dossiers: 'robbie-fichiers',
     terminal: 'foot', console: 'foot',
-    editeur: 'mousepad', 'bloc-notes': 'mousepad', texte: 'mousepad',
+    editeur: 'robbie-ecriture', 'bloc-notes': 'mousepad', texte: 'robbie-ecriture', word: 'robbie-ecriture', ecriture: 'robbie-ecriture', document: 'robbie-ecriture',
     images: 'photos', photos: 'photos', galerie: 'photos'
 };
 
