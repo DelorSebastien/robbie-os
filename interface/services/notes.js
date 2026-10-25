@@ -41,7 +41,9 @@ const DEFAULT_SETTINGS = {
     voice: 'fr_FR-siwis-medium',
     robotVoice: true,
     voiceThreshold: 150,
-    lockMinutes: 0
+    lockMinutes: 0,
+    // Veille après inactivité : Robbie demande d'abord si on est toujours là (0 : jamais)
+    sleepMinutes: 30
 };
 
 // La Logithèque arrive une fois dans le dock des comptes créés avant elle ; Photos (et l'ancienne

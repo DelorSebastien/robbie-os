@@ -62,6 +62,7 @@ contextBridge.exposeInMainWorld('os', {
     changeMyAccount: (args, current, input) => ipcRenderer.invoke('mon-compte', args, current, input),
     logout: () => ipcRenderer.send('deconnexion'),
     reloadIdle: () => ipcRenderer.send('inactivite-recharger'),
+    setPresenceAsked: asking => ipcRenderer.send('presence', asking),
     setPanelShown: open => ipcRenderer.send('panneau', open),
     setTheme: name => ipcRenderer.send('theme', name),
     setLayout: (side, fullScreen) => ipcRenderer.send('disposition', side, fullScreen),

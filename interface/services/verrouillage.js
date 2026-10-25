@@ -114,17 +114,22 @@ async function lock() {
     }
 }
 
-// Inactivité : verrouillage après N minutes (0 : jamais), et toujours avant la mise en veille.
-// swayidle demande le verrouillage par le même chemin que Super+L.
+// Inactivité : verrouillage après N minutes (0 : jamais), et toujours avant la mise en veille ;
+// après M minutes, Robbie demande si on est toujours là (une minute pour répondre, sinon veille).
+// swayidle passe par le même chemin que Super+L : le fichier de commandes de l'interface.
 let idle = null;
-const LOCK_REQUEST = `sh -c 'echo verrouiller > "$HOME/.cache/robbie-os.commande"'`;
+const command = name => `sh -c 'echo ${name} > "$HOME/.cache/robbie-os.commande"'`;
+const LOCK_REQUEST = command('verrouiller');
 
 function watchIdle() {
     idle?.kill();
     idle = null;
-    const minutes = Number(notes.getSettings().lockMinutes) || 0;
+    const { lockMinutes, sleepMinutes } = notes.getSettings();
+    const minutes = Number(lockMinutes) || 0;
+    // (l'option -w d'abord : swayidle refuse les options après les commandes)
     const args = ['-w', 'before-sleep', LOCK_REQUEST];
-    if (minutes > 0) args.unshift('timeout', String(minutes * 60), LOCK_REQUEST);
+    if (minutes > 0) args.push('timeout', String(minutes * 60), LOCK_REQUEST);
+    if (Number(sleepMinutes) > 0) args.push('timeout', String(Number(sleepMinutes) * 60), command('veille-question'), 'resume', command('veille-annuler'));
 
     idle = spawn('swayidle', args, { stdio: 'ignore' });
     idle.on('error', error => console.error('Surveillance d\'inactivité impossible :', error.message));
