@@ -142,7 +142,7 @@ function setForeground(kind, open) {
     // (passer d'un panneau à l'autre ferme puis rouvre : on attend un peu avant de décider)
     clearTimeout(foregroundTimer);
     foregroundTimer = setTimeout(() => {
-        const wanted = openPanels.panneau || openPanels.robbie || openPanels.appel;
+        const wanted = openPanels.panneau || openPanels.robbie || openPanels.appel || openPanels.presence;
         if (preview || wanted === inFront) return;
         inFront = wanted;
         spawn('wtype', ['-k', wanted ? 'XF86Launch8' : 'XF86Launch9'], { stdio: 'ignore' })
@@ -245,6 +245,12 @@ ipcMain.on('deconnexion', () => {
     spawn('labwc', ['--exit'], { detached: true, stdio: 'ignore' }).unref();
 });
 ipcMain.on('inactivite-recharger', () => verrouillage.watchIdle());
+// « Tu es toujours là ? » : Robbie le demande à voix haute, le bureau passe devant les fenêtres
+ipcMain.on('presence', (_event, asking) => {
+    setForeground('presence', asking);
+    if (asking) robbie?.askPresence(() => win?.webContents.send('shortcut', 'veille-annuler'));
+    else robbie?.endPresence();
+});
 // Thème clair ou sombre : fenêtres, barres de titre, terminal, et le pack d'icônes qui va avec
 let currentTheme = 'sombre';
 function applyIconPack() {

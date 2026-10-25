@@ -461,6 +461,13 @@
                     .map(([value, label]) => `<option value="${value}" ${Number(settings.lockMinutes) === value ? 'selected' : ''}>${label}</option>`).join('')}</select>
             </div>
             <p class="reglage-aide">Super+L verrouille tout de suite.</p>`)
+            + block('Veille automatique', `
+            <div class="reglage-ligne">
+                <span>Mettre en veille après</span>
+                <select data-veille aria-label="Veille automatique">${[[0, 'Jamais'], [15, '15 minutes'], [30, '30 minutes'], [60, '1 heure'], [120, '2 heures']]
+                    .map(([value, label]) => `<option value="${value}" ${Number(settings.sleepMinutes) === value ? 'selected' : ''}>${label}</option>`).join('')}</select>
+            </div>
+            <p class="reglage-aide">Robbie demande d’abord si tu es toujours là : sans réponse pendant une minute, l’ordinateur se met en veille.</p>`)
             + block('Alimentation', `
             <div class="reglage-ligne boutons">
                 <button class="bouton" data-verrouiller>Verrouiller</button>
@@ -477,6 +484,10 @@
 
         content.querySelector('[data-verrou]').addEventListener('change', async event => {
             await change({ lockMinutes: Number(event.target.value) });
+            window.os.reloadIdle();
+        });
+        content.querySelector('[data-veille]').addEventListener('change', async event => {
+            await change({ sleepMinutes: Number(event.target.value) });
             window.os.reloadIdle();
         });
 

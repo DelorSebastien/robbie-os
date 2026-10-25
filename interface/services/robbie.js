@@ -150,12 +150,23 @@ function createRobbie({ send }) {
     // Phrase dite pendant que Robbie réfléchit ou parle : gardée pour juste après (au lieu d'être perdue)
     let pending = null;
 
+    // « Tu es toujours là ? » : la première phrase entendue répond (pas besoin de dire « Robbie »)
+    let presence = null;
+
     function handleHeard(heard) {
         // (Whisper ajoute parfois des « … » sur les silences)
         const text = heard.replace(/…|\.{3,}/g, ' ').replace(/\s+/g, ' ').trim();
         if (!text) return;
 
         if (isEcho(text)) return console.log(`Ignoré (écho de sa voix) : ${text}`);
+
+        if (presence && !speaking) {
+            const answered = presence;
+            presence = null;
+            answered();
+            say('Ah, te voilà !');
+            return;
+        }
 
         // Robbie réfléchit ou parle : on est forcément en pleine conversation, la phrase est gardée
         if (speaking || busy) {
@@ -252,6 +263,14 @@ function createRobbie({ send }) {
         confirm(action) {
             const ok = actions.confirm(action);
             return ok;
+        },
+        // Inactivité : Robbie demande si on est toujours là ; `onAnswer` si on lui répond
+        askPresence(onAnswer) {
+            presence = onAnswer;
+            say('Tu es toujours là ?');
+        },
+        endPresence() {
+            presence = null;
         },
         // Réglages changés : la voix est rechargée (et Robbie la fait entendre)
         reloadVoice() {
