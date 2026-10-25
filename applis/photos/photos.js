@@ -72,6 +72,12 @@
         recentes: { title: 'Importées récemment', items: () => library.filter(p => p.imported).sort((a, b) => b.imported.localeCompare(a.imported) || b.date - a.date), empty: ['download', 'Rien d\'importé pour l\'instant', 'Le bouton Importer copie des photos depuis une clé USB, un appareil photo ou un téléphone.'] },
         captures: { title: 'Captures d\'écran', items: () => library.filter(p => p.capture), empty: ['capture', 'Aucune capture d\'écran', 'Le bouton capture de la barre latérale les range dans Images.'] },
         videos: { title: 'Vidéos', items: () => library.filter(p => p.kind === 'video'), empty: ['video', 'Aucune vidéo', 'Les vidéos de ton dossier personnel apparaîtront ici.'] },
+        // Un dossier ouvert depuis l'explorateur (clic droit › « Voir dans Photos »)
+        dossier: {
+            title: () => view.id.split('/').pop() || 'Dossier',
+            items: () => library.filter(p => p.path.startsWith(view.id + '/')),
+            empty: ['folder-open', 'Aucune photo ici', 'Ce dossier ne contient pas de photo ni de vidéo (ou il est en dehors du dossier personnel).']
+        },
         album: {
             title: () => album(view.id)?.nom || 'Album',
             items: () => { const a = album(view.id); return a ? library.filter(p => a.photos.includes(p.path)) : []; },
@@ -517,6 +523,12 @@
         const i = library.findIndex(p => p.path === file);
         if (i >= 0) window.visionneuse.open(library, i);
         else window.visionneuse.open([{ path: file, name: file.split('/').pop(), kind: /\.(mp4|webm|m4v|mov|ogv)$/i.test(file) ? 'video' : 'photo', date: Date.now(), size: 0, horsBibliotheque: true }], 0);
+    });
+
+    // Dossier ouvert depuis l'explorateur : ses photos, comme une collection
+    api.onFolder(async folder => {
+        await ready;
+        show('dossier', folder);
     });
 
     // Partagé avec la visionneuse et la retouche

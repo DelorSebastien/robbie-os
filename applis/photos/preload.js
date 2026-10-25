@@ -21,5 +21,6 @@ contextBridge.exposeInMainWorld('photos', {
     theme: () => ipcRenderer.invoke('theme'),
     onLibrary: on('bibliotheque'),
     onTheme: on('theme'),
-    onOpen: on('ouvrir')
+    onOpen: on('ouvrir'),
+    onFolder: on('dossier')
 });
