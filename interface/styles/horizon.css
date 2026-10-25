@@ -217,7 +217,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* (toutes les icônes prennent la lumière de l'hologramme, quelle que soit leur couleur) */
 .tuile .picto path { stroke: rgb(var(--holo-trait, 200, 248, 255)); }
 
-/* (applis sans icône au trait : leur icône, passée en lumière cyan) */
+/* (applis sans icône au trait : leur vraie icône, en couleurs, avec un léger halo) */
 .tuile .icone-theme {
     position: relative;
     z-index: 1;
@@ -225,8 +225,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     height: 46%;
     object-fit: contain;
     pointer-events: none;
-    filter: grayscale(1) brightness(1.15) sepia(1) hue-rotate(145deg) saturate(3.2) brightness(1.15) drop-shadow(0 0 4px rgb(var(--accent)));
-    mix-blend-mode: screen;
+    filter: drop-shadow(0 0 5px rgba(var(--accent), 0.55));
 }
 
 .tuile .icon { position: relative; z-index: 1; width: 40%; height: 40%; color: rgb(var(--holo-trait, 200, 248, 255)); }
