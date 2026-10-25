@@ -1,6 +1,7 @@
 // Téléphone : l'interface lance le service du téléphone pour toute la session (liaisons avec le
 // téléphone Android et les autres Robbie OS), montre les appels qui arrivent et prévient des
-// nouveaux messages, des appels manqués et des demandes de contact.
+// nouveaux messages, des appels manqués et des demandes de contact. Les messages et les appels
+// se lisent dans le tiroir Contacts (js/contacts.js).
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const applis = require('./applis');
@@ -27,13 +28,9 @@ function startService() {
     });
 }
 
-// Ouvrir l'appli Téléphone (sur une conversation, un appel…)
-function openApp(...args) {
-    spawn(process.execPath, [APP, ...args], { detached: true, stdio: 'ignore' }).on('error', () => {}).unref();
-}
-
 // Ce que la page peut demander au service
-const ALLOWED = new Set(['etat', 'decrocher', 'raccrocher', 'micro', 'appel', 'appareils', 'nouvelleLiaison', 'annulerLiaison', 'oublierAppareil', 'proches', 'pairs', 'demanderContact', 'repondreDemande', 'retirerPair', 'appeler']);
+const ALLOWED = new Set(['etat', 'decrocher', 'raccrocher', 'micro', 'appel', 'appareils', 'nouvelleLiaison', 'annulerLiaison', 'oublierAppareil', 'proches', 'pairs', 'demanderContact', 'repondreDemande', 'retirerPair', 'appeler',
+    'conversations', 'messages', 'envoyer', 'lire', 'personne', 'appels', 'suggestions', 'supprimerMessage', 'supprimerConversation']);
 
 function start({ send, notifications }) {
     startService();
@@ -42,10 +39,13 @@ function start({ send, notifications }) {
     const appInFront = async () => (await fenetres.active().catch(() => null)) === 'robbie-telephone';
     const shown = new Map();      // conversation → notification (une seule par personne)
 
-    for (const event of ['etat', 'appel', 'appel-fin', 'telephone-relie', 'pairs', 'contacts']) {
+    for (const event of ['etat', 'appel', 'appel-fin', 'telephone-relie', 'pairs', 'contacts', 'message', 'message-modifie', 'conversations', 'lus', 'appels', 'presence']) {
         client.events.on(event, data => send('telephone', event, data));
     }
     client.events.on('connecte', () => send('telephone', 'connecte', null));
+    // (un lien sms: ou tel: ouvert ailleurs : le tiroir Contacts s'en charge)
+    client.events.on('ouvrir-tiroir', data => send('telephone', 'ouvrir', data));
+    const openDrawer = request => send('telephone', 'ouvrir', request);
 
     client.events.on('message', async ({ message, personne }) => {
         if (message.sens !== 'recu' || !notifications || (await appInFront())) return;
@@ -59,7 +59,7 @@ function start({ send, notifications }) {
             actions: [{ key: 'repondre', label: 'Répondre' }]
         }, key => {
             shown.delete(personne.cle);
-            if (key === 'repondre' || key === 'default') openApp('--message', who);
+            if (key === 'repondre' || key === 'default') openDrawer({ message: who });
         });
         shown.set(personne.cle, id);
     });
@@ -74,8 +74,8 @@ function start({ send, notifications }) {
         if ((raison !== 'manque' && raison !== 'perdu-sonne') || !notifications) return;
         notifications.post({ app: 'Téléphone', icon, summary: 'Appel manqué', body: personne.nom, actions: [{ key: 'rappeler', label: 'Rappeler' }, { key: 'ecrire', label: 'Écrire' }] }, key => {
             const who = personne.robbie ? `robbie:${personne.robbie}` : personne.telephone;
-            if (key === 'rappeler') openApp('--appeler', who);
-            if (key === 'ecrire' || key === 'default') openApp('--message', who);
+            if (key === 'rappeler') openDrawer({ appeler: who });
+            if (key === 'ecrire' || key === 'default') openDrawer({ message: who });
         });
     });
 
@@ -114,4 +114,4 @@ function stop() {
     child?.kill('SIGTERM');
 }
 
-module.exports = { start, stop, call, openApp };
+module.exports = { start, stop, call };

@@ -32,8 +32,7 @@
         'org.xfce.mousepad': { icon: 'accessories-text-editor', glyph: 'code', name: 'Éditeur de texte', tint: '60, 130, 255' },
         'robbie-photos': { icon: 'image-viewer', glyph: 'image', name: 'Photos', tint: '160, 90, 255' },
         'robbie-logitheque': { icon: 'system-software-install', glyph: 'bag', name: 'Logithèque', tint: '80, 220, 255' },
-        'robbie-ecriture': { icon: 'accessories-text-editor', glyph: 'plume', name: 'Écriture', tint: '120, 200, 255' },
-        'robbie-telephone': { icon: 'call-start', glyph: 'combine', name: 'Téléphone', tint: '127, 240, 187' }
+        'robbie-ecriture': { icon: 'accessories-text-editor', glyph: 'plume', name: 'Écriture', tint: '120, 200, 255' }
     };
 
     const SYSTEM_ITEMS = [

@@ -490,6 +490,11 @@ const METHODS = {
         const call = calls.get(String(id));
         if (call?.canal === 'robbie') network.send(call.adresse, { type: 'signal', id: call.id, donnees: data });
     },
+    // Un lien tel: ou sms: ouvert ailleurs : le tiroir Contacts de l'interface s'en charge
+    ouvrirTiroir: request => {
+        const r = request || {};
+        broadcast('ouvrir-tiroir', { message: r.message ? String(r.message).slice(0, 100) : undefined, appeler: r.appeler ? String(r.appeler).slice(0, 100) : undefined, video: Boolean(r.video) });
+    },
     // Favoris (en haut des appels)
     favoris: () => stockage.settings().favoris,
     setFavoris: list => stockage.setSettings({ favoris: [].concat(list || []).map(String).slice(0, 12) }).favoris,

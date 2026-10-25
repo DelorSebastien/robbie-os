@@ -2,11 +2,12 @@
 Type=Application
 Name=Téléphone
 GenericName=Appels et messages
-Comment=Tes SMS et tes appels par ton téléphone relié, et les appels vidéo entre ordinateurs Robbie OS
+Comment=Appels vidéo entre Robbie OS (les messages et les appels sont dans le tiroir Contacts)
 Exec=/opt/robbie-os/node_modules/.bin/electron /opt/robbie-os/applis/telephone %u
 Icon=/opt/robbie-os/applis/telephone/telephone.svg
 Terminal=false
-Categories=Network;Telephony;InstantMessaging;
+Categories=Network;Telephony;
+NoDisplay=true
 MimeType=x-scheme-handler/tel;x-scheme-handler/sms;x-scheme-handler/smsto;
 StartupWMClass=robbie-telephone
 Keywords=appel;appeler;sms;message;téléphone;vidéo;visio;android;contact;

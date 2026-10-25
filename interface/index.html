@@ -33,9 +33,8 @@
         <!-- Bureaux virtuels : un point par bureau, l'actif est allumé (Super + 1…4) -->
         <div class="bureaux" id="bureaux" role="group" aria-label="Bureaux virtuels"></div>
         <button class="lat-bouton" data-panneau data-action="notifications" data-icon="bell" aria-label="Notifications" title="Notifications (Super+N)"><span class="pastille" hidden></span></button>
-        <button class="lat-bouton" data-action="telephone" data-icon="phone" aria-label="Téléphone" title="Téléphone : messages et appels"><span class="pastille" hidden></span></button>
         <!-- Groupes : chacun ouvre son tiroir à côté de la barre (elle ne déborde jamais) -->
-        <button class="lat-bouton" data-panneau data-action="contacts" data-icon="users" aria-label="Contacts" title="Contacts"><span class="lat-nombre" id="contacts-nombre" hidden></span></button>
+        <button class="lat-bouton" data-panneau data-action="contacts" data-icon="users" aria-label="Contacts, messages et appels" title="Contacts, messages et appels"><span class="lat-nombre" id="contacts-nombre" hidden></span></button>
         <button class="lat-bouton" data-panneau data-action="outils" data-icon="grid" aria-label="Outils" title="Outils : aujourd'hui, notes, agenda, capture, presse-papiers"></button>
         <button class="lat-bouton" data-panneau data-action="reglages" data-icon="gear" aria-label="Réglages" title="Réglages (Super+I)"></button>
         <span class="lat-sep lat-bas"></span>
@@ -125,6 +124,7 @@
     <script src="./js/dock.js"></script>
     <script src="./js/lanceur.js"></script>
     <script src="./js/laterale.js"></script>
+    <script src="./js/contacts.js"></script>
     <script src="./js/notifications.js"></script>
     <script src="./js/reglages.js"></script>
     <script src="./js/coin.js"></script>
