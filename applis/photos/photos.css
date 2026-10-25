@@ -78,6 +78,10 @@ input { font: inherit; color: inherit; }
 .bouton.danger:hover { background: rgba(255, 107, 107, 0.2); border-color: rgba(255, 107, 107, 0.5); }
 .bouton.principal { background: rgba(var(--accent), 0.85); border-color: transparent; color: #04121c; }
 
+/* Dans l'explorateur : sa barre latérale affiche les collections, celle de Photos disparaît */
+body.integre .barre { display: none; }
+body.integre { background: transparent; }
+
 /* ---- Barre latérale ---- */
 .barre {
     width: 220px;

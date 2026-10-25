@@ -30,6 +30,8 @@
         panel.hidden = true;
         $('#vis-infos').classList.remove('allume');
         app.refresh();
+        // (dans l'explorateur : il revient au dossier d'où la photo a été ouverte)
+        if (window.parent !== window) window.parent.postMessage({ type: 'visionneuse-fermee' }, '*');
     }
 
     function show() {

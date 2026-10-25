@@ -179,8 +179,10 @@ function launch(id) {
 
 // Ouvre un dossier ou un emplacement (trash:///…) dans le gestionnaire de fichiers
 function openLocation(location) {
-    // (la corbeille va directement à Thunar : xdg-open l'enverrait au navigateur)
-    const [command, args] = location.startsWith('trash:') ? ['thunar', [location]] : ['xdg-open', [location]];
+    // (dans Fichiers, l'explorateur de Robbie OS ; la corbeille aussi : xdg-open l'enverrait au navigateur)
+    const target = location.startsWith('trash:') ? 'corbeille' : decodeURIComponent(location.replace(/^file:\/\//, ''));
+    const command = process.execPath;
+    const args = [path.join(__dirname, '..', '..', 'applis', 'fichiers'), target];
     const child = spawn(command, args, { detached: true, stdio: 'ignore' });
     child.on('error', error => console.error(`Ouverture impossible : ${location}`, error.message));
     child.unref();

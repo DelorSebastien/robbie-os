@@ -1,0 +1,6 @@
+{
+  "name": "robbie-fichiers",
+  "description": "Fichiers : l'explorateur de Robbie OS, avec Photos dans la même fenêtre",
+  "private": true,
+  "main": "main.js"
+}

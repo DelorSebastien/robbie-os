@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
     eyeColor: 'cyan',
     skin: 'none',
     doNotDisturb: false,
-    pinned: ['thunar', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'robbie-logitheque'],
+    pinned: ['robbie-fichiers', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'robbie-logitheque'],
     // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
     wallpaper: null,
     theme: 'sombre',
@@ -50,6 +50,12 @@ function migrate(settings) {
     if (!settings.logithequeProposee) {
         if (Array.isArray(settings.pinned) && !settings.pinned.includes('robbie-logitheque')) settings.pinned = [...settings.pinned, 'robbie-logitheque'];
         settings.logithequeProposee = true;
+        save('reglages', settings);
+    }
+    // L'explorateur de Robbie OS remplace Thunar dans le dock (une fois)
+    if (!settings.fichiersRobbie) {
+        if (Array.isArray(settings.pinned)) settings.pinned = settings.pinned.map(id => (id === 'thunar' ? 'robbie-fichiers' : id));
+        settings.fichiersRobbie = true;
         save('reglages', settings);
     }
     if (!settings.photosDansExplorateur) {
