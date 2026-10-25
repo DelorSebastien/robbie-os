@@ -700,6 +700,15 @@
         applyWallpaper(value.wallpaper, { instant: true });
     });
 
+    // Fond choisi depuis l'explorateur (clic droit › « Définir comme fond d'écran ») : les réglages
+    // ont changé sur le disque, on les relit
+    window.os.onShortcut(async name => {
+        if (name !== 'fond-recharger') return;
+        settings = await window.os.settings();
+        applyWallpaper(settings.wallpaper);
+        if (window.panneaux.current() === 'reglages' && section === 'apparence') show('apparence');
+    });
+
     const open = (id = section) => {
         section = RENDER[id] ? id : section;
         if (window.panneaux.current() === 'reglages') show(section);

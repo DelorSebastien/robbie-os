@@ -1,0 +1,54 @@
+#!/usr/bin/python3
+# Fond d'écran de Robbie OS depuis l'explorateur (clic droit › « Définir comme fond d'écran »).
+# L'image est copiée dans Images › Fonds d'écran (comme « Choisir une image… » des Réglages),
+# choisie dans les réglages, puis l'interface est prévenue : le fond change tout de suite.
+#
+#   fond <image>
+import json
+import os
+import shutil
+import sys
+
+IMAGE = ('.jpg', '.jpeg', '.png', '.webp', '.avif')
+HOME = os.path.expanduser('~')
+FOLDER = os.path.join(HOME, 'Images', "Fonds d'écran")
+SETTINGS = os.path.join(HOME, '.config', 'robbie-os', 'reglages.json')
+COMMAND = os.path.join(HOME, '.cache', 'robbie-os.commande')
+
+
+def main():
+    if len(sys.argv) != 2:
+        sys.exit('Usage : fond <image>')
+    source = os.path.realpath(sys.argv[1])
+    if not os.path.isfile(source) or not source.lower().endswith(IMAGE):
+        sys.exit('Ce fichier n’est pas une image utilisable comme fond d’écran')
+
+    # Déjà dans le dossier des fonds : pas de copie ; sinon un nom libre (« photo (2).jpg »)
+    os.makedirs(FOLDER, exist_ok=True)
+    name, ext = os.path.splitext(os.path.basename(source))
+    target = os.path.join(FOLDER, name + ext)
+    n = 2
+    while os.path.exists(target) and os.path.realpath(target) != source:
+        target = os.path.join(FOLDER, f'{name} ({n}){ext}')
+        n += 1
+    if os.path.realpath(target) != source:
+        shutil.copyfile(source, target)
+
+    try:
+        with open(SETTINGS, encoding='utf-8') as file:
+            settings = json.load(file)
+    except (OSError, ValueError):
+        settings = {}
+    settings['wallpaper'] = target
+    os.makedirs(os.path.dirname(SETTINGS), exist_ok=True)
+    with open(SETTINGS + '.tmp', 'w', encoding='utf-8') as file:
+        json.dump(settings, file, ensure_ascii=False, indent=2)
+    os.replace(SETTINGS + '.tmp', SETTINGS)
+
+    os.makedirs(os.path.dirname(COMMAND), exist_ok=True)
+    with open(COMMAND, 'w', encoding='utf-8') as file:
+        file.write('fond-recharger\n')
+
+
+if __name__ == '__main__':
+    main()
