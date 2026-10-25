@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Robbie Lien</string>
+    <string name="titre">ROBBIE LIEN</string>
+    <string name="canal_liaison">Liaison avec l’ordinateur</string>
+    <string name="recherche">Recherche de l’ordinateur…</string>
+    <string name="relie_a">Relié à %1$s</string>
+    <string name="relie_wifi">Relié en Wi-Fi · chiffré</string>
+    <string name="liaison_en_cours">Liaison en cours…</string>
+    <string name="pas_relie">Pas encore relié</string>
+    <string name="aucun_pc">Aucun ordinateur</string>
+    <string name="texte_relie">Tes SMS et tes appels s’affichent sur Robbie OS. Tu peux répondre depuis l’ordinateur ; le téléphone envoie et appelle pour lui.</string>
+    <string name="texte_pas_relie">Relie ton téléphone à Robbie OS : tes SMS et tes appels s’afficheront sur l’ordinateur, et tu pourras y répondre.</string>
+    <string name="section_droits">CE QUE L’ORDINATEUR PEUT FAIRE</string>
+    <string name="option_sms">Lire et envoyer les SMS</string>
+    <string name="option_sms_detail">Conversations et nouveaux messages</string>
+    <string name="option_appels">Passer et recevoir les appels</string>
+    <string name="option_appels_detail">Décrocher, raccrocher, voir qui appelle</string>
+    <string name="option_contacts">Partager les contacts</string>
+    <string name="option_contacts_detail">Ils rejoignent les contacts de Robbie OS</string>
+    <string name="option_notifications">Notifications du téléphone</string>
+    <string name="option_notifications_detail">Les autres applis, sur le bureau</string>
+    <string name="option_batterie">Batterie et réseau</string>
+    <string name="option_batterie_detail">Affichés dans la barre de Robbie OS</string>
+    <string name="relier">Relier un ordinateur</string>
+    <string name="relier_autre">Relier un autre ordinateur</string>
+    <string name="aide_relier">Scanne le code affiché dans Robbie OS › Réglages › Téléphone</string>
+    <string name="refuse">L’ordinateur a refusé la liaison</string>
+    <string name="oublie">L’ordinateur a oublié ce téléphone</string>
+    <string name="oublier_titre">Oublier cet ordinateur ?</string>
+    <string name="oublier_texte">Le téléphone ne sera plus relié à %1$s. Tu pourras le relier à nouveau avec un code QR.</string>
+    <string name="oublier">Oublier</string>
+    <string name="annuler">Annuler</string>
+    <string name="sms_interdit">L’envoi de SMS est coupé dans Robbie Lien</string>
+    <string name="sms_echec">Le SMS n’est pas parti (réseau ?)</string>
+    <string name="scan_titre">RELIER UN ORDINATEUR</string>
+    <string name="scan_aide">Vise le code QR affiché dans Robbie OS › Réglages › Téléphone</string>
+    <string name="scan_mauvais">Ce n’est pas un code de Robbie OS : vise celui des Réglages › Téléphone</string>
+    <string name="scan_sans_camera">Robbie Lien a besoin de l’appareil photo pour lire le code</string>
+</resources>

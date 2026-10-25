@@ -1,0 +1,6 @@
+{
+  "name": "robbie-telephone",
+  "description": "Téléphone : SMS et appels par le téléphone relié, appels vidéo entre Robbie OS",
+  "private": true,
+  "main": "main.js"
+}

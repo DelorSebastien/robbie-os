@@ -77,7 +77,8 @@ const SYNONYMS = {
     fichiers: 'robbie-fichiers', explorateur: 'robbie-fichiers', dossiers: 'robbie-fichiers',
     terminal: 'foot', console: 'foot',
     editeur: 'robbie-ecriture', 'bloc-notes': 'mousepad', texte: 'robbie-ecriture', word: 'robbie-ecriture', ecriture: 'robbie-ecriture', document: 'robbie-ecriture',
-    images: 'photos', photos: 'photos', galerie: 'photos'
+    images: 'photos', photos: 'photos', galerie: 'photos',
+    telephone: 'robbie-telephone', sms: 'robbie-telephone', messages: 'robbie-telephone', appels: 'robbie-telephone', visio: 'robbie-telephone'
 };
 
 function findApp(name) {

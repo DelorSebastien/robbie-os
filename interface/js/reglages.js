@@ -7,6 +7,7 @@
         ['apparence', 'Apparence', 'sparkles'],
         ['robbie', 'Robbie', 'person'],
         ['comptes', 'Comptes', 'users'],
+        ['telephone', 'Téléphone', 'phone'],
         ['son', 'Son', 'volume'],
         ['ecran', 'Écran', 'grid'],
         ['systeme', 'Système', 'cpu']
@@ -39,6 +40,7 @@
     }
 
     async function show(id) {
+        if (id !== 'telephone') stopPairing();
         section = id;
         settings = await window.os.settings();
         panel.body.querySelectorAll('[data-section]').forEach(button => button.classList.toggle('actif', button.dataset.section === id));
@@ -313,6 +315,102 @@
             renderSound().then(() => window.icons.fill(content));
         });
     }
+
+    // ---- Téléphone : le téléphone Android relié (Robbie Lien), et les contacts Robbie OS ----
+    let pairing = null;
+    const phone = async (method, ...args) => {
+        const result = await window.os.phone(method, ...args);
+        if (result?.erreurService) throw new Error(result.erreurService);
+        return result;
+    };
+    function stopPairing() {
+        if (!pairing) return;
+        pairing = null;
+        phone('annulerLiaison').catch(() => {});
+    }
+    const deviceLine = d => {
+        const battery = d.etat?.batterie != null ? ` · batterie ${d.etat.batterie} %${d.etat.charge ? ' (en charge)' : ''}` : '';
+        const network = d.etat?.reseau ? ` · ${escape(d.etat.reseau)}` : '';
+        return `<div class="reglage-ligne tel-appareil">
+            <span class="tel-point ${d.connecte ? 'relie' : ''}"></span>
+            <span class="tel-texte"><b>${escape(d.nom)}</b><small>${d.connecte ? `Relié en Wi-Fi${battery}${network}` : 'Pas joignable : Wi-Fi coupé, ou Robbie Lien fermé'}</small></span>
+            <button class="bouton danger" data-oublier="${escape(d.id)}">Oublier</button>
+        </div>`;
+    };
+    const peerLine = (p, detail, buttons) => `<div class="reglage-ligne tel-appareil">
+        <span class="tel-point ${p.enLigne || p.etat === 'demande-recue' ? 'relie' : ''}"></span>
+        <span class="tel-texte"><b>${escape(p.nom)}</b><small>${detail}</small></span>${buttons}</div>`;
+
+    async function renderPhone() {
+        let devices, state, nearby, peers;
+        try {
+            [devices, state, nearby, peers] = await Promise.all([phone('appareils'), phone('etat'), phone('proches'), phone('pairs')]);
+        } catch {
+            content.innerHTML = block('Téléphone', '<p class="reglage-aide">Le service du téléphone ne répond pas. Il redémarre tout seul : réessaie dans un instant.</p>');
+            return;
+        }
+        const qr = pairing ? await window.os.qr(pairing.url) : null;
+        const apk = pairing?.apk ? await window.os.qr(pairing.apk) : null;
+        const requests = peers.filter(p => p.etat === 'demande-recue');
+        const inContact = peers.filter(p => p.etat === 'contact');
+        const others = nearby.filter(p => p.etat !== 'demande-recue');
+
+        const linking = pairing ? `<div class="tel-liaison">
+                <div class="tel-qr"><img src="${qr}" alt="Code QR de liaison"></div>
+                <div class="tel-etapes">
+                    <b>Scanne ce code avec Robbie Lien</b>
+                    <ol><li>Ouvre <b>Robbie Lien</b> sur ton téléphone Android.</li><li>Touche « Relier un ordinateur ».</li><li>Vise ce code. Le téléphone doit être sur le même Wi-Fi.</li></ol>
+                    <span class="tel-code">Code : ${escape(pairing.code.replace(/(.{4})/, '$1 '))}</span>
+                    ${apk ? `<div class="tel-apk"><div class="tel-qr petit"><img src="${apk}" alt="Code QR pour installer Robbie Lien"></div><small>Pas encore Robbie Lien ? Scanne celui-ci avec l’appareil photo du téléphone pour l’installer.</small></div>` : ''}
+                    <button class="bouton" data-annuler-liaison>Annuler</button>
+                </div>
+            </div>`
+            : `<div class="reglage-ligne"><button class="bouton" data-relier data-icon="qr">${devices.length ? 'Relier un autre téléphone' : 'Relier un téléphone'}</button></div>`;
+
+        content.innerHTML = block('Ton téléphone', `
+            ${devices.length ? devices.map(deviceLine).join('') : '<p class="reglage-aide">Relie ton téléphone Android : tes SMS et tes appels arrivent sur l’ordinateur, et tu peux y répondre d’ici.</p>'}
+            ${linking}`)
+        + block('Robbie OS', `
+            <p class="reglage-aide">Tu apparais comme <b>${escape(state?.moi?.nom || '')}</b> sur <b>${escape(state?.moi?.machine || '')}</b>. Avec les personnes en contact, les messages et les appels vidéo vont directement d’ordinateur à ordinateur, chiffrés.</p>
+            ${requests.map(p => peerLine(p, `veut être en contact · ${escape(p.machine || '')}`, `<button class="bouton" data-refuser="${p.id}">Refuser</button><button class="bouton" data-accepter="${p.id}">Accepter</button>`)).join('')}
+            ${others.map(p => peerLine(p, `à proximité · ${escape(p.machine)}`, p.etat === 'demande-envoyee' ? '<small class="reglage-mini">Demande envoyée</small>' : `<button class="bouton" data-ajouter-pair="${p.id}">Ajouter</button>`)).join('')}
+            ${inContact.map(p => peerLine(p, `en contact · ${p.enLigne ? 'en ligne' : 'hors ligne'}`, `<button class="bouton danger" data-retirer-pair="${p.id}">Retirer</button>`)).join('')}
+            ${!requests.length && !others.length && !inContact.length ? '<p class="reglage-aide">Personne d’autre sur ce réseau pour le moment. Les ordinateurs Robbie OS du même réseau apparaissent ici.</p>' : ''}`);
+
+        content.onclick = async event => {
+            const button = event.target.closest('button');
+            if (!button) return;
+            // (oublier, retirer : un second clic confirme)
+            if ((button.dataset.oublier || button.dataset.retirerPair) && !button.classList.contains('confirmer')) {
+                button.classList.add('confirmer');
+                button.textContent = 'Confirmer ?';
+                return;
+            }
+            try {
+                if (button.hasAttribute('data-relier')) pairing = await phone('nouvelleLiaison');
+                if (button.hasAttribute('data-annuler-liaison')) stopPairing();
+                if (button.dataset.oublier) await phone('oublierAppareil', button.dataset.oublier);
+                if (button.dataset.accepter) await phone('repondreDemande', button.dataset.accepter, true);
+                if (button.dataset.refuser) await phone('repondreDemande', button.dataset.refuser, false);
+                if (button.dataset.retirerPair) await phone('retirerPair', button.dataset.retirerPair);
+                if (button.dataset.ajouterPair) {
+                    const result = await phone('demanderContact', button.dataset.ajouterPair);
+                    if (result && !result.ok) toast(result.erreur, 'x');
+                }
+            } catch (error) {
+                toast(error.message, 'x');
+            }
+            if (section === 'telephone') show('telephone');
+        };
+    }
+    window.os.onPhone(event => {
+        if (event === 'telephone-relie') {
+            pairing = null;
+            toast('Téléphone relié', 'check');
+        }
+        if ((event === 'telephone-relie' || event === 'pairs') && section === 'telephone' && !panel.el.hidden) show('telephone');
+    });
+    document.addEventListener('panneau-ferme', event => event.detail === 'reglages' && stopPairing());
 
     // ---- Écran ----
     async function renderScreen() {
@@ -688,7 +786,7 @@
         });
     }
 
-    const RENDER = { apparence: renderAppearance, robbie: renderRobbie, comptes: renderAccounts, son: renderSound, ecran: renderScreen, systeme: renderSystem };
+    const RENDER = { apparence: renderAppearance, robbie: renderRobbie, comptes: renderAccounts, telephone: renderPhone, son: renderSound, ecran: renderScreen, systeme: renderSystem };
 
     // ---- Fond d'écran : une image choisie, ou « jour » (par défaut) qui suit le soleil ----
     function applyWallpaper(file, options = {}) {

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lecture du code QR de liaison -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fond">
+
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/lecteur"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="#CC050A16"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="18dp"
+        android:paddingTop="28dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/orbitron"
+            android:letterSpacing="0.16"
+            android:text="@string/scan_titre"
+            android:textColor="@color/texte"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/fermer"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/annuler"
+            android:padding="12dp"
+            android:src="@drawable/ic_fermer"
+            android:tint="@color/texte" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/aide"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#CC050A16"
+        android:gravity="center"
+        android:padding="22dp"
+        android:text="@string/scan_aide"
+        android:textColor="@color/texte"
+        android:textSize="13sp" />
+</FrameLayout>

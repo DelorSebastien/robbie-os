@@ -1,0 +1,6 @@
+# Construction de Robbie Lien (voir construire.sh)
+.gradle/
+app/build/
+build/
+local.properties
+*.jks

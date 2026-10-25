@@ -26,6 +26,7 @@ const pressePapiers = require('./services/presse-papiers');
 const packs = require('./services/packs');
 const misesAJour = require('./services/mises-a-jour');
 const avisMisesAJour = require('./services/avis-mises-a-jour');
+const telephone = require('./services/telephone');
 const { spawn, execFile } = require('node:child_process');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
@@ -141,7 +142,7 @@ function setForeground(kind, open) {
     // (passer d'un panneau à l'autre ferme puis rouvre : on attend un peu avant de décider)
     clearTimeout(foregroundTimer);
     foregroundTimer = setTimeout(() => {
-        const wanted = openPanels.panneau || openPanels.robbie;
+        const wanted = openPanels.panneau || openPanels.robbie || openPanels.appel;
         if (preview || wanted === inFront) return;
         inFront = wanted;
         spawn('wtype', ['-k', wanted ? 'XF86Launch8' : 'XF86Launch9'], { stdio: 'ignore' })
@@ -149,6 +150,8 @@ function setForeground(kind, open) {
     }, 120);
 }
 ipcMain.on('panneau', (_event, open) => setForeground('panneau', open));
+// (un appel qui sonne : le bureau passe devant les fenêtres pour qu'on le voie)
+ipcMain.on('appel-devant', (_event, open) => setForeground('appel', open));
 
 // Fenêtres ouvertes : suivies pour le dock, et ramenées au premier plan sur demande
 ipcMain.handle('fenetres', () => fenetres.list());
@@ -160,23 +163,36 @@ ipcMain.handle('agenda', () => notes.getAgenda());
 ipcMain.handle('set-agenda', (_event, agenda) => notes.setAgenda(agenda));
 ipcMain.handle('contacts', () => notes.getContacts());
 ipcMain.handle('set-contacts', (_event, list) => notes.setContacts(list));
-// Appeler ou écrire à un contact : l'appli de l'ordinateur prévue pour ça (téléphone relié,
-// courrier…), s'il y en a une
-ipcMain.handle('contact-action', async (_event, kind, value) => {
-    const text = String(value || '').trim();
-    const isEmail = /^[^\s@]+@[^\s@]+$/.test(text);
-    const number = text.replace(/[^\d+]/g, '');
-    const [scheme, url] = kind === 'appeler' ? ['tel', `tel:${number}`] : isEmail ? ['mailto', `mailto:${text}`] : ['sms', `sms:${number}`];
-    if (!number && !isEmail) return { ok: false, erreur: 'Ce contact n’a ni numéro ni adresse' };
-    const handler = await new Promise(resolve => {
-        execFile('xdg-mime', ['query', 'default', `x-scheme-handler/${scheme}`], { timeout: 4000 }, (error, stdout) => resolve(error ? '' : stdout.trim()));
-    });
-    if (!handler) {
-        return { ok: false, erreur: { tel: 'Aucune appli pour passer des appels sur cet ordinateur', sms: 'Aucune appli pour envoyer des SMS sur cet ordinateur', mailto: 'Aucune appli de courrier sur cet ordinateur' }[scheme] };
+// Appeler ou écrire à un contact : l'appli Téléphone (par le téléphone relié, ou d'ordinateur à
+// ordinateur sur Robbie OS) ; une adresse e-mail seule : l'appli de courrier, s'il y en a une
+ipcMain.handle('contact-action', async (_event, kind, contact) => {
+    const phone = String(contact?.phone || '').replace(/[^d+]/g, '');
+    const robbieId = /^[0-9a-f]{64}$/.test(String(contact?.robbie || '')) ? contact.robbie : null;
+    const email = String(contact?.email || '').trim();
+    if (kind === 'appeler') {
+        if (!phone && !robbieId) return { ok: false, erreur: 'Ce contact n’a pas de numéro' };
+        // (par le téléphone s'il est relié, sinon par Robbie OS)
+        const state = await telephone.call('etat');
+        const viaRobbie = robbieId && (!phone || !state?.telephone?.connecte);
+        telephone.openApp('--appeler', viaRobbie ? `robbie:${robbieId}` : phone);
+        return { ok: true };
     }
-    spawn('xdg-open', [url], { detached: true, stdio: 'ignore' }).on('error', () => {}).unref();
+    if (robbieId || phone) {
+        telephone.openApp('--message', robbieId ? `robbie:${robbieId}` : phone);
+        return { ok: true };
+    }
+    if (!/^[^s@]+@[^s@]+$/.test(email)) return { ok: false, erreur: 'Ce contact n’a ni numéro ni adresse' };
+    const handler = await new Promise(resolve => {
+        execFile('xdg-mime', ['query', 'default', 'x-scheme-handler/mailto'], { timeout: 4000 }, (error, stdout) => resolve(error ? '' : stdout.trim()));
+    });
+    if (!handler) return { ok: false, erreur: 'Aucune appli de courrier sur cet ordinateur' };
+    spawn('xdg-open', [`mailto:${email}`], { detached: true, stdio: 'ignore' }).on('error', () => {}).unref();
     return { ok: true };
 });
+// Téléphone : appel qui arrive, téléphone relié (Réglages), l'appli
+ipcMain.handle('telephone', (_event, method, args) => telephone.call(String(method), args));
+ipcMain.handle('qr', (_event, text) => require('qrcode').toDataURL(String(text).slice(0, 1000), { margin: 1, width: 440, errorCorrectionLevel: 'M' }));
+ipcMain.on('ouvrir-telephone', (_event, args) => telephone.openApp(...[].concat(args || []).map(String).filter(a => /^(--[a-z]+|robbie:[0-9a-f]{64}|[+d]{3,20})$/.test(a))));
 ipcMain.handle('reseau', () => reseau.status());
 ipcMain.handle('wifi', () => reseau.wifiNetworks());
 ipcMain.handle('wifi-connecter', (_event, ssid, password) => reseau.connectWifi(ssid, password));
@@ -323,10 +339,12 @@ app.whenReady().then(() => {
         });
         // (les administrateurs sont prévenus des mises à jour : eux seuls peuvent les installer)
         comptes.me().then(me => me.role === 'admin' && avisMisesAJour.watch(notifications));
+        telephone.start({ send: (...args) => win?.webContents.send(...args), notifications });
     }
 });
 app.on('window-all-closed', () => app.quit());
 app.on('before-quit', () => {
+    telephone.stop();
     pressePapiers.stop();
     robbie?.stop();
     verrouillage.stop();
@@ -335,6 +353,7 @@ app.on('before-quit', () => {
 // Fin de session (déconnexion, extinction) : Robbie s'arrête proprement, avec son oreille et sa voix
 for (const signal of ['SIGTERM', 'SIGHUP', 'SIGINT']) {
     process.on(signal, () => {
+        telephone.stop();
         pressePapiers.stop();
         robbie?.stop();
         verrouillage.stop();

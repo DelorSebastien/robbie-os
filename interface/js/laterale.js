@@ -6,6 +6,10 @@
     const ACTIONS = {
         notifications: () => window.panneaux.toggle('notifications'),
         contacts: () => window.panneaux.toggle('contacts'),
+        telephone: () => {
+            window.panneaux.close();
+            window.os.openPhone();
+        },
         outils: () => window.panneaux.toggle('outils'),
         notes: () => window.panneaux.toggle('notes'),
         agenda: () => window.panneaux.toggle('agenda'),
@@ -190,7 +194,8 @@
                 const values = Object.fromEntries([...new FormData(form)].map(([k, v]) => [k, String(v).trim()]));
                 if (!values.name) return;
                 const list = [...contacts];
-                list[shownContact] = values;
+                // (ce que le formulaire ne montre pas reste : Robbie OS, origine du téléphone)
+                list[shownContact] = { ...contacts[shownContact], ...values };
                 await saveContacts(list);
                 shownContact = contacts.findIndex(c => c.name === values.name);
                 editing = false;
@@ -206,12 +211,13 @@
             <b class="fiche-nom">${escape(contact.name)}</b>
             ${contact.note ? `<span class="fiche-note">${escape(contact.note)}</span>` : ''}
             <div class="fiche-actions">
-                <button class="fiche-action" data-appeler ${phone ? '' : 'disabled'}><span data-icon="phone"></span>Appeler</button>
-                <button class="fiche-action" data-message ${phone || email ? '' : 'disabled'}><span data-icon="message"></span>Message</button>
+                <button class="fiche-action" data-appeler ${phone || contact.robbie ? '' : 'disabled'}><span data-icon="phone"></span>Appeler</button>
+                <button class="fiche-action" data-message ${phone || email || contact.robbie ? '' : 'disabled'}><span data-icon="message"></span>Message</button>
             </div>
             <dl class="fiche-infos">
                 <div><dt>Téléphone</dt><dd>${phone ? escape(phone) : '<i>Pas encore de numéro</i>'}</dd></div>
                 <div><dt>E-mail</dt><dd>${email ? escape(email) : '<i>Pas encore d’adresse</i>'}</dd></div>
+                ${contact.robbie ? '<div><dt>Robbie OS</dt><dd>En contact</dd></div>' : ''}
             </dl>
             <button class="bouton large" data-modifier data-icon="edit">Modifier</button>
         </div>`;
@@ -246,12 +252,14 @@
             shownContact = null; editing = false; return renderContacts();
         }
         const contact = contacts[shownContact];
-        if (target.hasAttribute('data-appeler') && contact?.phone) {
-            const result = await window.os.contactAction('appeler', contact.phone);
+        if (target.hasAttribute('data-appeler') && (contact?.phone || contact?.robbie)) {
+            window.panneaux.close();
+            const result = await window.os.contactAction('appeler', contact);
             if (!result.ok) toast(result.erreur, 'x');
         }
         if (target.hasAttribute('data-message') && contact) {
-            const result = await window.os.contactAction('message', contact.email || contact.phone);
+            window.panneaux.close();
+            const result = await window.os.contactAction('message', contact);
             if (!result.ok) toast(result.erreur, 'x');
         }
     });
