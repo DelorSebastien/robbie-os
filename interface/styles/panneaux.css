@@ -530,3 +530,88 @@
 .suggestion-fermer { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: var(--texte-doux); }
 .suggestion-fermer:hover { background: rgba(var(--voile), 0.08); }
 .suggestion-fermer .icon { width: 15px; height: 15px; }
+
+/* ---- Tiroirs de la barre latérale (contacts, outils) : ils s'ouvrent à la hauteur du bouton ---- */
+.panneau.tiroir { width: auto; min-width: 260px; max-width: 320px; }
+.lat-nombre {
+    position: absolute;
+    right: 1px;
+    bottom: 1px;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    border-radius: 8px;
+    background: rgb(var(--accent));
+    color: #04121c;
+    font: 700 9px/15px 'Inter', sans-serif;
+    text-align: center;
+}
+
+.tiroir-outils { display: flex; flex-direction: column; gap: 2px; }
+.outil { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: var(--r-petit); text-align: left; }
+.outil:hover { background: rgba(var(--voile), 0.07); }
+.outil-icone { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: var(--r-petit); background: rgba(var(--accent), 0.12); color: var(--accent-texte); }
+.outil-icone .icon { width: 18px; height: 18px; }
+.outil-texte { display: flex; flex-direction: column; min-width: 0; }
+.outil-texte b { font-weight: 500; }
+.outil-texte small { font-size: 11.5px; color: var(--texte-doux); }
+
+/* Contacts : recherche, grille d'avatars, fiche */
+.contacts-recherche {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    margin-bottom: 12px;
+    padding: 0 12px;
+    border-radius: var(--r-petit);
+    background: rgba(var(--voile), 0.06);
+    border: 1px solid var(--bord);
+    color: var(--texte-doux);
+}
+.contacts-recherche:focus-within { border-color: rgba(var(--accent), 0.6); }
+.contacts-recherche input { flex: 1; min-width: 0; border: 0; outline: none; background: none; color: var(--texte); font: inherit; }
+.grille-contacts { display: grid; grid-template-columns: repeat(3, 76px); gap: 6px; max-height: 50vh; overflow-y: auto; }
+.carte-contact { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 2px; border-radius: var(--r-moyen); font-size: 12px; color: var(--texte-doux); }
+.carte-contact span:last-child { max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.carte-contact:hover { background: rgba(var(--voile), 0.07); color: var(--texte); }
+.avatar {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(160deg, var(--c, rgba(var(--accent), 0.8)), color-mix(in srgb, var(--c, #5ee7ff) 55%, #0a1224));
+    color: #fff;
+    font: 600 16px 'Inter', sans-serif;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 6px 14px -6px rgba(0, 0, 0, 0.6);
+}
+.ajouter .avatar { background: rgba(var(--accent), 0.14); color: var(--accent-texte); box-shadow: inset 0 0 0 1px rgba(var(--accent), 0.4); }
+.ajouter .avatar .icon { width: 20px; height: 20px; }
+.avatar.grand { width: 76px; height: 76px; border-radius: 24px; font-size: 28px; }
+.bouton.large { width: 100%; justify-content: center; margin-top: 4px; }
+
+.fiche-contact { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 250px; }
+.retour-contacts { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px 4px 4px; border-radius: var(--r-petit); color: var(--texte-doux); font-size: 12.5px; }
+.retour-contacts:hover { background: rgba(var(--voile), 0.07); color: var(--texte); }
+.retour-contacts .icon { width: 15px; height: 15px; }
+.fiche-nom { font: 600 17px 'Inter', sans-serif; text-align: center; overflow-wrap: anywhere; }
+.fiche-note { margin-top: -6px; font-size: 12px; color: var(--texte-doux); text-align: center; }
+.fiche-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-top: 4px; }
+.fiche-action { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: var(--r-moyen); background: rgba(var(--accent), 0.12); color: var(--accent-texte); font-weight: 600; font-size: 12.5px; box-shadow: inset 0 0 0 1px rgba(var(--accent), 0.3); }
+.fiche-action:hover:not(:disabled) { background: rgba(var(--accent), 0.24); }
+.fiche-action:disabled { opacity: 0.35; cursor: default; }
+.fiche-action .icon { width: 20px; height: 20px; }
+.fiche-infos { width: 100%; margin: 4px 0 0; display: flex; flex-direction: column; border-radius: var(--r-moyen); background: rgba(var(--voile), 0.04); border: 1px solid var(--bord); overflow: hidden; }
+.fiche-infos div { padding: 8px 12px; border-top: 1px solid var(--bord); }
+.fiche-infos div:first-child { border-top: 0; }
+.fiche-infos dt { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--texte-doux); }
+.fiche-infos dd { margin: 2px 0 0; user-select: text; overflow-wrap: anywhere; }
+.fiche-infos i { color: var(--texte-doux); }
+.fiche-contact label { width: 100%; display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: var(--texte-doux); }
+.fiche-contact label input { padding: 8px 10px; border-radius: var(--r-petit); border: 1px solid var(--bord); background: rgba(var(--voile), 0.06); color: var(--texte); font: inherit; font-size: 13.5px; outline: none; }
+.fiche-contact label input:focus { border-color: rgba(var(--accent), 0.6); }
+.fiche-ligne { width: 100%; display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.fiche-ligne .danger { margin-right: auto; }
+.fiche-ligne .confirmer { background: rgba(255, 107, 107, 0.25); border-color: rgba(255, 107, 107, 0.6); }

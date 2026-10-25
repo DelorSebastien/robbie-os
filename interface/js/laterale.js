@@ -6,6 +6,7 @@
     const ACTIONS = {
         notifications: () => window.panneaux.toggle('notifications'),
         contacts: () => window.panneaux.toggle('contacts'),
+        outils: () => window.panneaux.toggle('outils'),
         notes: () => window.panneaux.toggle('notes'),
         agenda: () => window.panneaux.toggle('agenda'),
         reglages: () => window.reglages ? window.reglages.open() : toast('Les réglages arrivent bientôt', 'gear'),
@@ -65,54 +66,199 @@
         }));
     }
 
-    // ---- Contacts (enregistrés sur l'ordinateur ; photos à venir) ----
-    let contacts = [];
-    const contactsPanel = window.panneaux.create('contacts', 'Contacts', { onOpen: renderContacts });
-
-    function renderSidebarContacts() {
-        document.getElementById('contacts').innerHTML = contacts.slice(0, 4).map((contact, index) => `
-            <button class="contact" data-panneau data-index="${index}" aria-label="${escape(contact.name)}" title="${escape(contact.name)}">
-                ${escape(contact.name.charAt(0).toUpperCase())}
-            </button>`).join('');
-        document.querySelectorAll('#contacts .contact').forEach(button => {
-            button.addEventListener('click', () => window.panneaux.toggle('contacts'));
+    // Un tiroir s'ouvre à la hauteur du bouton qui l'a ouvert (sans dépasser le bas de l'écran)
+    function anchorDrawer(panel, action) {
+        const button = document.querySelector(`.laterale [data-action="${action}"]`);
+        if (!button) return;
+        const top = button.getBoundingClientRect().top - 12;
+        requestAnimationFrame(() => {
+            const height = panel.el.offsetHeight;
+            panel.el.style.top = `${Math.max(10, Math.min(top, window.innerHeight - height - 90))}px`;
         });
+    }
+
+    // ---- Outils : un tiroir avec aujourd'hui, notes, agenda, capture, presse-papiers ----
+    const TOOLS = [
+        { action: 'aujourdhui', label: 'Aujourd’hui', icon: 'sun', hint: 'Météo, rendez-vous, musique' },
+        { action: 'notes', label: 'Notes', icon: 'file', hint: 'Ta liste de choses à faire' },
+        { action: 'agenda', label: 'Agenda', icon: 'calendar', hint: 'Le mois et tes rendez-vous' },
+        { action: 'capture', label: 'Capture d’écran', icon: 'capture', hint: 'Rangée dans Images' },
+        { action: 'presse-papiers', label: 'Presse-papiers', icon: 'clipboard', hint: 'Super+V' }
+    ];
+    const toolsPanel = window.panneaux.create('outils', 'Outils', {
+        onOpen: () => {
+            toolsPanel.body.innerHTML = `<div class="tiroir-outils">${TOOLS.map(tool => `
+                <button class="outil" data-outil="${tool.action}">
+                    <span class="outil-icone" data-icon="${tool.icon}"></span>
+                    <span class="outil-texte"><b>${tool.label}</b><small>${tool.hint}</small></span>
+                </button>`).join('')}</div>`;
+            window.icons.fill(toolsPanel.body);
+            anchorDrawer(toolsPanel, 'outils');
+        }
+    });
+    toolsPanel.el.classList.add('tiroir');
+    toolsPanel.body.addEventListener('click', event => {
+        const action = event.target.closest('[data-outil]')?.dataset.outil;
+        if (!action) return;
+        window.panneaux.close();
+        // (le panneau de l'outil s'ouvre après la fermeture du tiroir)
+        setTimeout(() => ACTIONS[action]?.(), action === 'capture' ? 0 : 60);
+    });
+
+    // ---- Contacts : un tiroir avec recherche, grille et fiche de chaque personne ----
+    let contacts = [];
+    let shownContact = null;        // index de la fiche affichée (null : la grille)
+    let editing = false;
+    let query = '';
+    const contactsPanel = window.panneaux.create('contacts', 'Contacts', {
+        onOpen: () => {
+            shownContact = null;
+            editing = false;
+            query = '';
+            renderContacts();
+            anchorDrawer(contactsPanel, 'contacts');
+            setTimeout(() => contactsPanel.body.querySelector('[data-recherche]')?.focus(), 80);
+        }
+    });
+    contactsPanel.el.classList.add('tiroir', 'tiroir-contacts');
+
+    // Couleur d'un contact : tirée de son nom (toujours la même)
+    const COLORS = ['#ff6fa8', '#ffb35c', '#5aa8ff', '#b57bff', '#5ee8a8', '#ff8a5c', '#5ee7ff', '#ffd25c', '#7f9dff', '#9fe0a0'];
+    const colorOf = name => COLORS[[...name].reduce((sum, c) => sum + c.charCodeAt(0), 0) % COLORS.length];
+    const initials = name => name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0].toUpperCase()).join('');
+    const avatar = (contact, size = '') => `<span class="avatar ${size}" style="--c:${colorOf(contact.name)}">${escape(initials(contact.name))}</span>`;
+    const normalize = text => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+    function updateCount() {
+        const badge = document.getElementById('contacts-nombre');
+        badge.hidden = !contacts.length;
+        badge.textContent = contacts.length;
+    }
+
+    async function saveContacts(list) {
+        contacts = await window.os.setContacts(list);
+        updateCount();
     }
 
     function renderContacts() {
-        contactsPanel.body.innerHTML = `
-            <form class="champ-ajout" data-form>
-                <input placeholder="Nom du contact" maxlength="40" autocomplete="off" aria-label="Nom du contact">
-                <button aria-label="Ajouter" data-icon="plus"></button>
-            </form>
-            <ul class="liste">${contacts.map((contact, index) => `
-                <li><span class="contact-rond">${escape(contact.name.charAt(0).toUpperCase())}</span>
-                    <span class="liste-texte">${escape(contact.name)}</span>
-                    <button class="liste-supprimer" data-remove="${index}" data-icon="x" aria-label="Supprimer"></button></li>`).join('')}
-            </ul>
-            ${contacts.length ? '' : '<p class="panneau-vide">Ajoute tes proches : ils apparaîtront dans la barre.</p>'}`;
-        window.icons.fill(contactsPanel.body);
-
-        contactsPanel.body.querySelector('[data-form]').addEventListener('submit', async event => {
-            event.preventDefault();
-            const name = event.target.querySelector('input').value.trim();
-            if (!name) return;
-            contacts = await window.os.setContacts([...contacts, { name }]);
-            renderSidebarContacts();
+        const body = contactsPanel.body;
+        if (shownContact !== null && contacts[shownContact]) return renderCard();
+        const found = contacts.map((contact, index) => ({ contact, index }))
+            .filter(({ contact }) => !query || normalize(`${contact.name} ${contact.phone || ''} ${contact.email || ''}`).includes(normalize(query)))
+            .sort((a, b) => a.contact.name.localeCompare(b.contact.name, 'fr'));
+        body.innerHTML = `
+            <label class="contacts-recherche" data-icon="search"><input data-recherche value="${escape(query)}" placeholder="Chercher un contact" autocomplete="off" spellcheck="false"></label>
+            ${found.length ? `<div class="grille-contacts">${found.map(({ contact, index }) => `
+                <button class="carte-contact" data-contact="${index}" title="${escape(contact.name)}">${avatar(contact)}<span>${escape(contact.name.split(' ')[0])}</span></button>`).join('')}
+                <button class="carte-contact ajouter" data-ajouter><span class="avatar" data-icon="plus"></span><span>Ajouter</span></button></div>`
+            : contacts.length ? `<p class="panneau-vide">Personne ne s’appelle « ${escape(query)} ».</p><button class="bouton large" data-ajouter>Ajouter « ${escape(query)} »</button>`
+                : '<p class="panneau-vide">Ajoute tes proches : ils seront à portée de clic.</p><button class="bouton large" data-ajouter data-icon="plus">Ajouter un contact</button>'}`;
+        window.icons.fill(body);
+        const input = body.querySelector('[data-recherche]');
+        input.addEventListener('input', () => {
+            query = input.value;
+            const at = input.selectionStart;
             renderContacts();
+            const again = contactsPanel.body.querySelector('[data-recherche]');
+            again.focus();
+            again.setSelectionRange(at, at);
         });
-        contactsPanel.body.querySelectorAll('[data-remove]').forEach(button => {
-            button.addEventListener('click', async () => {
-                contacts = await window.os.setContacts(contacts.filter((_, i) => i !== Number(button.dataset.remove)));
-                renderSidebarContacts();
-                renderContacts();
-            });
+        input.addEventListener('keydown', event => {
+            // Entrée : la fiche du premier trouvé
+            if (event.key === 'Enter' && found.length) { shownContact = found[0].index; renderContacts(); }
         });
     }
 
+    function renderCard() {
+        const body = contactsPanel.body;
+        const contact = contacts[shownContact];
+        if (editing) {
+            body.innerHTML = `<form class="fiche-contact" data-fiche-form>
+                <button type="button" class="retour-contacts" data-retour data-icon="chevron-left">Contacts</button>
+                ${avatar(contact.name ? contact : { name: '?' }, 'grand')}
+                <label>Nom<input name="name" value="${escape(contact.name)}" maxlength="40" required autocomplete="off"></label>
+                <label>Téléphone<input name="phone" value="${escape(contact.phone || '')}" maxlength="30" inputmode="tel" autocomplete="off"></label>
+                <label>E-mail<input name="email" value="${escape(contact.email || '')}" maxlength="80" type="email" autocomplete="off"></label>
+                <label>Note<input name="note" value="${escape(contact.note || '')}" maxlength="120" autocomplete="off" placeholder="Anniversaire, adresse…"></label>
+                <div class="fiche-ligne">${contact.name ? '<button type="button" class="bouton danger" data-supprimer data-icon="trash">Supprimer</button>' : ''}<button class="bouton principal">Enregistrer</button></div>
+            </form>`;
+            window.icons.fill(body);
+            const form = body.querySelector('form');
+            form.querySelector('[name="name"]').focus();
+            form.addEventListener('submit', async event => {
+                event.preventDefault();
+                const values = Object.fromEntries([...new FormData(form)].map(([k, v]) => [k, String(v).trim()]));
+                if (!values.name) return;
+                const list = [...contacts];
+                list[shownContact] = values;
+                await saveContacts(list);
+                shownContact = contacts.findIndex(c => c.name === values.name);
+                editing = false;
+                renderContacts();
+            });
+            return;
+        }
+        const phone = contact.phone || '';
+        const email = contact.email || '';
+        body.innerHTML = `<div class="fiche-contact">
+            <button class="retour-contacts" data-retour data-icon="chevron-left">Contacts</button>
+            ${avatar(contact, 'grand')}
+            <b class="fiche-nom">${escape(contact.name)}</b>
+            ${contact.note ? `<span class="fiche-note">${escape(contact.note)}</span>` : ''}
+            <div class="fiche-actions">
+                <button class="fiche-action" data-appeler ${phone ? '' : 'disabled'}><span data-icon="phone"></span>Appeler</button>
+                <button class="fiche-action" data-message ${phone || email ? '' : 'disabled'}><span data-icon="message"></span>Message</button>
+            </div>
+            <dl class="fiche-infos">
+                <div><dt>Téléphone</dt><dd>${phone ? escape(phone) : '<i>Pas encore de numéro</i>'}</dd></div>
+                <div><dt>E-mail</dt><dd>${email ? escape(email) : '<i>Pas encore d’adresse</i>'}</dd></div>
+            </dl>
+            <button class="bouton large" data-modifier data-icon="edit">Modifier</button>
+        </div>`;
+        window.icons.fill(body);
+    }
+
+    // (les boutons de la fiche et de la grille, une seule fois pour toutes)
+    contactsPanel.body.addEventListener('click', async event => {
+        const target = event.target.closest('button');
+        if (!target) return;
+        if (target.dataset.contact !== undefined) { shownContact = Number(target.dataset.contact); editing = false; return renderContacts(); }
+        if (target.hasAttribute('data-retour')) {
+            // (une fiche neuve laissée vide n'est pas gardée)
+            if (contacts[shownContact] && !contacts[shownContact].name) await saveContacts(contacts.filter((_, i) => i !== shownContact));
+            shownContact = null; editing = false; return renderContacts();
+        }
+        if (target.hasAttribute('data-ajouter')) {
+            await saveContacts([...contacts, { name: query.trim() }]);
+            shownContact = contacts.length - 1;
+            editing = true;
+            query = '';
+            return renderContacts();
+        }
+        if (target.hasAttribute('data-modifier')) { editing = true; return renderContacts(); }
+        if (target.hasAttribute('data-supprimer')) {
+            if (!target.classList.contains('confirmer')) {
+                target.classList.add('confirmer');
+                target.lastChild.textContent = 'Confirmer ?';
+                return;
+            }
+            await saveContacts(contacts.filter((_, i) => i !== shownContact));
+            shownContact = null; editing = false; return renderContacts();
+        }
+        const contact = contacts[shownContact];
+        if (target.hasAttribute('data-appeler') && contact?.phone) {
+            const result = await window.os.contactAction('appeler', contact.phone);
+            if (!result.ok) toast(result.erreur, 'x');
+        }
+        if (target.hasAttribute('data-message') && contact) {
+            const result = await window.os.contactAction('message', contact.email || contact.phone);
+            if (!result.ok) toast(result.erreur, 'x');
+        }
+    });
+
     window.os.contacts().then(list => {
         contacts = list;
-        renderSidebarContacts();
+        updateCount();
     });
 
     // ---- Notes ----

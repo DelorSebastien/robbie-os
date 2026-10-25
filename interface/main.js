@@ -26,7 +26,7 @@ const pressePapiers = require('./services/presse-papiers');
 const packs = require('./services/packs');
 const misesAJour = require('./services/mises-a-jour');
 const avisMisesAJour = require('./services/avis-mises-a-jour');
-const { spawn } = require('node:child_process');
+const { spawn, execFile } = require('node:child_process');
 
 // Fonds d'écran servis à la page par « fond://image?chemin=… », seulement depuis les dossiers prévus
 protocol.registerSchemesAsPrivileged([{ scheme: 'fond', privileges: { standard: true, secure: true } }]);
@@ -160,6 +160,23 @@ ipcMain.handle('agenda', () => notes.getAgenda());
 ipcMain.handle('set-agenda', (_event, agenda) => notes.setAgenda(agenda));
 ipcMain.handle('contacts', () => notes.getContacts());
 ipcMain.handle('set-contacts', (_event, list) => notes.setContacts(list));
+// Appeler ou écrire à un contact : l'appli de l'ordinateur prévue pour ça (téléphone relié,
+// courrier…), s'il y en a une
+ipcMain.handle('contact-action', async (_event, kind, value) => {
+    const text = String(value || '').trim();
+    const isEmail = /^[^\s@]+@[^\s@]+$/.test(text);
+    const number = text.replace(/[^\d+]/g, '');
+    const [scheme, url] = kind === 'appeler' ? ['tel', `tel:${number}`] : isEmail ? ['mailto', `mailto:${text}`] : ['sms', `sms:${number}`];
+    if (!number && !isEmail) return { ok: false, erreur: 'Ce contact n’a ni numéro ni adresse' };
+    const handler = await new Promise(resolve => {
+        execFile('xdg-mime', ['query', 'default', `x-scheme-handler/${scheme}`], { timeout: 4000 }, (error, stdout) => resolve(error ? '' : stdout.trim()));
+    });
+    if (!handler) {
+        return { ok: false, erreur: { tel: 'Aucune appli pour passer des appels sur cet ordinateur', sms: 'Aucune appli pour envoyer des SMS sur cet ordinateur', mailto: 'Aucune appli de courrier sur cet ordinateur' }[scheme] };
+    }
+    spawn('xdg-open', [url], { detached: true, stdio: 'ignore' }).on('error', () => {}).unref();
+    return { ok: true };
+});
 ipcMain.handle('reseau', () => reseau.status());
 ipcMain.handle('wifi', () => reseau.wifiNetworks());
 ipcMain.handle('wifi-connecter', (_event, ssid, password) => reseau.connectWifi(ssid, password));

@@ -86,6 +86,8 @@
         coller: 'M8 4h8v3H8zM6 6H5v15h14V6h-1M9 12h6M9 16h6',
         restaurer: 'M4 12a8 8 0 1 0 2.3-5.7M4 4v4.5h4.5M12 8v4l3 2',
         signet: 'M6 4h12v17l-6-4-6 4z',
+        phone: 'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z',
+        message: 'M4 5h16v11H9l-5 4z',
         'aligne-gauche': 'M4 6h16M4 10h10M4 14h16M4 18h10',
         'aligne-centre': 'M4 6h16M7 10h10M4 14h16M7 18h10',
         'aligne-droite': 'M4 6h16M10 10h10M4 14h16M10 18h10',

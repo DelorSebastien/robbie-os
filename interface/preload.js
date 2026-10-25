@@ -30,6 +30,7 @@ contextBridge.exposeInMainWorld('os', {
     agenda: () => ipcRenderer.invoke('agenda'),
     setAgenda: agenda => ipcRenderer.invoke('set-agenda', agenda),
     contacts: () => ipcRenderer.invoke('contacts'),
+    contactAction: (kind, value) => ipcRenderer.invoke('contact-action', kind, value),
     setContacts: list => ipcRenderer.invoke('set-contacts', list),
     network: () => ipcRenderer.invoke('reseau'),
     wifiNetworks: () => ipcRenderer.invoke('wifi'),
