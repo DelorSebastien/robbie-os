@@ -87,11 +87,15 @@
                 </button>${wallpapers.map((w, index) => `
                 <button class="fond-choix${w.path === current ? ' actif' : ''}" data-fond="${index}" title="${escape(w.name)}">
                     <img src="${wallpaperUrl(w.path)}" alt="${escape(w.name)}" loading="lazy">
+                    ${w.own ? `<span class="fond-retirer" data-retirer="${index}" data-icon="x" role="button" aria-label="Retirer ce fond" title="Retirer ce fond"></span>` : ''}
                 </button>`).join('')}
             </div>
-            ${current === 'jour' ? '<div class="reglage-ligne"><button class="bouton" data-defiler>Voir défiler la journée</button></div>' : ''}
+            <div class="reglage-ligne">
+                <button class="bouton" data-fond-importer data-icon="image">Choisir une image…</button>
+                ${current === 'jour' ? '<button class="bouton" data-defiler>Voir défiler la journée</button>' : ''}
+            </div>
             <p class="reglage-aide">« Au fil du jour » suit le soleil de ta ville (celle de la météo), de l'aurore à la nuit.
-                Ajoute tes images dans le dossier Images (ou Images › Fonds d'écran) pour les retrouver ici.</p>`)
+                Une image choisie (sur l'ordinateur ou une clé USB) est rangée dans Images › Fonds d'écran ; les images du dossier Images apparaissent aussi ici.</p>`)
             + block('Couleur d’accent', `
             <div class="pastilles">${Object.entries(EYE_COLORS).map(([key, rgb]) => `
                 <button class="pastille-couleur${key === settings.eyeColor ? ' actif' : ''}" data-couleur="${key}" style="--c: ${rgb}" aria-label="${EYE_NAMES[key]}" title="${EYE_NAMES[key]}"></button>`).join('')}
@@ -122,6 +126,28 @@
             + block('Costumes', `
             <label class="interrupteur"><input type="checkbox" data-costumes ${settings.skin === 'auto' ? 'checked' : ''}>
                 <span>Costumes selon les fêtes (citrouille à Halloween…)</span></label>`);
+
+        content.querySelector('[data-fond-importer]').addEventListener('click', async () => {
+            const wallpaper = await window.os.importWallpaper();
+            if (!wallpaper) return;
+            await change({ wallpaper });
+            applyWallpaper(wallpaper);
+            toast('Nouveau fond d’écran', 'image');
+            renderAppearance().then(() => window.icons.fill(content));
+        });
+
+        content.querySelectorAll('[data-retirer]').forEach(cross => cross.addEventListener('click', async event => {
+            event.stopPropagation();
+            const file = wallpapers[Number(cross.dataset.retirer)].path;
+            if (!(await window.os.removeWallpaper(file))) return;
+            // (le fond retiré était celui du bureau : retour au fond au fil du jour)
+            if (file === current) {
+                await change({ wallpaper: 'jour' });
+                applyWallpaper('jour');
+            }
+            toast('Fond retiré (il est dans la corbeille)', 'trash');
+            renderAppearance().then(() => window.icons.fill(content));
+        }));
 
         content.querySelectorAll('[data-fond]').forEach(button => button.addEventListener('click', async () => {
             const wallpaper = button.dataset.fond === 'jour' ? 'jour' : wallpapers[Number(button.dataset.fond)].path;

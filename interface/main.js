@@ -1,5 +1,5 @@
 // Robbie OS : l'interface, lancée en plein écran au démarrage de la machine
-const { app, BrowserWindow, ipcMain, protocol, net, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, protocol, net, dialog, shell } = require('electron');
 const { pathToFileURL } = require('node:url');
 const path = require('node:path');
 const fs = require('node:fs');
@@ -171,6 +171,23 @@ ipcMain.handle('ranger-telechargements', () => actions.execute({ type: 'organize
 
 // Réglages : fonds d'écran, voix, écran, informations, ville de la météo
 ipcMain.handle('fonds', () => parametres.wallpapers());
+// Fond d'écran choisi n'importe où : copié dans Images › Fonds d'écran
+ipcMain.handle('fond-importer', async () => {
+    const result = await dialog.showOpenDialog(win, {
+        title: 'Choisir un fond d’écran',
+        buttonLabel: 'Choisir',
+        defaultPath: path.join(os.homedir(), 'Images'),
+        properties: ['openFile'],
+        filters: [{ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp', 'avif'] }]
+    });
+    if (result.canceled || !result.filePaths.length) return null;
+    return parametres.importWallpaper(result.filePaths[0]);
+});
+ipcMain.handle('fond-retirer', async (_event, file) => {
+    if (!parametres.isOwnWallpaper(String(file))) return false;
+    await shell.trashItem(String(file)).catch(() => {});
+    return true;
+});
 ipcMain.handle('voix', () => parametres.voices());
 ipcMain.handle('ecrans', () => parametres.displays());
 ipcMain.handle('set-resolution', (_event, name, width, height) => parametres.setResolution(name, width, height));

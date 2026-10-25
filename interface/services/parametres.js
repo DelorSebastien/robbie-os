@@ -11,10 +11,13 @@ const run = (command, args) => new Promise(resolve => {
     execFile(command, args, { timeout: 5000 }, (error, stdout) => resolve(error ? null : stdout));
 });
 
+// Dossier des fonds ajoutés depuis les Réglages (« Choisir une image… »)
+const ownFolder = () => path.join(os.homedir(), 'Images', "Fonds d'écran");
+
 // Dossiers où l'on cherche des fonds d'écran (et seuls fichiers que la page a le droit d'afficher)
 function wallpaperFolders() {
     const pictures = path.join(os.homedir(), 'Images');
-    return [path.join(ROOT, 'interface', 'fonds'), path.join(ROOT, 'assets', 'fonds'), path.join(pictures, "Fonds d'écran"), pictures];
+    return [path.join(ROOT, 'interface', 'fonds'), path.join(ROOT, 'assets', 'fonds'), ownFolder(), pictures];
 }
 
 function wallpapers() {
@@ -27,11 +30,25 @@ function wallpapers() {
             continue;
         }
         for (const name of names) {
-            if (IMAGE.test(name)) list.push({ path: path.join(folder, name), name: name.replace(/\.[^.]+$/, '') });
+            if (IMAGE.test(name)) list.push({ path: path.join(folder, name), name: name.replace(/\.[^.]+$/, ''), own: folder === ownFolder() });
         }
     }
     return list;
 }
+
+// Une image choisie n'importe où (disque, clé USB…) est copiée dans Images › Fonds d'écran
+function importWallpaper(file) {
+    if (!IMAGE.test(file) || !fs.existsSync(file)) return null;
+    fs.mkdirSync(ownFolder(), { recursive: true });
+    const { name, ext } = path.parse(file);
+    let target = path.join(ownFolder(), name + ext);
+    for (let n = 2; fs.existsSync(target) && path.resolve(target) !== path.resolve(file); n++) target = path.join(ownFolder(), `${name} (${n})${ext}`);
+    if (path.resolve(target) !== path.resolve(file)) fs.copyFileSync(file, target);
+    return target;
+}
+
+// Seuls les fonds ajoutés depuis les Réglages peuvent être retirés
+const isOwnWallpaper = file => isWallpaper(file) && path.dirname(path.resolve(file)) === ownFolder();
 
 // Un fichier peut-il être servi comme fond d'écran ? (uniquement les images des dossiers prévus)
 function isWallpaper(file) {
@@ -112,4 +129,4 @@ async function searchCity(name) {
     return place ? { name: place.name, region: place.admin1 || place.country || '', latitude: place.latitude, longitude: place.longitude } : null;
 }
 
-module.exports = { wallpapers, isWallpaper, voices, displays, setResolution, systemInfo, searchCity };
+module.exports = { wallpapers, isWallpaper, importWallpaper, isOwnWallpaper, voices, displays, setResolution, systemInfo, searchCity };
