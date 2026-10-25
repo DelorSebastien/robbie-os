@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Fichiers
+GenericName=Explorateur de fichiers
+Comment=Parcourir les dossiers, la corbeille, les clés USB et les photos
+Exec=/opt/robbie-os/node_modules/.bin/electron /opt/robbie-os/applis/fichiers %U
+Icon=/opt/robbie-os/applis/fichiers/fichiers.svg
+Terminal=false
+Categories=System;FileManager;Utility;
+MimeType=inode/directory;
+StartupWMClass=robbie-fichiers
+Keywords=fichiers;dossiers;explorateur;documents;corbeille;photos;

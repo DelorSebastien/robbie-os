@@ -97,6 +97,7 @@
     const zone = $('#zone');
 
     function render() {
+        tellExplorer();
         const current = VIEWS[view.type];
         list = current.items();
         positions = new Map(list.map((item, i) => [item, i]));
@@ -342,6 +343,7 @@
             ? data.albums.map(a => `<button data-album="${a.id}" data-icon="album" class="${view.type === 'album' && view.id === a.id ? 'actif' : ''}">${escape(a.nom)}</button>`).join('')
             : '<p class="vide">Aucun album</p>';
         window.icons.fill(box);
+        tellExplorer();
         box.querySelectorAll('[data-album]').forEach(button => {
             button.addEventListener('click', () => show('album', button.dataset.album));
             button.addEventListener('dragover', event => { event.preventDefault(); button.classList.add('cible'); });
@@ -517,19 +519,49 @@
         render();
     });
 
-    // Image ouverte depuis l'explorateur : directement dans la visionneuse
-    api.onOpen(async file => {
+    // Image ouverte depuis l'explorateur : directement dans la visionneuse (avec ses voisines du
+    // même dossier, pour passer de l'une à l'autre)
+    async function openFile(file) {
         await ready;
-        const i = library.findIndex(p => p.path === file);
-        if (i >= 0) window.visionneuse.open(library, i);
+        const folder = file.slice(0, file.lastIndexOf('/') + 1);
+        const siblings = library.filter(p => p.path.startsWith(folder) && !p.path.slice(folder.length).includes('/'));
+        const i = siblings.findIndex(p => p.path === file);
+        if (i >= 0) window.visionneuse.open(siblings, i);
         else window.visionneuse.open([{ path: file, name: file.split('/').pop(), kind: /\.(mp4|webm|m4v|mov|ogv)$/i.test(file) ? 'video' : 'photo', date: Date.now(), size: 0, horsBibliotheque: true }], 0);
-    });
+    }
+    api.onOpen(openFile);
 
     // Dossier ouvert depuis l'explorateur : ses photos, comme une collection
     api.onFolder(async folder => {
         await ready;
         show('dossier', folder);
     });
+
+    // ---- Dans l'explorateur de Robbie OS : sans sa barre latérale (l'explorateur affiche les
+    // collections et les albums dans la sienne), piloté par messages ----
+    const integrated = new URLSearchParams(location.search).has('integre');
+    if (integrated) {
+        document.body.classList.add('integre');
+        window.addEventListener('message', async event => {
+            const message = event.data || {};
+            await ready;
+            if (message.type === 'vue') show(message.vue, message.id);
+            else if (message.type === 'ouvrir') openFile(message.file);
+            else if (message.type === 'dossier') show('dossier', message.dossier);
+            else if (message.type === 'nouvel-album') newAlbum();
+            else if (message.type === 'importer') importPhotos(Boolean(message.dossiers));
+        });
+    }
+    // L'explorateur affiche les albums et les nombres de photos dans sa barre latérale
+    function tellExplorer() {
+        if (!new URLSearchParams(location.search).has('integre')) return;
+        window.parent.postMessage({
+            type: 'photos-etat',
+            total: library.length,
+            favoris: data.favoris.length,
+            albums: data.albums.map(a => ({ id: a.id, nom: a.nom, nombre: a.photos.length }))
+        }, '*');
+    }
 
     // Partagé avec la visionneuse et la retouche
     window.app = {

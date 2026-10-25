@@ -61,7 +61,8 @@ async function search(query) {
 function open(file) {
     const entry = entries.find(item => item.path === file);
     if (!entry) return false;
-    const [command, args] = entry.isDir ? ['thunar', [file]] : ['xdg-open', [file]];
+    // (les dossiers dans Fichiers, l'explorateur de Robbie OS)
+    const [command, args] = entry.isDir ? [process.execPath, [path.join(__dirname, '..', '..', 'applis', 'fichiers'), file]] : ['xdg-open', [file]];
     spawn(command, args, { detached: true, stdio: 'ignore' }).on('error', () => {}).unref();
     return true;
 }

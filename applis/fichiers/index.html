@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' file: data: blob:; media-src file:; style-src 'self' 'unsafe-inline'; frame-src 'self'">
+    <title>Fichiers</title>
+    <link rel="stylesheet" href="./fichiers.css">
+</head>
+<body>
+    <!-- Barre latérale : emplacements, signets, Photos (collections et albums), clés USB -->
+    <aside class="barre" id="barre"></aside>
+
+    <main class="contenu">
+        <!-- Barre d'outils : précédent, suivant, parent, chemin en pastilles, recherche, vues -->
+        <header class="outils">
+            <button class="rond" id="precedent" data-icon="chevron-left" title="Précédent (Alt+←)"></button>
+            <button class="rond" id="suivant" data-icon="chevron-right" title="Suivant (Alt+→)"></button>
+            <button class="rond" id="parent" data-icon="arrow-up" title="Dossier parent (Alt+↑)"></button>
+            <nav class="chemin" id="chemin" aria-label="Emplacement"></nav>
+            <label class="cherche" data-icon="search"><input id="cherche" type="search" placeholder="Chercher" autocomplete="off" spellcheck="false"></label>
+            <div class="vues" id="vues" role="group" aria-label="Affichage">
+                <button data-vue="grille" data-icon="grid" title="Icônes"></button>
+                <button data-vue="liste" data-icon="liste" title="Liste"></button>
+                <button data-vue="galerie" data-icon="image" title="Galerie (les photos du dossier)"></button>
+            </div>
+        </header>
+
+        <!-- Fichiers du dossier -->
+        <section class="zone" id="zone" tabindex="0"></section>
+
+        <!-- Photos : photothèque, albums, visionneuse (l'appli Photos, sans sa barre latérale) -->
+        <iframe class="photos" id="photos" src="../photos/index.html?integre=1" title="Photos" hidden></iframe>
+
+        <footer class="etat" id="etat"></footer>
+        <div class="transferts" id="transferts" hidden></div>
+    </main>
+
+    <div class="menu" id="menu" hidden></div>
+    <div class="dialogue-fond" id="dialogue" hidden></div>
+    <div class="message" id="message" hidden></div>
+    <div class="cadre-selection" id="cadre" hidden></div>
+
+    <script src="../../interface/js/icones.js"></script>
+    <script src="../../interface/js/soleil.js"></script>
+    <script src="./fichiers.js"></script>
+</body>
+</html>

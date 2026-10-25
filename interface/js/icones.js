@@ -75,7 +75,17 @@
         refresh: 'M20 12a8 8 0 1 1-2.3-5.7M20 4v4.5h-4.5',
         shield: 'M12 3 4.5 6v5.5c0 4.6 3.2 8.2 7.5 9.5 4.3-1.3 7.5-4.9 7.5-9.5V6zM9 12l2 2 4-4',
         star: 'M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z',
-        external: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5'
+        external: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5',
+        liste: 'M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01',
+        ordinateur: 'M4 5h16v11H4zM9 20h6M12 16v4',
+        bureau: 'M3 5h18v12H3zM8 21h8M12 17v4',
+        usb: 'M9 3h6v5H9zM7 8h10v9a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4z',
+        ejecter: 'M5 15h14L12 6zM5 19h14',
+        copier: 'M8 8h11v12H8zM5 16V4h11',
+        couper: 'M6 4l12 14M18 4 6 18M6 18a2.5 2.5 0 1 0 0 .01M18 18a2.5 2.5 0 1 0 0 .01',
+        coller: 'M8 4h8v3H8zM6 6H5v15h14V6h-1M9 12h6M9 16h6',
+        restaurer: 'M4 12a8 8 0 1 0 2.3-5.7M4 4v4.5h4.5M12 8v4l3 2',
+        signet: 'M6 4h12v17l-6-4-6 4z'
     };
 
     function icon(name) {

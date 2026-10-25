@@ -14,6 +14,7 @@
 
     // Couleur des blocs : celle de l'appli dans le dock, sinon une teinte tirée de son nom
     const TINTS = {
+        'robbie-fichiers': '80, 170, 255',
         thunar: '80, 170, 255',
         'firefox-esr': '255, 130, 60',
         firefox: '255, 130, 60',

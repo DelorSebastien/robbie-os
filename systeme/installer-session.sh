@@ -71,14 +71,15 @@ EOF
 systemctl enable robbie-os-renommages.service >/dev/null 2>&1
 mkdir -p "$CONFIG/enfants"
 
-# ---- Applis de Robbie OS : Photos (photothèque, albums, visionneuse, retouches) ----
+# ---- Applis de Robbie OS : Fichiers (l'explorateur, avec Photos dans sa fenêtre), Photos ----
+install -m 644 "$ROBBIE_DIR/applis/fichiers/robbie-fichiers.desktop" /usr/share/applications/
 install -m 644 "$ROBBIE_DIR/applis/photos/robbie-photos.desktop" /usr/share/applications/
 update-desktop-database -q /usr/share/applications 2>/dev/null || true
-# Photos ouvre les images et les vidéos ; les dossiers s'ouvrent dans l'explorateur
+# Photos ouvre les images et les vidéos ; les dossiers s'ouvrent dans Fichiers
 mkdir -p /etc/xdg
 {
     echo '[Default Applications]'
-    echo 'inode/directory=thunar.desktop'
+    echo 'inode/directory=robbie-fichiers.desktop'
     for type in image/jpeg image/png image/webp image/gif image/bmp image/avif image/tiff video/mp4 video/webm video/quicktime; do
         echo "$type=robbie-photos.desktop"
     done
@@ -283,18 +284,8 @@ setup_folders() {
             python3 -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).as_uri())' "$folder"
         done > "$bookmarks"
     fi
-    # L'appli Photos dans l'explorateur, sous Images (une seule fois : on peut retirer le signet)
-    photos_mark="$HOME/.config/robbie-os/signet-photos"
-    if [ ! -e "$photos_mark" ]; then
-        photos='file:///usr/share/applications/robbie-photos.desktop Photos'
-        pictures="$(python3 -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).as_uri())' "$(xdg-user-dir PICTURES)")"
-        if grep -qx "$pictures" "$bookmarks"; then
-            sed -i "\|^$pictures\$|a $photos" "$bookmarks"
-        else
-            echo "$photos" >> "$bookmarks"
-        fi
-        mkdir -p "$(dirname "$photos_mark")" && touch "$photos_mark"
-    fi
+    # (l'ancien signet « Photos » de Thunar : Fichiers a sa propre section Photos)
+    sed -i '\|robbie-photos.desktop|d' "$bookmarks"
 }
 
 # Configuration de labwc propre à la personne : copie de la commune (remise à jour à chaque
