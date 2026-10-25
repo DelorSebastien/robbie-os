@@ -1,0 +1,6 @@
+{
+  "name": "robbie-ecriture",
+  "description": "Écriture : l'éditeur de texte de Robbie OS (documents Word, PDF)",
+  "private": true,
+  "main": "main.js"
+}

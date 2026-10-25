@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Écriture
+GenericName=Traitement de texte
+Comment=Écrire des lettres, des comptes rendus, des documents Word et des PDF
+Exec=/opt/robbie-os/node_modules/.bin/electron /opt/robbie-os/applis/ecriture %f
+Icon=/opt/robbie-os/applis/ecriture/ecriture.svg
+Terminal=false
+Categories=Office;WordProcessor;
+MimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document;
+StartupWMClass=robbie-ecriture
+Keywords=texte;document;word;docx;lettre;pdf;traitement de texte;

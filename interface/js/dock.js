@@ -19,6 +19,7 @@
         gear: line('argent', 'M10.11 4.95L10.5 2.52A9.6 9.6 0 0 1 13.5 2.52L13.89 4.95A7.3 7.3 0 0 1 15.65 5.68L17.64 4.23A9.6 9.6 0 0 1 19.77 6.36L18.32 8.35A7.3 7.3 0 0 1 19.05 10.11L21.48 10.5A9.6 9.6 0 0 1 21.48 13.5L19.05 13.89A7.3 7.3 0 0 1 18.32 15.65L19.77 17.64A9.6 9.6 0 0 1 17.64 19.77L15.65 18.32A7.3 7.3 0 0 1 13.89 19.05L13.5 21.48A9.6 9.6 0 0 1 10.5 21.48L10.11 19.05A7.3 7.3 0 0 1 8.35 18.32L6.36 19.77A9.6 9.6 0 0 1 4.23 17.64L5.68 15.65A7.3 7.3 0 0 1 4.95 13.89L2.52 13.5A9.6 9.6 0 0 1 2.52 10.5L4.95 10.11A7.3 7.3 0 0 1 5.68 8.35L4.23 6.36A9.6 9.6 0 0 1 6.36 4.23L8.35 5.68A7.3 7.3 0 0 1 10.11 4.95zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z'),
         trash: line('argent', 'M5 7h14M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6'),
         grid: line('cyan', 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'),
+        plume: line('bleu', 'M20 4C14 6 9 11 6 18l-1 2 2-1c7-3 12-8 13-15zM5 20l6-6M9 7H5v13h13v-4'),
         bag: line('cyan', 'M5 8h14l-1.2 12H6.2zM9 8V6.5a3 3 0 0 1 6 0V8M9.5 12.5v2M14.5 12.5v2')
     };
 
@@ -29,7 +30,8 @@
         foot: { icon: 'utilities-terminal', glyph: 'terminal', name: 'Terminal', tint: '190, 205, 230' },
         'org.xfce.mousepad': { icon: 'accessories-text-editor', glyph: 'code', name: 'Éditeur de texte', tint: '60, 130, 255' },
         'robbie-photos': { icon: 'image-viewer', glyph: 'image', name: 'Photos', tint: '160, 90, 255' },
-        'robbie-logitheque': { icon: 'system-software-install', glyph: 'bag', name: 'Logithèque', tint: '80, 220, 255' }
+        'robbie-logitheque': { icon: 'system-software-install', glyph: 'bag', name: 'Logithèque', tint: '80, 220, 255' },
+        'robbie-ecriture': { icon: 'accessories-text-editor', glyph: 'plume', name: 'Écriture', tint: '120, 200, 255' }
     };
 
     const SYSTEM_ITEMS = [

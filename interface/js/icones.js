@@ -85,7 +85,15 @@
         couper: 'M6 4l12 14M18 4 6 18M6 18a2.5 2.5 0 1 0 0 .01M18 18a2.5 2.5 0 1 0 0 .01',
         coller: 'M8 4h8v3H8zM6 6H5v15h14V6h-1M9 12h6M9 16h6',
         restaurer: 'M4 12a8 8 0 1 0 2.3-5.7M4 4v4.5h4.5M12 8v4l3 2',
-        signet: 'M6 4h12v17l-6-4-6 4z'
+        signet: 'M6 4h12v17l-6-4-6 4z',
+        'aligne-gauche': 'M4 6h16M4 10h10M4 14h16M4 18h10',
+        'aligne-centre': 'M4 6h16M7 10h10M4 14h16M7 18h10',
+        'aligne-droite': 'M4 6h16M10 10h10M4 14h16M10 18h10',
+        justifier: 'M4 6h16M4 10h16M4 14h16M4 18h16',
+        'liste-num': 'M10 6h10M10 12h10M10 18h10M4 5h1.5v3M3.8 8h3M4 14.5a1.2 1.2 0 0 1 2.3.3c0 .9-2.3 1.7-2.3 2.7h2.5',
+        lien: 'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
+        tableau: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14',
+        'saut-page': 'M6 3v5h12V3M6 21v-5h12v5M3 12h2M8 12h3M13 12h3M19 12h2'
     };
 
     function icon(name) {

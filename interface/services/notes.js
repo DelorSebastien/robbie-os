@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
     eyeColor: 'cyan',
     skin: 'none',
     doNotDisturb: false,
-    pinned: ['robbie-fichiers', 'firefox-esr', 'foot', 'org.xfce.mousepad', 'robbie-logitheque'],
+    pinned: ['robbie-fichiers', 'firefox-esr', 'foot', 'robbie-ecriture', 'org.xfce.mousepad', 'robbie-logitheque'],
     // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
     wallpaper: null,
     theme: 'sombre',
@@ -50,6 +50,15 @@ function migrate(settings) {
     if (!settings.logithequeProposee) {
         if (Array.isArray(settings.pinned) && !settings.pinned.includes('robbie-logitheque')) settings.pinned = [...settings.pinned, 'robbie-logitheque'];
         settings.logithequeProposee = true;
+        save('reglages', settings);
+    }
+    // Écriture arrive une fois dans le dock, à côté de l'éditeur de code
+    if (!settings.ecritureProposee) {
+        if (Array.isArray(settings.pinned) && !settings.pinned.includes('robbie-ecriture')) {
+            const at = settings.pinned.indexOf('org.xfce.mousepad');
+            settings.pinned = at >= 0 ? [...settings.pinned.slice(0, at), 'robbie-ecriture', ...settings.pinned.slice(at)] : [...settings.pinned, 'robbie-ecriture'];
+        }
+        settings.ecritureProposee = true;
         save('reglages', settings);
     }
     // L'explorateur de Robbie OS remplace Thunar dans le dock (une fois)

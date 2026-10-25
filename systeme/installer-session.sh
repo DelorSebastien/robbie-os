@@ -73,6 +73,9 @@ mkdir -p "$CONFIG/enfants"
 
 # ---- Applis de Robbie OS : Fichiers (l'explorateur, avec Photos dans sa fenêtre), Photos ----
 install -m 644 "$ROBBIE_DIR/applis/fichiers/robbie-fichiers.desktop" /usr/share/applications/
+install -m 644 "$ROBBIE_DIR/applis/ecriture/robbie-ecriture.desktop" /usr/share/applications/
+# (polices compatibles avec Word : Times, Arial, Calibri, Cambria ; correcteur en français)
+apt-get install -y --no-install-recommends fonts-liberation fonts-crosextra-carlito fonts-crosextra-caladea hunspell-fr
 install -m 644 "$ROBBIE_DIR/applis/photos/robbie-photos.desktop" /usr/share/applications/
 update-desktop-database -q /usr/share/applications 2>/dev/null || true
 # Photos ouvre les images et les vidéos ; les dossiers s'ouvrent dans Fichiers
@@ -80,6 +83,7 @@ mkdir -p /etc/xdg
 {
     echo '[Default Applications]'
     echo 'inode/directory=robbie-fichiers.desktop'
+    echo 'application/vnd.openxmlformats-officedocument.wordprocessingml.document=robbie-ecriture.desktop'
     for type in image/jpeg image/png image/webp image/gif image/bmp image/avif image/tiff video/mp4 video/webm video/quicktime; do
         echo "$type=robbie-photos.desktop"
     done

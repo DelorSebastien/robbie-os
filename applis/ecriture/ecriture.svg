@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Icône d'Écriture : une page blanche et une plume de lumière, sur une tuile de nuit -->
+  <defs>
+    <linearGradient id="nuit" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16305e"/>
+      <stop offset="1" stop-color="#070d1f"/>
+    </linearGradient>
+    <linearGradient id="plume" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#2a8de0"/>
+      <stop offset="1" stop-color="#9ff4ff"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.6" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#38e8ff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#38e8ff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="tuile"><rect x="8" y="8" width="112" height="112" rx="28"/></clipPath>
+  </defs>
+  <g clip-path="url(#tuile)">
+    <rect x="8" y="8" width="112" height="112" fill="url(#nuit)"/>
+    <circle cx="74" cy="52" r="50" fill="url(#halo)"/>
+    <path d="M32 26h40l18 18v58a4 4 0 0 1-4 4H32a4 4 0 0 1-4-4V30a4 4 0 0 1 4-4z" fill="#f4f8ff"/>
+    <path d="M72 26v14a4 4 0 0 0 4 4h14z" fill="#c9d8ee"/>
+    <path d="M38 56h34M38 66h30M38 76h22" stroke="#8aa0c4" stroke-width="4" stroke-linecap="round"/>
+    <path d="M100 22c-14 4-28 20-36 40l-4 12 10-8c16-12 28-28 30-44z" fill="url(#plume)"/>
+    <path d="M60 74l14-26" stroke="#06121f" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+  </g>
+  <rect x="8.5" y="8.5" width="111" height="111" rx="27.5" fill="none" stroke="#ffffff" stroke-opacity="0.3"/>
+</svg>
