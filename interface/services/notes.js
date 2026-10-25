@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
     eyeColor: 'cyan',
     skin: 'none',
     doNotDisturb: false,
-    pinned: ['robbie-fichiers', 'firefox-esr', 'robbie-telephone', 'foot', 'robbie-ecriture', 'org.xfce.mousepad', 'robbie-logitheque'],
+    pinned: ['robbie-fichiers', 'firefox-esr', 'foot', 'robbie-ecriture', 'org.xfce.mousepad', 'robbie-logitheque'],
     // Fond d'écran (chemin d'une image), voix de Robbie, sensibilité du micro, verrouillage
     wallpaper: null,
     theme: 'sombre',
@@ -67,13 +67,10 @@ function migrate(settings) {
         settings.fichiersRobbie = true;
         save('reglages', settings);
     }
-    // Le Téléphone arrive une fois dans le dock, après le navigateur
-    if (!settings.telephonePropose) {
-        if (Array.isArray(settings.pinned) && !settings.pinned.includes('robbie-telephone')) {
-            const at = settings.pinned.indexOf('firefox-esr');
-            settings.pinned = at >= 0 ? [...settings.pinned.slice(0, at + 1), 'robbie-telephone', ...settings.pinned.slice(at + 1)] : [...settings.pinned, 'robbie-telephone'];
-        }
-        settings.telephonePropose = true;
+    // Les messages et les appels sont dans le tiroir Contacts : le Téléphone quitte le dock (une fois)
+    if (!settings.telephoneDansContacts) {
+        if (Array.isArray(settings.pinned)) settings.pinned = settings.pinned.filter(id => id !== 'robbie-telephone');
+        settings.telephoneDansContacts = true;
         save('reglages', settings);
     }
     if (!settings.photosDansExplorateur) {

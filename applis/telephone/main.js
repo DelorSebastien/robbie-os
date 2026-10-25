@@ -1,10 +1,10 @@
-// Téléphone : les SMS et les appels du téléphone Android relié (appli Robbie Lien), et les
-// messages et appels audio ou vidéo entre ordinateurs Robbie OS. Le service du téléphone
-// (service/) tient les liaisons ; l'appli les montre, et ouvre la fenêtre d'appel.
-// « electron applis/telephone [--appeler numéro] [--message numéro] [--appel id] »
-const { app, BrowserWindow, ipcMain, dialog, shell, session, desktopCapturer } = require('electron');
+// Téléphone : la fenêtre d'appel de Robbie OS (image et son en direct entre Robbie OS, partage
+// d'écran, sous-titres). Les messages, le journal et le clavier sont dans le tiroir Contacts de la
+// barre latérale ; le service du téléphone (service/) tient les liaisons.
+// « electron applis/telephone --appel id » ; un lien tel: ou sms: (ou --appeler, --message) est
+// passé au tiroir Contacts.
+const { app, BrowserWindow, ipcMain, session, desktopCapturer } = require('electron');
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { connectService } = require('./service/client');
@@ -16,35 +16,20 @@ if (!app.requestSingleInstanceLock()) app.quit();
 // cache derrière des noms .local que le réseau ne sait pas toujours résoudre)
 app.commandLine.appendSwitch('disable-features', 'WebRtcHideLocalIpsWithMdns');
 
-const HOME = os.homedir();
 const ROOT = path.join(__dirname, '..', '..');
-const SETTINGS = path.join(HOME, '.config', 'robbie-os', 'reglages.json');
-
-let win = null;
 const callWindows = new Map();   // id de l'appel → fenêtre
-let pendingRequest = null;
 
-// ---- Le service (lancé par l'interface ; sinon par l'appli elle-même) ----
+// ---- Le service (lancé par l'interface) ----
 const service = connectService('appli');
-let serviceStarted = false;
-setTimeout(() => {
-    if (service.connected || serviceStarted) return;
-    serviceStarted = true;
-    spawn(process.execPath, [path.join(__dirname, 'service')], { env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' }, detached: true, stdio: 'ignore' }).unref();
-}, 1200);
-
-const EVENTS = ['etat', 'message', 'message-modifie', 'conversations', 'lus', 'appels', 'appel', 'appel-fin', 'presence', 'contacts', 'pairs', 'demande', 'telephone-relie', 'signal'];
-for (const event of EVENTS) {
+for (const event of ['appel', 'appel-fin', 'signal']) {
     service.events.on(event, data => {
-        win?.webContents.send('service', event, data);
         for (const callWin of callWindows.values()) callWin.webContents.send('service', event, data);
     });
 }
-service.events.on('connecte', () => win?.webContents.send('service', 'connecte', null));
 service.events.on('ouvrir-appel', ({ id }) => openCall(id));
 
-// Ce que les pages peuvent demander au service
-const ALLOWED = new Set(['etat', 'conversations', 'messages', 'envoyer', 'lire', 'supprimerConversation', 'personne', 'appels', 'appeler', 'decrocher', 'raccrocher', 'micro', 'appel', 'appelConnecte', 'signal', 'signauxEnAttente', 'favoris', 'setFavoris', 'appareils', 'proches', 'pairs', 'demanderContact', 'repondreDemande', 'suggestions', 'nouvelleLiaison', 'annulerLiaison', 'oublierAppareil', 'supprimerMessage']);
+// Ce que la fenêtre d'appel peut demander au service
+const ALLOWED = new Set(['appel', 'raccrocher', 'micro', 'appelConnecte', 'signal', 'signauxEnAttente']);
 ipcMain.handle('service', async (_event, method, args) => {
     if (!ALLOWED.has(method)) return { erreurService: 'Demande refusée' };
     try {
@@ -54,57 +39,18 @@ ipcMain.handle('service', async (_event, method, args) => {
     }
 });
 
-// ---- Contacts de Robbie OS (le même fichier que la barre latérale) ----
-const CONTACTS = path.join(HOME, '.config', 'robbie-os', 'contacts.json');
-ipcMain.handle('contacts', () => {
-    try {
-        const list = JSON.parse(fs.readFileSync(CONTACTS, 'utf8'));
-        return Array.isArray(list) ? list : [];
-    } catch {
-        return [];
-    }
-});
-ipcMain.handle('ajouter-contact', (_event, contact) => {
-    let list = [];
-    try {
-        list = JSON.parse(fs.readFileSync(CONTACTS, 'utf8'));
-    } catch {}
-    const entry = { name: String(contact?.name || '').trim().slice(0, 80), phone: String(contact?.phone || '').slice(0, 40), email: '', note: '', ...(contact?.robbie ? { robbie: String(contact.robbie) } : {}) };
-    if (!entry.name) return { ok: false };
-    list.push(entry);
-    fs.mkdirSync(path.dirname(CONTACTS), { recursive: true });
-    fs.writeFileSync(`${CONTACTS}.tmp`, JSON.stringify(list, null, 2));
-    fs.renameSync(`${CONTACTS}.tmp`, CONTACTS);
-    return { ok: true };
-});
-
-// ---- Fichiers joints ----
-ipcMain.handle('choisir-fichier', async () => {
-    const result = await dialog.showOpenDialog(win, { title: 'Joindre un fichier', buttonLabel: 'Joindre', defaultPath: HOME, properties: ['openFile'] });
-    return result.canceled ? null : result.filePaths[0];
-});
-const PIECES = path.join(process.env.ROBBIE_TELEPHONE_DIR || path.join(HOME, '.local', 'share', 'robbie-os', 'telephone'), 'pieces');
-ipcMain.handle('ouvrir-piece', (_event, file) => {
-    const target = path.resolve(String(file));
-    if (path.dirname(target) === PIECES) shell.openPath(target);
-});
-
-// Codes QR (liaison du téléphone, installation de Robbie Lien)
-ipcMain.handle('qr', (_event, text) => require('qrcode').toDataURL(String(text).slice(0, 1000), { margin: 1, width: 440, errorCorrectionLevel: 'M' }));
-
-// ---- Thème de Robbie OS ----
-function readTheme() {
-    try {
-        const { theme, eyeColor } = JSON.parse(fs.readFileSync(SETTINGS, 'utf8'));
-        return { theme: theme || 'sombre', accent: eyeColor };
-    } catch {
-        return { theme: 'sombre' };
+// Une demande pour le tiroir Contacts : passée par le service à l'interface
+function toDrawer(request) {
+    const sendIt = () => service.call('ouvrirTiroir', request).catch(() => {}).finally(quitIfIdle);
+    if (service.connected) sendIt();
+    else {
+        service.events.once('connecte', sendIt);
+        setTimeout(quitIfIdle, 4000);
     }
 }
-ipcMain.handle('theme', () => readTheme());
+const quitIfIdle = () => !callWindows.size && app.quit();
 
-// ---- Fenêtres ----
-// Ce qu'on demande en lançant l'appli : appeler un numéro, écrire à quelqu'un, une fenêtre d'appel
+// Ce qu'on demande en lançant l'appli : une fenêtre d'appel, appeler un numéro, écrire à quelqu'un
 function requestOf(argv) {
     // (Electron range ses options en premier : la valeur est le premier argument suivant qui n'est
     // pas le dossier de l'appli)
@@ -122,42 +68,15 @@ function requestOf(argv) {
         const number = decodeURIComponent(url.replace(/^[a-z]+:(\/\/)?/i, '').split('?')[0]);
         return /^tel:/i.test(url) ? { appeler: number } : { message: number };
     }
-    return null;
+    return {};
 }
 
 function handle(request) {
-    if (!request) return;
-    if (request.appel) return openCall(request.appel);
-    // (fenêtre pas encore prête : la demande attend la fin du chargement)
-    if (!win || win.webContents.isLoading()) return (pendingRequest = request);
-    win.webContents.send('demande', request);
+    if (request.appel) openCall(request.appel);
+    else toDrawer(request);
 }
 
-function createWindow() {
-    win = new BrowserWindow({
-        width: 1120,
-        height: 700,
-        minWidth: 760,
-        minHeight: 520,
-        title: 'Téléphone',
-        transparent: true,
-        backgroundColor: '#00000000',
-        icon: path.join(__dirname, 'telephone.svg'),
-        webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, sandbox: true, spellcheck: true }
-    });
-    win.removeMenu();
-    win.webContents.session.setSpellCheckerLanguages(['fr']);
-    win.loadFile(path.join(__dirname, 'index.html'));
-    win.webContents.once('did-finish-load', () => {
-        if (pendingRequest) win.webContents.send('demande', pendingRequest);
-        pendingRequest = null;
-    });
-    win.on('closed', () => {
-        win = null;
-    });
-}
-
-// Fenêtre d'appel (Robbie OS : image et son en direct, sous-titres ; téléphone : son sur le téléphone)
+// Fenêtre d'appel (Robbie OS : image et son en direct, sous-titres)
 function openCall(id) {
     if (callWindows.has(id)) {
         callWindows.get(id).focus();
@@ -182,18 +101,13 @@ function openCall(id) {
         callWindows.delete(id);
         stopSubtitles(contentsId);
         // (fenêtre fermée pendant l'appel : on raccroche)
-        service.call('appel', id).then(call => call && call.canal === 'robbie' && service.call('raccrocher', id)).catch(() => {});
-        if (!win && !callWindows.size) app.quit();
+        service.call('appel', id).then(call => call && service.call('raccrocher', id)).catch(() => {}).finally(quitIfIdle);
     });
 }
 
 ipcMain.on('fermer-appel', event => BrowserWindow.fromWebContents(event.sender)?.close());
-// (pendant un appel : écrire à la personne, dans la fenêtre principale)
-ipcMain.on('ouvrir-conversation', (_event, who) => {
-    if (!win) createWindow();
-    else win.focus();
-    handle({ message: String(who) });
-});
+// (pendant un appel : écrire à la personne, dans le tiroir Contacts)
+ipcMain.on('ouvrir-conversation', (_event, who) => service.call('ouvrirTiroir', { message: String(who) }).catch(() => {}));
 
 // ---- Sous-titres : l'oreille de Robbie (Whisper) écoute le son de l'autre personne ----
 const VENV = path.join(ROOT, '.venv', 'bin', 'python');
@@ -245,32 +159,15 @@ ipcMain.on('sous-titres-son', (event, chunk) => {
     if (child && chunk) child.stdin.write(Buffer.from(chunk));
 });
 
-app.on('second-instance', (_event, argv) => {
-    const request = requestOf(argv);
-    if (request?.appel) return openCall(request.appel);
-    if (!win) createWindow();
-    else {
-        if (win.isMinimized()) win.restore();
-        win.focus();
-    }
-    handle(request);
-});
+app.on('second-instance', (_event, argv) => handle(requestOf(argv)));
 
 app.whenReady().then(() => {
     // Caméra et micro pour les appels ; partage d'écran : l'écran choisi par le système
-    session.defaultSession.setPermissionRequestHandler((_wc, permission, callback) => callback(['media', 'display-capture', 'notifications'].includes(permission)));
+    session.defaultSession.setPermissionRequestHandler((_wc, permission, callback) => callback(['media', 'display-capture'].includes(permission)));
     session.defaultSession.setDisplayMediaRequestHandler((_request, callback) => {
         desktopCapturer.getSources({ types: ['screen'] }).then(sources => callback(sources[0] ? { video: sources[0] } : {})).catch(() => callback({}));
     }, { useSystemPicker: true });
-    const request = requestOf(process.argv);
-    // (lancée seulement pour un appel : pas de fenêtre principale)
-    if (request?.appel) openCall(request.appel);
-    else {
-        createWindow();
-        handle(request);
-    }
-    fs.watchFile(SETTINGS, { interval: 2000 }, () => {
-        for (const w of BrowserWindow.getAllWindows()) w.webContents.send('theme', readTheme());
-    });
+    handle(requestOf(process.argv));
 });
-app.on('window-all-closed', () => app.quit());
+// (sans fenêtre d'appel, l'appli ne reste pas ouverte)
+app.on('window-all-closed', () => {});

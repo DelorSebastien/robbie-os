@@ -1,6 +1,6 @@
 // Téléphone sur le bureau : la carte d'un appel qui arrive (à côté de la barre latérale), la
-// pastille d'un appel en cours (en haut), le bouton Téléphone de la barre et la batterie du
-// téléphone relié dans le coin (maquette « Téléphone Robbie OS », écran 4)
+// pastille d'un appel en cours (en haut), le bouton Contacts allumé pendant un appel et la
+// batterie du téléphone relié dans le coin (maquette « Téléphone Robbie OS », écran 4)
 (() => {
     const { escape } = window.ui;
     const COLORS = ['#ff6fa8', '#ffb35c', '#5aa8ff', '#b57bff', '#5ee8a8', '#ff8a5c', '#5ee7ff', '#ffd25c', '#7f9dff', '#9fe0a0'];
@@ -25,7 +25,7 @@
     pill.hidden = true;
     document.body.append(pill);
 
-    const button = document.querySelector('[data-action="telephone"]');
+    const button = document.querySelector('[data-action="contacts"]');
     const battery = document.getElementById('coin-telephone');
     let ringing = null;            // appel qui sonne (montré dans la carte)
     let ongoing = null;            // appel en cours (montré dans la pastille)
@@ -90,7 +90,7 @@
             if (target.dataset.texte) await call('raccrocher', id, target.dataset.texte);
             if (target.hasAttribute('data-ecrire')) {
                 await call('raccrocher', id);
-                window.os.openPhone('--message', person.robbie && ringing.canal === 'robbie' ? `robbie:${person.robbie}` : ringing.adresse);
+                window.os.phoneOpen({ message: person.robbie && ringing.canal === 'robbie' ? `robbie:${person.robbie}` : ringing.adresse });
             }
         } catch (error) {
             window.ui.toast(error.message, 'x');
@@ -124,14 +124,13 @@
         else if (event.target.closest('[data-micro]')) await call('micro', ongoing.id, ongoing.micro === false).catch(() => {});
         // (un appel Robbie OS : un clic ramène sa fenêtre)
         else if (ongoing.canal === 'robbie') window.os.focusWindow('robbie-telephone');
+        else window.panneaux.open('contacts');
     });
 
     // ---- Barre et coin ----
     function renderStatus() {
         const inCall = Boolean(ringing || ongoing);
         button?.classList.toggle('en-appel', inCall);
-        const dot = button?.querySelector('.pastille');
-        if (dot) dot.hidden = !(status?.nonLus > 0) || inCall;
         const phone = status?.telephone;
         if (battery) {
             battery.hidden = !(phone?.connecte && phone.batterie != null && phone.droits?.batterie !== false);

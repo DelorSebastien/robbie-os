@@ -163,25 +163,11 @@ ipcMain.handle('agenda', () => notes.getAgenda());
 ipcMain.handle('set-agenda', (_event, agenda) => notes.setAgenda(agenda));
 ipcMain.handle('contacts', () => notes.getContacts());
 ipcMain.handle('set-contacts', (_event, list) => notes.setContacts(list));
-// Appeler ou écrire à un contact : l'appli Téléphone (par le téléphone relié, ou d'ordinateur à
-// ordinateur sur Robbie OS) ; une adresse e-mail seule : l'appli de courrier, s'il y en a une
-ipcMain.handle('contact-action', async (_event, kind, contact) => {
-    const phone = String(contact?.phone || '').replace(/[^d+]/g, '');
-    const robbieId = /^[0-9a-f]{64}$/.test(String(contact?.robbie || '')) ? contact.robbie : null;
+// Écrire à un contact qui n'a qu'une adresse e-mail : l'appli de courrier, s'il y en a une
+// (les SMS, les messages Robbie OS et les appels se font dans le tiroir Contacts)
+ipcMain.handle('contact-action', async (_event, _kind, contact) => {
     const email = String(contact?.email || '').trim();
-    if (kind === 'appeler') {
-        if (!phone && !robbieId) return { ok: false, erreur: 'Ce contact n’a pas de numéro' };
-        // (par le téléphone s'il est relié, sinon par Robbie OS)
-        const state = await telephone.call('etat');
-        const viaRobbie = robbieId && (!phone || !state?.telephone?.connecte);
-        telephone.openApp('--appeler', viaRobbie ? `robbie:${robbieId}` : phone);
-        return { ok: true };
-    }
-    if (robbieId || phone) {
-        telephone.openApp('--message', robbieId ? `robbie:${robbieId}` : phone);
-        return { ok: true };
-    }
-    if (!/^[^s@]+@[^s@]+$/.test(email)) return { ok: false, erreur: 'Ce contact n’a ni numéro ni adresse' };
+    if (!/^[^\s@]+@[^\s@]+$/.test(email)) return { ok: false, erreur: 'Ce contact n’a ni numéro ni adresse' };
     const handler = await new Promise(resolve => {
         execFile('xdg-mime', ['query', 'default', 'x-scheme-handler/mailto'], { timeout: 4000 }, (error, stdout) => resolve(error ? '' : stdout.trim()));
     });
@@ -192,7 +178,17 @@ ipcMain.handle('contact-action', async (_event, kind, contact) => {
 // Téléphone : appel qui arrive, téléphone relié (Réglages), l'appli
 ipcMain.handle('telephone', (_event, method, args) => telephone.call(String(method), args));
 ipcMain.handle('qr', (_event, text) => require('qrcode').toDataURL(String(text).slice(0, 1000), { margin: 1, width: 440, errorCorrectionLevel: 'M' }));
-ipcMain.on('ouvrir-telephone', (_event, args) => telephone.openApp(...[].concat(args || []).map(String).filter(a => /^(--[a-z]+|robbie:[0-9a-f]{64}|[+d]{3,20})$/.test(a))));
+// Fichier à joindre à un message Robbie OS ; ouvrir un fichier reçu (seulement ceux du téléphone)
+ipcMain.on('telephone-ouvrir', (_event, request) => win?.webContents.send('telephone', 'ouvrir', request));
+ipcMain.handle('telephone-fichier', async () => {
+    const result = await dialog.showOpenDialog(win, { title: 'Joindre un fichier', buttonLabel: 'Joindre', defaultPath: os.homedir(), properties: ['openFile'] });
+    return result.canceled ? null : result.filePaths[0];
+});
+const PIECES = path.join(os.homedir(), '.local', 'share', 'robbie-os', 'telephone', 'pieces');
+ipcMain.handle('telephone-piece', (_event, file) => {
+    const target = path.resolve(String(file));
+    if (path.dirname(target) === PIECES) shell.openPath(target);
+});
 ipcMain.handle('reseau', () => reseau.status());
 ipcMain.handle('wifi', () => reseau.wifiNetworks());
 ipcMain.handle('wifi-connecter', (_event, ssid, password) => reseau.connectWifi(ssid, password));
